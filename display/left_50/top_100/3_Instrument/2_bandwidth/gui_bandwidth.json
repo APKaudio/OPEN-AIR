@@ -83,6 +83,14 @@
                 "description": "So slow you can practically see the electrons move. The highest fidelity, but you'll miss any quick events.",
                 "units": "MHz",
                 "selected": false
+              },
+              "UNSELECTED": {
+                "value": "NONE",
+                "label_active": "None Selected",
+                "label_inactive": "None Selected",
+                "description": "No resolution bandwidth option is currently selected.",
+                "units": "",
+                "selected": true
               }
             }
           }
@@ -211,6 +219,14 @@
                 "description": "Time seems to stop. For the most patient scientists and signals with incredible stability. The ultimate low-pass filter.",
                 "units": "MHz",
                 "selected": false
+              },
+              "UNSELECTED": {
+                "value": "NONE",
+                "label_active": "None Selected",
+                "label_inactive": "None Selected",
+                "description": "No video bandwidth option is currently selected.",
+                "units": "",
+                "selected": true
               }
             }
           },

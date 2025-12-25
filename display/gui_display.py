@@ -173,9 +173,45 @@ class Application(ttk.Frame):
         style.configure('TFrame', background=colors["bg"])
 
         # Add configurations for general TButton and custom buttons here
-        style.configure('TButton', background="#FF8C00", foreground=colors["text"]) # Orange background for generic buttons
-        style.configure('Custom.TButton', background="#FF8C00", foreground=colors["text"]) # Dark Orange for unselected custom buttons
-        style.configure('Custom.Selected.TButton', background="#FFA500", foreground=colors["text"], relief="sunken") # Orange for selected custom buttons
+        # Use theme_colors for consistency. Assume "toggle" style values for custom buttons.
+        # Unselected: background=dark_grey, foreground=text_color
+        # Selected: background=selected_orange, foreground=selected_text_color
+        # Hover: background=hover_light_grey, foreground=hover_black_text
+
+        # Get relevant colors from the currently applied theme (which is dark by default, or light if changed)
+        dark_grey = colors.get("secondary", "#4e5254") # Using secondary for dark grey, or fallback
+        selected_orange = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Selected_Bg"] # Get from style.py, assuming it's #f4902c
+        selected_fg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Selected_Fg"] # Should be white
+        
+        # Assuming button_style_toggle and button_style_toggler have the same hover properties
+        hover_bg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Hover_Bg"]
+        hover_fg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Hover_Fg"]
+
+        style.configure('TButton', background=dark_grey, foreground=colors["text"]) # Generic buttons unselected
+        style.map('TButton',
+                  background=[('active', hover_bg), ('!active', dark_grey)],
+                  foreground=[('active', hover_fg), ('!active', colors["text"])])
+
+        style.configure('Custom.TButton', background=dark_grey, foreground=colors["text"]) # Custom buttons unselected
+        style.map('Custom.TButton',
+                  background=[('active', hover_bg), ('!active', dark_grey)],
+                  foreground=[('active', hover_fg), ('!active', colors["text"])])
+
+        # Configure Custom.TogglerUnselected.TButton (unselected state for toggler buttons)
+        toggler_unselected_bg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggler_unselected"]["background"]
+        toggler_unselected_fg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggler_unselected"]["foreground"]
+        toggler_hover_bg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggler_unselected"]["Button_Hover_Bg"]
+        toggler_hover_fg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggler_unselected"]["Button_Hover_Fg"]
+
+        style.configure('Custom.TogglerUnselected.TButton', background=toggler_unselected_bg, foreground=toggler_unselected_fg)
+        style.map('Custom.TogglerUnselected.TButton',
+                  background=[('active', toggler_hover_bg), ('!active', toggler_unselected_bg)],
+                  foreground=[('active', toggler_hover_fg), ('!active', toggler_unselected_fg)])
+
+        style.configure('Custom.Selected.TButton', background=selected_orange, foreground=selected_fg, relief="sunken")
+        style.map('Custom.Selected.TButton',
+                  background=[('active', hover_bg), ('!active', selected_orange)], # Hovering over selected
+                  foreground=[('active', hover_fg), ('!active', selected_fg)])
 
         style.configure('TNotebook',
                         background=colors["primary"],

@@ -119,6 +119,14 @@
             "description": "A very broad span for finding signals over a large frequency range. It's like scanning with a wide-angle lens.",
             "units": "MHz",
             "selected": false
+          },
+          "UNSELECTED": {
+            "value": "NONE",
+            "label_active": "None Selected",
+            "label_inactive": "None Selected",
+            "description": "No span option is currently selected.",
+            "units": "",
+            "selected": true
           }
         }
       }

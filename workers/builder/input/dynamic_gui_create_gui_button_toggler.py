@@ -95,7 +95,7 @@ class GuiButtonTogglerCreatorMixin:
                     else:
                         # All other buttons use the default 'TButton' style.
                         button_text = option_data.get('label_inactive', option_data.get('label', ''))
-                        button_widget.config(style='Custom.TButton')
+                        button_widget.config(style='Custom.TogglerUnselected.TButton')
 
                     # Add value and units on separate lines if they exist
                     value = option_data.get('value')

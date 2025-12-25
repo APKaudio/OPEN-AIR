@@ -120,6 +120,30 @@ class SliderValueCreatorMixin:
             entry.bind("<FocusOut>", on_entry_change)
             entry.bind("<Return>", on_entry_change)
 
+            # --- New Logic: Trace for external updates ---
+            def _update_slider_from_entry_var(*args):
+                if not entry_value.get(): # Check for empty string
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(message="Empty string in entry_value for slider. Ignoring update.", **_get_log_args())
+                    return # Exit early if the string is empty
+                
+                try:
+                    new_val = float(entry_value.get())
+                    # Ensure the value is within the slider's range before setting
+                    if min_val <= new_val <= max_val:
+                        slider.set(new_val)
+                    elif new_val < min_val:
+                        slider.set(min_val)
+                    elif new_val > max_val:
+                        slider.set(max_val)
+                except (ValueError, tk.TclError):
+                    # Handle cases where entry_value might not be a valid float
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(message=f"Invalid value in entry_value for slider: {entry_value.get()}", **_get_log_args())
+            
+            # Bind the trace to the entry_value
+            entry_value.trace_add("write", _update_slider_from_entry_var)
+            
             if path:
                 self.topic_widgets[path] = (entry_value, slider)
                 

@@ -10,70 +10,63 @@ from workers.utils.log_utils import _get_log_args
 import os
 
 class IncDecButtonsCreatorMixin:
-    def _create_inc_dec_buttons(self, parent_frame, label, config, path):
-        """Creates increment/decrement buttons."""
-        current_function_name = "_create_inc_dec_buttons"
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
-                message=f"🔬⚡️ Entering '{current_function_name}' to forge increment/decrement buttons for '{label}'.",
-**_get_log_args()
-                
-
-
-            )
-
-        frame = ttk.Frame(parent_frame)
-
-        if label:
-            ttk.Label(frame, text=label).pack(side=tk.LEFT, padx=(0, 10))
-
-        # Initial value and range (optional, can be used for boundary checks)
-        value_default = config.get("value_default", 0)
-        increment_amount = config.get("increment", 1)
-
-        current_value = tk.IntVar(value=value_default)
-        
-        value_display = ttk.Label(frame, textvariable=current_value)
-        value_display.pack(side=tk.RIGHT, padx=(10, 0))
-
-        def _increment():
-            new_value = current_value.get() + increment_amount
-            current_value.set(new_value)
+        def _create_inc_dec_buttons(self, parent_frame, label, config, path):
+            """Creates increment/decrement buttons."""
+            current_function_name = "_create_inc_dec_buttons"
             if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(message=f"Incrementing {label} to {new_value}", file=os.path.basename(__file__), function="_increment")
-            # self.mqtt_util.publish(path, new_value) # MQTT publish
-
-        def _decrement():
-            new_value = current_value.get() - increment_amount
-            current_value.set(new_value)
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(message=f"Decrementing {label} to {new_value}", file=os.path.basename(__file__), function="_decrement")
-            # self.mqtt_util.publish(path, new_value) # MQTT publish
-
-        dec_button = ttk.Button(frame, text="⬇", command=_decrement)
-        dec_button.pack(side=tk.RIGHT)
-
-        inc_button = ttk.Button(frame, text="⬆", command=_increment)
-        inc_button.pack(side=tk.RIGHT, padx=(5, 0))
-
-        self.topic_widgets[path] = {
-            "widget": frame,
-            "variable": current_value
-        }
-
-        def _update_value(value):
-            try:
-                current_value.set(int(value))
-            except (ValueError, TypeError):
-                pass
-        
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
-                message=f"✅ SUCCESS! The increment/decrement buttons for '{label}' are operational!",
-**_get_log_args()
+                debug_log(
+                    message=f"🔬⚡️ Entering '{current_function_name}' to forge increment/decrement buttons for '{label}'.",
+    **_get_log_args()
+                    
+    
+    
+                )
+    
+            frame = ttk.Frame(parent_frame)
+    
+            if label:
+                ttk.Label(frame, text=label).pack(side=tk.LEFT, padx=(0, 10))
+    
+            # Initial value and range (optional, can be used for boundary checks)
+            value_default = config.get("value_default", 0)
+            increment_amount = config.get("increment", 1)
+    
+            current_value = tk.IntVar(value=value_default)
+            
+            value_display = ttk.Label(frame, textvariable=current_value)
+            value_display.pack(side=tk.RIGHT, padx=(10, 0))
+    
+            def _increment():
+                new_value = current_value.get() + increment_amount
+                current_value.set(new_value)
+                # MQTT publish will now be handled by the trace bound to current_value
+    
+            def _decrement():
+                new_value = current_value.get() - increment_amount
+                current_value.set(new_value)
+                # MQTT publish will now be handled by the trace bound to current_value
+    
+            dec_button = ttk.Button(frame, text="⬇", command=_decrement)
+            dec_button.pack(side=tk.RIGHT)
+    
+            inc_button = ttk.Button(frame, text="⬆", command=_increment)
+            inc_button.pack(side=tk.RIGHT, padx=(5, 0))
+    
+            # --- New MQTT Wiring for Inc/Dec Buttons ---
+            if self.state_mirror_engine and self.subscriber_router and path:
+                widget_id = path
                 
-
-
-            )
-        # self.mqtt_callbacks[path] = _update_value
-        return frame
+                # 1. Register widget
+                self.state_mirror_engine.register_widget(widget_id, current_value, self.tab_name)
+    
+                # 2. Bind variable trace for outgoing messages
+                # Use a lambda that calls broadcast_gui_change_to_mqtt
+                callback = lambda *args: self.state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
+                current_value.trace_add("write", callback)
+    
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"✅ SUCCESS! The increment/decrement buttons for '{label}' are operational and MQTT-synced!",
+    **_get_log_args()
+                )
+            return frame

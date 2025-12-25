@@ -355,7 +355,7 @@ class DynamicGuiBuilder(
                 layout = value.get("layout", {})
                 col_span = int(layout.get("col_span", 1))
                 row_span = int(layout.get("row_span", 1))
-                sticky = layout.get("sticky", "nw")
+                sticky = layout.get("sticky", "ew") if widget_type == "_sliderValue" else layout.get("sticky", "nw")
 
                 target_frame = None
 
@@ -426,7 +426,7 @@ class DynamicGuiBuilder(
                     layout = value.get("layout", {})
                     col_span = int(layout.get("col_span", 1))
                     row_span = int(layout.get("row_span", 1))
-                    sticky = layout.get("sticky", "nw")
+                    sticky = layout.get("sticky", "ew") if widget_type == "_sliderValue" else layout.get("sticky", "nw")
 
                     target_frame = None
 

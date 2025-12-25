@@ -97,11 +97,41 @@ class ShowtimeTab(ttk.Frame):
         style.configure('TFrame', background=colors["bg"])
         style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
         style.configure('TLabelframe.Label', background=colors["bg"], foreground=colors["fg"])
-        style.configure('TButton', background=colors["accent"], foreground=colors["text"])
+        # Configure generic TButton, using unselected state for default
+        
+        # Get relevant colors from the currently applied theme
+        dark_grey = colors.get("secondary", "#4e5254")
+        selected_orange = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Selected_Bg"]
+        selected_fg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Selected_Fg"]
+        hover_bg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Hover_Bg"]
+        hover_fg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Hover_Fg"]
+
+        style.configure('TButton', background=dark_grey, foreground=colors["text"])
+        style.map('TButton',
+                  background=[('active', hover_bg), ('!active', dark_grey)],
+                  foreground=[('active', hover_fg), ('!active', colors["text"])])
         
         # Custom button styles for toggle states
-        style.configure('Custom.TButton', background="#FF8C00", foreground=colors["text"])
-        style.configure('Custom.Selected.TButton', background="#FFA500", foreground=colors["text"], relief="sunken")
+        style.configure('Custom.TButton', background=dark_grey, foreground=colors["text"])
+        style.map('Custom.TButton',
+                  background=[('active', hover_bg), ('!active', dark_grey)],
+                  foreground=[('active', hover_fg), ('!active', colors["text"])])
+
+        # Configure Custom.TogglerUnselected.TButton (unselected state for toggler buttons)
+        toggler_unselected_bg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggler_unselected"]["background"]
+        toggler_unselected_fg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggler_unselected"]["foreground"]
+        toggler_hover_bg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggler_unselected"]["Button_Hover_Bg"]
+        toggler_hover_fg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggler_unselected"]["Button_Hover_Fg"]
+
+        style.configure('Custom.TogglerUnselected.TButton', background=toggler_unselected_bg, foreground=toggler_unselected_fg)
+        style.map('Custom.TogglerUnselected.TButton',
+                  background=[('active', toggler_hover_bg), ('!active', toggler_unselected_bg)],
+                  foreground=[('active', toggler_hover_fg), ('!active', toggler_unselected_fg)])
+
+        style.configure('Custom.Selected.TButton', background=selected_orange, foreground=selected_fg, relief="sunken")
+        style.map('Custom.Selected.TButton',
+                  background=[('active', hover_bg), ('!active', selected_orange)],
+                  foreground=[('active', hover_fg), ('!active', selected_fg)])
 
     def _create_widgets(self):
         current_function = inspect.currentframe().f_code.co_name

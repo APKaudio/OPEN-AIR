@@ -334,6 +334,14 @@
             "value": "1000",
             "units": "count",
             "selected": false
+          },
+          "UNSELECTED": {
+            "value": "NONE",
+            "label_active": "None Selected",
+            "label_inactive": "None Selected",
+            "description": "No averaging option is currently selected.",
+            "units": "",
+            "selected": false
           }
         }
       }
