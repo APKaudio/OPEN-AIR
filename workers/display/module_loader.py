@@ -6,7 +6,7 @@ import sys
 import importlib.util
 import pathlib
 from tkinter import ttk, Frame
-import workers.setup.app_constants as app_constants # Import app_constants
+from workers.mqtt.setup.config_reader import app_constants
 from workers.logger.logger import debug_log # Import the global debug_log
 from workers.utils.log_utils import _get_log_args
 
@@ -27,12 +27,10 @@ class ModuleLoader:
     Handles dynamic loading of Python modules and instantiation of GUI classes.
     Includes logic for suppressing common import errors like PIL/ImageTk.
     """
-    def __init__(self, theme_colors): # Removed current_version, LOCAL_DEBUG_ENABLE, debug_log_func
-        # self.current_version = app_constants.current_version # No longer needed
-        # self.LOCAL_DEBUG_ENABLE = app_constants.LOCAL_DEBUG_ENABLE # No longer needed
-        # self.debug_log = debug_log # No longer needed, use imported debug_log directly
-        # Theme colors are passed from the Application class to be available for GUI instantiation
+    def __init__(self, theme_colors, state_mirror_engine=None, subscriber_router=None):
         self.theme_colors = theme_colors
+        self.state_mirror_engine = state_mirror_engine
+        self.subscriber_router = subscriber_router
 
     def _load_module(self, module_path: pathlib.Path, module_name: str):
         """
@@ -120,7 +118,11 @@ class ModuleLoader:
 
         if target_class:
             try:
-                config_dict = {"theme_colors": self.theme_colors}
+                config_dict = {
+                    "theme_colors": self.theme_colors,
+                    "state_mirror_engine": self.state_mirror_engine,
+                    "subscriber_router": self.subscriber_router
+                }
                 
                 # Instantiate the class, passing the config_dict explicitly
                 instance = target_class(parent_widget, config=config_dict)
@@ -192,7 +194,7 @@ class ModuleLoader:
             return None
         
         if module_path and module_name:
-            # Load the module
+            # Load the.module
             module = self._load_module(module_path, module_name)
             
             if module:

@@ -16,7 +16,7 @@ Version = "20250821.200641.1"
 
 import os
 import inspect # For dynamic introspection required by _get_log_args
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args
 

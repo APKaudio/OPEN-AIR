@@ -33,11 +33,9 @@ from tkinter import ttk
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 import inspect
-import orjson
-import workers.setup.app_constants as app_constants
-
-# The wrapper functions debug_log and _switch are removed
-# as the core debug_log and  now directly handle LOCAL_DEBUG_ENABLE.
+from workers.mqtt.setup.config_reader import app_constants
+from workers.handlers.widget_event_binder import bind_variable_trace
+from workers.utils.topic_utils import get_topic
 
 
 # --- Global Scope Variables ---
@@ -54,9 +52,6 @@ class GuiButtonToggleCreatorMixin:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to engineer a toggle button for '{label}'.",
               **_get_log_args()
-                
-
-
             )
 
         try:
@@ -75,7 +70,7 @@ class GuiButtonToggleCreatorMixin:
             button = ttk.Button(sub_frame, text=on_text if is_on else off_text)
             button.pack(side=tk.LEFT, padx=5, pady=2)
 
-            def update_button_state():
+            def update_button_state(*args):
                 # Updates the button's appearance based on its current state.
                 current_state = state_var.get()
                 if current_state:  # Correct logic: The button is ON, so use the 'Selected' style.
@@ -83,43 +78,39 @@ class GuiButtonToggleCreatorMixin:
                 else: # The button is OFF, so use the default 'TButton' style.
                     button.config(text=off_text, style='Custom.TButton')
 
-            def toggle_state_and_publish():
-                # Flips the state, updates the button, and publishes the new state.
-                new_state = not state_var.get()
-                state_var.set(new_state)
-                update_button_state()
-                
-                # Deselect the previous option (or publish the new "off" state)
-                off_path = f"{path}{TOPIC_DELIMITER}options{TOPIC_DELIMITER}OFF{TOPIC_DELIMITER}selected"
-                self._transmit_command(relative_topic=off_path, payload=str(not new_state).lower())
-                
-                # Select the new option (or publish the new "on" state)
-                on_path = f"{path}{TOPIC_DELIMITER}options{TOPIC_DELIMITER}ON{TOPIC_DELIMITER}selected"
-                self._transmit_command(relative_topic=on_path, payload=str(new_state).lower())
-                
-                if app_constants.LOCAL_DEBUG_ENABLE: 
-                    debug_log(
-                        message=f"GUI ACTION: Publishing state change for '{label}' with new state '{new_state}'.",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}"
-                        
+            def toggle_state():
+                # Flips the state of the state_var. The trace will handle the rest.
+                state_var.set(not state_var.get())
 
-
-                    )
-
-            button.config(command=toggle_state_and_publish)
+            button.config(command=toggle_state)
             update_button_state() # Set initial text and style
             
-            self.topic_widgets[path] = (state_var, update_button_state)
+            if path:
+                self.topic_widgets[path] = (state_var, update_button_state)
+
+                # --- New MQTT Wiring ---
+                if self.state_mirror_engine and self.subscriber_router:
+                    widget_id = path
+                    
+                    # 1. Register widget
+                    self.state_mirror_engine.register_widget(widget_id, state_var, self.tab_name)
+
+                    # 2. Bind variable trace for outgoing messages
+                    callback = lambda: self.state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
+                    bind_variable_trace(state_var, callback)
+
+                    # 3. Also trace changes to update the button state
+                    state_var.trace_add("write", update_button_state)
+
+                    # 4. Subscribe to topic for incoming messages
+                    topic = get_topic("OPEN-AIR", self.tab_name, widget_id)
+                    self.subscriber_router.subscribe_to_topic(topic, self.state_mirror_engine.sync_incoming_mqtt_to_gui)
+
 
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"✅ SUCCESS! The toggle button '{label}' is alive!",
-**_get_log_args()
-                    
-
-
+                    **_get_log_args()
                 )
             return sub_frame
 
@@ -128,9 +119,6 @@ class GuiButtonToggleCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"💥 KABOOM! The toggle button for '{label}' went into a paradoxical state! Error: {e}",
-**_get_log_args()
-                    
-
-
+                    **_get_log_args()
                 )
             return None

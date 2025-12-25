@@ -13,7 +13,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251217.23580.14
+# Version 20251217.23580.15
 
 import os
 import pathlib
@@ -25,7 +25,7 @@ import inspect
 # --- Protocol: Integration Layer ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import  debug_log
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 from workers.utils.log_utils import _get_log_args 
 
 # --- Protocol: Global Variables ---
@@ -54,9 +54,12 @@ class GenericInstrumentGui(ttk.Frame):
     def __init__(self, parent, *args, **kwargs):
         # Protocol 2.7: Display the entire file.
         # Consume 'config' and other non-standard keys passed by the orchestrator 
-        _ = kwargs.pop('config', None)
+        config = kwargs.pop('config', None)
         
         super().__init__(parent, *args, **kwargs)
+        self.config = config
+        self.dynamic_gui = None
+        self.tab_name = None
         current_function_name = inspect.currentframe().f_code.co_name
         self.current_class_name = self.__class__.__name__
 
@@ -70,85 +73,71 @@ class GenericInstrumentGui(ttk.Frame):
         self.status_label = ttk.Label(self, text=f"Initializing {module_name}...", font=("Arial", 10, "italic"))
         self.status_label.pack(pady=20)
 
-        try:
-            # --- Pre-Flight Path Check ---
-            abs_json_path = JSON_CONFIG_FILE.absolute()
-            
-            if not abs_json_path.exists():
-                error_msg = f"🟡 WARNING: Sacred Scroll missing at {abs_json_path}"
-                debug_log(
-                    message=error_msg,
-                    **_get_log_args()
-                )
-                self.status_label.config(text=error_msg, foreground="orange")
-                return
-
-            # --- YAK-SPECIFIC STRUCTURE NORMALIZATION ---
-            # If the JSON doesn't contain 'OcaBlock' at the root, we wrap the whole thing 
-            # in a Virtual Block so the builder knows to drill down.
-            with open(abs_json_path, 'r') as f:
-                raw_data = orjson.loads(f.read())
-            
-            # Check if root keys are widgets or if it's an 'Anonymous' block structure
-            needs_wrapping = True
-            for k, v in raw_data.items():
-                if isinstance(v, dict) and (v.get("type") == "OcaBlock" or v.get("type", "").startswith("_")):
-                    needs_wrapping = False
-                    break
-            
-            processed_path = str(abs_json_path)
-            
-            if needs_wrapping:
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
-                        message=f"🖥️🔍 NORMALIZING: Wrapping JSON structure for {module_name}",
-                        **_get_log_args()
-                    )
-                # Create a temporary normalized file
-                temp_path = abs_json_path.parent / f"temp_norm_{abs_json_path.name}"
-                norm_data = {
-                    "Generic_Display_Block": { # Generic name for the wrapper block
-                        "type": "OcaBlock",
-                        "description": f"Dynamic Content for {module_name}",
-                        "fields": raw_data
-                    }
-                }
-                with open(temp_path, 'w') as tf:
-                    orjson.dump(norm_data, tf, indent=4)
-                processed_path = str(temp_path)
-            
-            ## If mqtt_util is None because it was shut off in the orchestrator, 
-            ## we provide the GhostMqtt to prevent the DynamicGuiBuilder from returning early.
-            #effective_mqtt = mqtt_util if mqtt_util is not None else GhostMqtt()
-
-            # --- Presentation Layer ---
-            # Instantiate the builder.
-            #print(f"DEBUG: [Hand-off] Passing control to DynamicGuiBuilder for {module_name}")
-            
-            self.dynamic_gui = DynamicGuiBuilder(
-                parent=self,
-                json_path=processed_path
-            )
-            
-            # If we reach here, the builder at least started.
-            self.status_label.destroy()
-
-
-        except Exception as e:
-            error_msg = f"❌ CRITICAL FAILURE in Wrapper: {e}"
-            
-            self.status_label.config(text=error_msg, foreground="red")
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
-                    message=f"🖥️🔴 Great Scott! The wrapper has failed to contain the builder! {e}",
-                    **_get_log_args()
-                )
-
-    def _on_tab_selected(self, *args, **kwargs):
+    def _on_tab_selected(self, event):
         """
         Called by the grand orchestrator (Application) when this tab is brought to focus.
-        Using *args to swallow any positional events or data passed by the orchestrator.
+        Initializes the DynamicGuiBuilder on first selection.
         """
+        if not self.dynamic_gui:
+            try:
+                # --- Pre-Flight Path Check ---
+                abs_json_path = JSON_CONFIG_FILE.absolute()
+                
+                if not abs_json_path.exists():
+                    error_msg = f"🟡 WARNING: Sacred Scroll missing at {abs_json_path}"
+                    debug_log(message=error_msg, **_get_log_args())
+                    self.status_label.config(text=error_msg, foreground="orange")
+                    return
+
+                # --- YAK-SPECIFIC STRUCTURE NORMALIZATION ---
+                with open(abs_json_path, 'r') as f:
+                    raw_data = orjson.loads(f.read())
+                
+                needs_wrapping = True
+                for k, v in raw_data.items():
+                    if isinstance(v, dict) and (v.get("type") == "OcaBlock" or v.get("type", "").startswith("_")):
+                        needs_wrapping = False
+                        break
+                
+                processed_path = str(abs_json_path)
+                
+                if needs_wrapping:
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(message=f"🖥️🔍 NORMALIZING: Wrapping JSON structure for {module_name}", **_get_log_args())
+                    temp_path = abs_json_path.parent / f"temp_norm_{abs_json_path.name}"
+                    norm_data = {
+                        "Generic_Display_Block": {
+                            "type": "OcaBlock",
+                            "description": f"Dynamic Content for {module_name}",
+                            "fields": raw_data
+                        }
+                    }
+                    with open(temp_path, 'w') as tf:
+                        orjson.dump(norm_data, tf, indent=4)
+                    processed_path = str(temp_path)
+                
+                notebook = event.widget
+                selected_tab_id = notebook.select()
+                self.tab_name = notebook.tab(selected_tab_id, "text")
+
+                self.dynamic_gui = DynamicGuiBuilder(
+                    parent=self,
+                    json_path=processed_path,
+                    tab_name=self.tab_name,
+                    config=self.config
+                )
+                
+                self.status_label.destroy()
+
+            except Exception as e:
+                error_msg = f"❌ CRITICAL FAILURE in Wrapper: {e}"
+                self.status_label.config(text=error_msg, foreground="red")
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"🖥️🔴 Great Scott! The wrapper has failed to contain the builder! {e}",
+                        **_get_log_args()
+                    )
+        
         current_function_name = inspect.currentframe().f_code.co_name
         
         if app_constants.LOCAL_DEBUG_ENABLE:
@@ -157,5 +146,4 @@ class GenericInstrumentGui(ttk.Frame):
                 **_get_log_args()
             )
         
-        # Add logic here if specific refresh actions are needed on tab focus
         pass

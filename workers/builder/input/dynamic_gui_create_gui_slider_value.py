@@ -35,7 +35,10 @@ import inspect
 # --- Module Imports ---
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
+from workers.handlers.widget_event_binder import bind_variable_trace
+from workers.utils.topic_utils import get_topic
+
 
 # --- Global Scope Variables ---
 current_file = f"{os.path.basename(__file__)}"
@@ -103,46 +106,36 @@ class SliderValueCreatorMixin:
             def on_slider_move(val):
                 entry_value.set(f"{float(val):.2f}")
 
-            def on_slider_release(event):
-                new_val = float(slider.get())
-                if app_constants.LOCAL_DEBUG_ENABLE: 
-                    debug_log(
-                        message=f"GUI ACTION: Publishing to '{path}' with value '{new_val}'",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}"
-                        
-
-
-                    )
-                self._transmit_command(relative_topic=path, payload=new_val)
-
             def on_entry_change(event):
                 try:
                     new_val = float(entry.get())
                     if min_val <= new_val <= max_val:
                         slider.set(new_val)
-                        if app_constants.LOCAL_DEBUG_ENABLE: 
-                            debug_log(
-                                message=f"GUI ACTION: Publishing to '{path}' with value '{new_val}'",
-                                file=current_file,
-                                version=current_version,
-                                function=f"{self.__class__.__name__}.{current_function_name}"
-                                
-
-
-                            )
-                        self._transmit_command(relative_topic=path, payload=new_val)
                 except ValueError:
                     debug_log(message="Invalid input, please enter a number.")
 
             slider.config(command=on_slider_move)
-            slider.bind("<ButtonRelease-1>", on_slider_release)
             entry.bind("<FocusOut>", on_entry_change)
             entry.bind("<Return>", on_entry_change)
 
             if path:
                 self.topic_widgets[path] = (entry_value, slider)
+                
+                # --- New MQTT Wiring ---
+                if self.state_mirror_engine and self.subscriber_router:
+                    widget_id = path
+                    
+                    # 1. Register widget
+                    self.state_mirror_engine.register_widget(widget_id, entry_value, self.tab_name)
+
+                    # 2. Bind variable trace for outgoing messages
+                    callback = lambda: self.state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
+                    bind_variable_trace(entry_value, callback)
+
+                    # 3. Subscribe to topic for incoming messages
+                    topic = get_topic("OPEN-AIR", self.tab_name, widget_id)
+                    self.subscriber_router.subscribe_to_topic(topic, self.state_mirror_engine.sync_incoming_mqtt_to_gui)
+
 
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(

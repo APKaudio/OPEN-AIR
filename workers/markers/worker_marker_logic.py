@@ -29,7 +29,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import os
 import inspect
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 
 # --- Graceful Dependency Importing ---
 try:

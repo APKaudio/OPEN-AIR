@@ -1,7 +1,7 @@
 # workers/setup/config_validator.py
 
 import inspect
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 from workers.utils.log_utils import _get_log_args 
 
 

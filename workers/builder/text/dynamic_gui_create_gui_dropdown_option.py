@@ -36,7 +36,7 @@ from decimal import Decimal, InvalidOperation # Add InvalidOperation
 # --- Module Imports ---
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 # --- Global Scope Variables ---
 current_file = f"{os.path.basename(__file__)}"
 
@@ -157,7 +157,7 @@ class GuiDropdownOptionCreatorMixin:
                                 version=current_version,
                                 function=f"{self.__class__.__name__}.{current_function_name}"
                             )
-                        self._transmit_command(relative_topic=path, payload=selected_value)
+                        self._transmit_command(widget_name=path, value=selected_value)
                         selected_value_var.set(selected_value) # Update the value var
                         self._current_selected_key_for_path = selected_key # Update for consistency
 

@@ -34,7 +34,7 @@ import inspect
 import os
 
 from workers.logger.logger import  debug_log
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 
 # --- Version Information ---
 Current_Date = 20251215  ##Update on the day the change was made

@@ -1,6 +1,6 @@
 # OPEN-AIR/before_main.py
 #
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 import os
 import sys
 import inspect
@@ -10,7 +10,7 @@ import argparse # Added argparse
 from workers.utils.log_utils import _get_log_args
 
 current_file = f"{os.path.basename(__file__)}"
-current_version = app_constants.current_version
+current_version = app_constants.CURRENT_VERSION
 
 def initialize_flags():
     """Parses command-line arguments and sets corresponding flags in app_constants."""

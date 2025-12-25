@@ -2,7 +2,7 @@
 import inspect
 from workers.logger.logger import  debug_log
 from workers.utils.log_utils import _get_log_args
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 from workers.Showtime.worker_showtime_tune import on_tune_request_from_selection
 
 def on_zone_toggle(showtime_tab_instance, zone_name):

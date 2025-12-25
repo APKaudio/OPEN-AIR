@@ -15,7 +15,7 @@
 #
 # Version 20251224.001000.4 (OPTIMIZED)
 
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 
 # 📚 Python's standard library modules are our trusty sidekicks!
 import os
@@ -34,6 +34,11 @@ from workers.display.layout_parser import LayoutParser
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
+
+# --- New MQTT and Logic Layer Imports ---
+from workers.mqtt.mqtt_connection_manager import MqttConnectionManager
+from workers.mqtt.mqtt_subscriber_router import MqttSubscriberRouter
+from workers.logic.state_mirror_engine import StateMirrorEngine
 
 class Application(ttk.Frame):
     """
@@ -54,6 +59,15 @@ class Application(ttk.Frame):
                 message="🖥️🚦 The grand orchestrator is waking up! Let'S get this GUI built!", 
                 **_get_log_args()
             )
+        
+        # --- Initialize MQTT and Logic Layers ---
+        self.subscriber_router = MqttSubscriberRouter()
+        self.state_mirror_engine = StateMirrorEngine(base_topic="OPEN-AIR") # Using a base topic for the whole app
+        
+        self.mqtt_connection_manager = MqttConnectionManager()
+        self.mqtt_connection_manager.connect_to_broker(
+            on_message_callback=self.subscriber_router.get_on_message_callback()
+        )
             
         # Initialize utility classes
         self.theme_colors = self._apply_styles(theme_name="DEFAULT_THEME")
@@ -61,12 +75,17 @@ class Application(ttk.Frame):
         
         # Initialize LayoutParser
         self.layout_parser = LayoutParser(
-            current_version=app_constants.current_version, 
+            current_version=app_constants.CURRENT_VERSION, 
             LOCAL_DEBUG_ENABLE=self.app_constants.LOCAL_DEBUG_ENABLE, 
             debug_log_func=debug_log
         )
         
-        self.module_loader = ModuleLoader(self.theme_colors)
+        # Pass the state engine and subscriber router to the module loader
+        self.module_loader = ModuleLoader(
+            self.theme_colors,
+            state_mirror_engine=self.state_mirror_engine,
+            subscriber_router=self.subscriber_router
+        )
 
         # Initialize storage
         self._notebooks = {}
@@ -102,6 +121,13 @@ class Application(ttk.Frame):
                     message=f"{error_msg}\nFull Traceback:\n{traceback.format_exc()}",
                     **_get_log_args()
                 )
+
+    def shutdown(self):
+        """Gracefully shuts down the application."""
+        if self.app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(message="Initiating application shutdown...", **_get_log_args())
+        
+        self.mqtt_connection_manager.disconnect()
 
     def _trigger_initial_tab_selection(self):
         """Triggers the _on_tab_change event for the initially selected tab of each notebook."""

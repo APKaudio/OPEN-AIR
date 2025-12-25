@@ -41,7 +41,7 @@ from workers.importers.worker_importer_loader import *
 from workers.importers.worker_importer_appender import *
 from workers.importers.worker_importer_editor import *
 from workers.importers.worker_importer_saver import *
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 from workers.utils.log_utils import _get_log_args
 
 # --- Global Scope Variables ---

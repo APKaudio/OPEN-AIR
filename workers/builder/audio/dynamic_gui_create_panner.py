@@ -6,7 +6,7 @@
 import tkinter as tk
 from tkinter import ttk
 import math
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
@@ -78,7 +78,7 @@ class PannerCreatorMixin:
                 value_label.config(text=f"{int(new_val)}")
                 self._draw_knob(canvas, width, height, new_val, min_val, max_val, fg_color, accent_color, secondary_color)
                 
-                # self._transmit_command(path, new_val) # Hook up MQTT later
+                self._transmit_command(widget_name=path, value=new_val)
 
             def on_click(event):
                 self._last_drag_y = event.y

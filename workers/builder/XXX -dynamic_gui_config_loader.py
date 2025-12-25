@@ -34,7 +34,7 @@ import os # For os.path.basename and os.getcwd
 # Assuming sys.path is already set up by main.py
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 
 
 # --- Global Scope Variables ---

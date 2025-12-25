@@ -31,16 +31,13 @@ import os
 import tkinter as tk
 from tkinter import ttk
 import inspect
-import time # CRITICAL: Import time for necessary delay
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
-import workers.setup.app_constants as app_constants
-
-# The wrapper functions debug_log and _switch are removed
-# as the core debug_log and  now directly handle LOCAL_DEBUG_ENABLE.
-
+from workers.mqtt.setup.config_reader import app_constants
+from workers.handlers.widget_event_binder import bind_variable_trace
+from workers.utils.topic_utils import get_topic
 
 # --- Global Scope Variables ---
 current_file = f"{os.path.basename(__file__)}"
@@ -61,9 +58,6 @@ class GuiButtonTogglerCreatorMixin:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to assemble a bucket of buttons for '{label}'.",
               **_get_log_args()
-                
-
-
             )
 
         try:
@@ -86,7 +80,7 @@ class GuiButtonTogglerCreatorMixin:
             selected_key = next((key for key, opt in options_data.items() if str(opt.get('selected', 'no')).lower() in ['yes', 'true']), None)
             selected_var = tk.StringVar(value=selected_key)
 
-            def update_button_styles():
+            def update_button_styles(*args):
                 current_selection = selected_var.get()
                 for key, button_widget in buttons.items():
                     option_data = options_data.get(key, {})
@@ -113,25 +107,7 @@ class GuiButtonTogglerCreatorMixin:
 
             def create_command(key):
                 def command():
-                    current_selection = selected_var.get()
-                    
-                    # 1. Force Deselect (if any selected)
-                    if current_selection:
-                        # CRITICAL: Publish the DESELECT to the old key
-                        deselect_path = f"{path}/options/{current_selection}/selected"
-                        self._transmit_command(relative_topic=deselect_path, payload='false')
-                        
-                        # CRITICAL: Add a minimal, synchronous delay to prevent race condition.
-                        time.sleep(0.01)
-
-                    # 2. Force Select the new button
-                    selected_path = f"{path}/options/{key}/selected"
-                    self._transmit_command(relative_topic=selected_path, payload='true')
-
-                    # 3. Update the local UI state after messages are published
                     selected_var.set(key)
-                    update_button_styles()
-                    
                 return command
 
             max_cols = 5
@@ -156,14 +132,30 @@ class GuiButtonTogglerCreatorMixin:
 
             if path:
                 self.topic_widgets[path] = (selected_var, update_button_styles)
+                
+                # --- New MQTT Wiring ---
+                if self.state_mirror_engine and self.subscriber_router:
+                    widget_id = path
+                    
+                    # 1. Register widget
+                    self.state_mirror_engine.register_widget(widget_id, selected_var, self.tab_name)
+
+                    # 2. Bind variable trace for outgoing messages
+                    callback = lambda: self.state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
+                    bind_variable_trace(selected_var, callback)
+
+                    # 3. Also trace changes to update the button state
+                    selected_var.trace_add("write", update_button_styles)
+
+                    # 4. Subscribe to topic for incoming messages
+                    topic = get_topic("OPEN-AIR", self.tab_name, widget_id)
+                    self.subscriber_router.subscribe_to_topic(topic, self.state_mirror_engine.sync_incoming_mqtt_to_gui)
+
 
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"✅ SUCCESS! The button toggler '{label}' is fully operational!",
-**_get_log_args()
-                    
-
-
+                    **_get_log_args()
                 )
             return group_frame
 
@@ -172,9 +164,6 @@ class GuiButtonTogglerCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"💥 KABOOM! The button toggler '{label}' has suffered a catastrophic failure! Error: {e}",
-**_get_log_args()
-                    
-
-
+                    **_get_log_args()
                 )
             return None

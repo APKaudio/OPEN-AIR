@@ -40,7 +40,7 @@ import pathlib
 import pandas as pd
 import numpy as np
 from tkinter import filedialog, messagebox
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log

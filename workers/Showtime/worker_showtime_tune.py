@@ -19,7 +19,7 @@ from workers.logger.logger import  debug_log
 from workers.utils.log_utils import _get_log_args
 ## from workers.active.worker_active_marker_tune_and_collect import Push_Marker_to_Center_Freq, Push_Marker_to_Start_Stop_Freq
 from workers.markers.worker_marker_logic import calculate_frequency_range
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 
 LOCAL_DEBUG_ENABLE = False
 

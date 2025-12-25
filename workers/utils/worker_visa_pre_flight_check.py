@@ -32,7 +32,7 @@ import inspect
 import datetime
 import pyvisa
 import sys
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 # --- Check Optional Dependencies for PyVISA-py ---
 # PyVISA-py relies on these optional packages for full functionality.
 try:

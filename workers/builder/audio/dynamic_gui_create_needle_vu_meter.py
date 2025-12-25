@@ -6,7 +6,7 @@
 import tkinter as tk
 from tkinter import ttk
 import math
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
@@ -61,16 +61,18 @@ class NeedleVUMeterCreatorMixin:
                 "colors": (accent_color, secondary_color, fg_color, danger_color)
             }
 
-            def _update_needle(value):
+            def _update_needle(topic, payload): # Modified signature
                 try:
-                    float_value = float(value)
+                    data = orjson.loads(payload) # Parse payload
+                    float_value = float(data.get("value")) # Extract value
+                    
                     self._draw_needle_vu_meter(
                         canvas, size, float_value, min_val, max_val, red_zone_start,
                         accent_color, secondary_color, fg_color, danger_color
                     )
-                except (ValueError, TypeError) as e:
+                except (ValueError, TypeError, orjson.JSONDecodeError) as e: # Added JSONDecodeError
                     if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"🔴 ERROR in _update_needle: {e}", file=os.path.basename(__file__), function=current_function_name)
+                        debug_log(message=f"🔴 ERROR in _update_needle for topic {topic}: {e}", file=os.path.basename(__file__), function=current_function_name)
             
             # Handle Resize
             canvas.bind("<Configure>", lambda e: self._draw_needle_vu_meter(
@@ -83,6 +85,11 @@ class NeedleVUMeterCreatorMixin:
                     message=f"✅ SUCCESS! The themed needle VU meter for '{label}' is twitching with life!",
                     **_get_log_args()
                 )
+            
+            # Subscribe to updates for this Needle VU meter
+            if self.subscriber_router:
+                self.subscriber_router.subscribe_to_topic(path, _update_needle)
+            
             return frame
 
         except Exception as e:

@@ -16,20 +16,16 @@
 # Version 20251127.000000.1
 
 import os
-
 import tkinter as tk
-
 from tkinter import ttk
-
 import inspect
 
-
-
 # --- Module Imports ---
-
 from workers.logger.logger import debug_log
-from workers.utils.log_utils import _get_log_args 
-import workers.setup.app_constants as app_constants
+from workers.utils.log_utils import _get_log_args
+from workers.mqtt.setup.config_reader import app_constants
+from workers.handlers.widget_event_binder import bind_variable_trace
+from workers.utils.topic_utils import get_topic
 
 current_version = "20251127.000000.1"
 current_version_hash = (20251127 * 0 * 1)
@@ -50,9 +46,6 @@ class LabelCreatorMixin:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to concoct a new label: '{label}'.",
               **_get_log_args()
-                
-
-
             )
         try:
             sub_frame = ttk.Frame(parent_frame)
@@ -61,19 +54,32 @@ class LabelCreatorMixin:
             if units:
                 label_text += f" {units}"
 
-            label_widget = ttk.Label(sub_frame, text=label_text)
+            label_var = tk.StringVar(value=label_text)
+            label_widget = ttk.Label(sub_frame, textvariable=label_var)
             label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
 
             if path:
                 self.topic_widgets[path] = label_widget
-            
+                
+                # --- New MQTT Wiring ---
+                if self.state_mirror_engine and self.subscriber_router:
+                    widget_id = path
+                    
+                    # 1. Register widget
+                    self.state_mirror_engine.register_widget(widget_id, label_var, self.tab_name)
+
+                    # 2. Bind variable trace for outgoing messages
+                    callback = lambda: self.state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
+                    bind_variable_trace(label_var, callback)
+
+                    # 3. Subscribe to topic for incoming messages
+                    topic = get_topic("OPEN-AIR", self.tab_name, widget_id)
+                    self.subscriber_router.subscribe_to_topic(topic, self.state_mirror_engine.sync_incoming_mqtt_to_gui)
+
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"✅ SUCCESS! The label '{label}' has been successfully synthesized!",
-**_get_log_args()
-                    
-
-
+                    **_get_log_args()
                 )
             return sub_frame
 
@@ -82,9 +88,6 @@ class LabelCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"💥 KABOOM! The label creation for '{label}' has exploded! Error: {e}",
-**_get_log_args()
-                    
-
-
+                    **_get_log_args()
                 )
             return None

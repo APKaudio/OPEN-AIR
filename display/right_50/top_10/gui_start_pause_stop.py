@@ -26,7 +26,7 @@ from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 import pathlib
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 
 def _get_log_args():
     """Helper to get common debug_log arguments, accounting for class methods."""
@@ -48,7 +48,7 @@ def _get_log_args():
 
     return {
         "file": filename,
-        "version": app_constants.current_version,
+        "version": app_constants.CURRENT_VERSION,
         "function": function_full_name
     }
 
@@ -80,7 +80,8 @@ class StartPauseStopGui(ttk.Frame):
         try:
             self.dynamic_gui = DynamicGuiBuilder(
                 parent=self,
-                json_path=JSON_CONFIG_FILE
+                json_path=JSON_CONFIG_FILE,
+                config=self.config_data
             )
             debug_log(
                 message="✅ The StartPauseStopGui did initialize its dynamic GUI builder.",

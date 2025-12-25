@@ -25,7 +25,7 @@ import inspect
 # --- Protocol: Integration Layer ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import  debug_log
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 from workers.utils.log_utils import _get_log_args 
 
 # --- Protocol: Global Variables ---
@@ -54,7 +54,7 @@ class GenericInstrumentGui(ttk.Frame):
     def __init__(self, parent, *args, **kwargs):
         # Protocol 2.7: Display the entire file.
         # Consume 'config' and other non-standard keys passed by the orchestrator 
-        _ = kwargs.pop('config', None)
+        config = kwargs.pop('config', None)
         
         super().__init__(parent, *args, **kwargs)
         current_function_name = inspect.currentframe().f_code.co_name
@@ -127,7 +127,8 @@ class GenericInstrumentGui(ttk.Frame):
             
             self.dynamic_gui = DynamicGuiBuilder(
                 parent=self,
-                json_path=processed_path
+                json_path=processed_path,
+                config=config
             )
             
             # If we reach here, the builder at least started.

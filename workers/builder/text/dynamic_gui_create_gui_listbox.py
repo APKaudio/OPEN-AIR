@@ -35,7 +35,7 @@ from decimal import Decimal, InvalidOperation # Add InvalidOperation
 # --- Module Imports ---
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 
 # --- Global Scope Variables ---
 current_file = f"{os.path.basename(__file__)}"
@@ -123,11 +123,11 @@ class GuiListboxCreatorMixin:
                         # Deselect the previous option
                         if self._last_selected_option_listbox:
                             old_path = f"{path}/options/{self._last_selected_option_listbox}/selected"
-                            self._transmit_command(relative_topic=old_path, payload='false')
+                            self._transmit_command(widget_name=old_path, value='false')
 
                         # Select the new option
                         new_path = f"{path}/options/{selected_key}/selected"
-                        self._transmit_command(relative_topic=new_path, payload='true')
+                        self._transmit_command(widget_name=new_path, value='true')
                         
                         self._last_selected_option_listbox = selected_key
 

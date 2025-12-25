@@ -2,7 +2,7 @@
 
 import tkinter as tk
 from tkinter import ttk
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 import os
@@ -15,7 +15,7 @@ class ProgressBarCreatorMixin:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to construct a progress indicator for '{label}'.",
                 file=os.path.basename(__file__),
-                version=app_constants.current_version, # Assuming app_constants is available
+                version=app_constants.CURRENT_VERSION, # Assuming app_constants is available
                 function=f"{self.__class__.__name__}.{current_function_name}"
                 
 
@@ -66,7 +66,7 @@ class ProgressBarCreatorMixin:
                 debug_log(
                     message=f"✅ SUCCESS! The progress bar '{label}' has been successfully rendered!",
                     file=os.path.basename(__file__),
-                    version=app_constants.current_version,
+                    version=app_constants.CURRENT_VERSION,
                     function=f"{self.__class__.__name__}.{current_function_name}"
                     
 
@@ -80,7 +80,7 @@ class ProgressBarCreatorMixin:
                 debug_log(
                     message=f"💥 KABOOM! The progress bar '{label}' has failed to materialize! Error: {e}",
                     file=os.path.basename(__file__),
-                    version=app_constants.current_version,
+                    version=app_constants.CURRENT_VERSION,
                     function=current_function_name
                     
 

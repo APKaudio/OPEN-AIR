@@ -42,7 +42,7 @@ import numpy as np
 import zipfile
 import io
 # Removed the unnecessary import: from tkinter import filedialog
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 
 current_file = os.path.basename(__file__) # Get current file name for debug_log
 current_version = "20250815.200000.3"
@@ -85,7 +85,7 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
 )
 
     soup = BeautifulSoup(html_content, 'html.parser')
-    import workers.setup.app_constants as app_constants
+    from workers.mqtt.setup.config_reader import app_constants
 
     
     data_rows = []

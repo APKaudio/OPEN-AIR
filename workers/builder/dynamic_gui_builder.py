@@ -14,12 +14,14 @@ import tkinter as tk
 from tkinter import ttk
 from pathlib import Path
 import inspect
+import time
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
 from workers.styling.style import THEMES, DEFAULT_THEME
 from workers.builder.input.dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
+from workers.utils.topic_utils import get_topic
 from workers.utils.log_utils import _get_log_args 
 
 # --- Widget Creator Mixins ---
@@ -83,9 +85,12 @@ class DynamicGuiBuilder(
     NeedleVUMeterCreatorMixin,
     PannerCreatorMixin
 ):
-    def __init__(self, parent, json_path=None, *args, **kwargs):
-        _ = kwargs.pop('config', None) 
+    def __init__(self, parent, json_path=None, tab_name=None, *args, **kwargs):
+        config = kwargs.pop('config', {})
         super().__init__(parent, *args, **kwargs)
+        self.tab_name = tab_name
+        self.state_mirror_engine = config.get('state_mirror_engine')
+        self.subscriber_router = config.get('subscriber_router')
         current_function_name = "__init__"
         self.current_class_name = self.__class__.__name__
         self.last_build_hash = None # ⚡ Initialize Hash Tracker
@@ -168,10 +173,22 @@ class DynamicGuiBuilder(
         except Exception as e:
             debug_log(message=f"❌ Error in __init__: {e}")
 
-    def _transmit_command(self, *args, **kwargs):
-        # Optimization: Avoid _get_log_args call here unless necessary
-        if app_constants.LOCAL_DEBUG_ENABLE:
-             debug_log(message="[DUMMY] _transmit_command called", **_get_log_args())
+    def _transmit_command(self, widget_name: str, value):
+        if self.state_mirror_engine:
+            if self.state_mirror_engine.is_widget_registered(widget_name):
+                # For stateful widgets, the engine will get the value from the tk_var
+                self.state_mirror_engine.broadcast_gui_change_to_mqtt(widget_name)
+            else:
+                # For stateless commands like actuators
+                topic = get_topic("OPEN-AIR", self.tab_name, widget_name)
+                payload = {
+                    "val": value,
+                    "src": "gui",
+                    "ts": time.time()
+                }
+                self.state_mirror_engine.publish_command(topic, orjson.dumps(payload))
+        elif app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(message=f"[DUMMY] _transmit_command called for {widget_name} with value {value}", **_get_log_args())
 
     def _apply_styles(self, theme_name):
         style = ttk.Style()

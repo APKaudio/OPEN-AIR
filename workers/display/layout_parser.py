@@ -14,7 +14,7 @@ import pathlib
 import tkinter as tk
 from tkinter import ttk
 from workers.utils.log_utils import _get_log_args 
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 
 class LayoutParser:
     """

@@ -5,7 +5,7 @@
 import os
 import inspect
 from datetime import datetime
-import workers.setup.app_constants as app_constants # Import app_constants
+from workers.mqtt.setup.config_reader import app_constants
 
 # --- GLOBALS ---
 _log_directory = None
@@ -69,6 +69,20 @@ def _write_to_log(level: str, message: str, args: dict = None):
         # Write directly, but only if file debugging is enabled
         if app_constants.global_settings["debug_to_file"]:
             _write_to_file(timestamp, level, message, args)
+        
+        # Also print to console if debug_to_terminal is enabled
+        if app_constants.global_settings["debug_to_terminal"]:
+            # Format for console: Timestamp [LEVEL] Message {args}
+            arg_str_console = ""
+            if args:
+                # Filter out the 'file', 'version', 'function' for console output
+                filtered_args = {k: v for k, v in args.items() if k not in ['file', 'version', 'function']}
+                if filtered_args:
+                    arg_str_console = f" {filtered_args}"
+
+            # Remove leading emoji for console output if it's already in the level string
+            display_level = level.lstrip('📍🐛💬')
+            print(f"{timestamp} [{display_level}] {message}{arg_str_console}")
 
 def _write_to_file(timestamp, level, message, args):
     """Helper to actually write to the disk."""

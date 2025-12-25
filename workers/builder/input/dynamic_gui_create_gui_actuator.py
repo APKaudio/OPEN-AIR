@@ -31,18 +31,14 @@ import os
 import tkinter as tk
 from tkinter import ttk
 import inspect
-import orjson
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
+from workers.utils.topic_utils import get_topic
 
 LOCAL_DEBUG_ENABLE = False
-
-# The wrapper functions debug_log and _switch are removed
-# as the core debug_log and  now directly handle LOCAL_DEBUG_ENABLE.
-
 
 # --- Global Scope Variables ---
 current_file = f"{os.path.basename(__file__)}"
@@ -66,9 +62,6 @@ class GuiActuatorCreatorMixin:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to construct an actuator for '{label}'.",
               **_get_log_args()
-                
-
-
             )
 
         try:
@@ -94,11 +87,8 @@ class GuiActuatorCreatorMixin:
                         file=current_file,
                         version=current_version,
                         function=f"{self.__class__.__name__}.{current_function_name}"
-                        
-
-
                     )
-                self._transmit_command(relative_topic=action_path, payload=True, retain=False)
+                self._transmit_command(widget_name=action_path, value=True)
 
             def on_release(event):
                 # FIXED: The actuator now correctly publishes to the "actions" topic.
@@ -110,11 +100,8 @@ class GuiActuatorCreatorMixin:
                         file=current_file,
                         version=current_version,
                         function=f"{self.__class__.__name__}.{current_function_name}"
-                        
-
-
                     )
-                self._transmit_command(relative_topic=action_path, payload=False, retain=False)
+                self._transmit_command(widget_name=action_path, value=False)
 
             button.bind("<ButtonPress-1>", on_press)
             button.bind("<ButtonRelease-1>", on_release)
@@ -125,10 +112,7 @@ class GuiActuatorCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"✅ SUCCESS! The actuator '{label}' is ready for action!",
-**_get_log_args()
-                    
-
-
+                    **_get_log_args()
                 )
             return sub_frame
 
@@ -140,8 +124,5 @@ class GuiActuatorCreatorMixin:
                     file=current_file,
                     version=current_version,
                     function=current_function_name
-                    
-
-
                 )
             return None

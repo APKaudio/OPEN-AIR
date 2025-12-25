@@ -34,8 +34,10 @@ import inspect
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
-from workers.utils.log_utils import _get_log_args 
-import workers.setup.app_constants as app_constants
+from workers.utils.log_utils import _get_log_args
+from workers.mqtt.setup.config_reader import app_constants
+from workers.handlers.widget_event_binder import bind_variable_trace
+from workers.utils.topic_utils import get_topic
 
 # --- Global Scope Variables ---
 current_file = f"{os.path.basename(__file__)}"
@@ -57,9 +59,6 @@ class ValueBoxCreatorMixin:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to brew a value box for '{label}'.",
               **_get_log_args()
-                
-
-
             )
 
         try:
@@ -76,35 +75,29 @@ class ValueBoxCreatorMixin:
                 units_label = ttk.Label(sub_frame, text=config['units'])
                 units_label.pack(side=tk.LEFT, padx=(0, DEFAULT_PAD_X))
 
-            def on_entry_change(event):
-                new_val = entry_value.get()
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
-                        message=f"GUI ACTION: Publishing to '{path}' with value '{new_val}'",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}"
-                        
-
-
-                    )
-                # CORRECTED: This now correctly uses the central transmit method.
-                self._transmit_command(relative_topic=path, payload=new_val)
-
-            entry.bind("<FocusOut>", on_entry_change)
-            entry.bind("<Return>", on_entry_change)
-
-            # Store the widget using its full topic path as the key.
             if path:
                 self.topic_widgets[path] = entry
+                
+                # --- New MQTT Wiring ---
+                if self.state_mirror_engine and self.subscriber_router:
+                    widget_id = path
+                    
+                    # 1. Register widget
+                    self.state_mirror_engine.register_widget(widget_id, entry_value, self.tab_name)
+
+                    # 2. Bind variable trace for outgoing messages
+                    callback = lambda: self.state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
+                    bind_variable_trace(entry_value, callback)
+
+                    # 3. Subscribe to topic for incoming messages
+                    topic = get_topic("OPEN-AIR", self.tab_name, widget_id)
+                    self.subscriber_router.subscribe_to_topic(topic, self.state_mirror_engine.sync_incoming_mqtt_to_gui)
+
 
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"✅ SUCCESS! The value box '{label}' has been perfectly crafted!",
-**_get_log_args()
-                    
-
-
+                    **_get_log_args()
                 )
             return sub_frame
 
@@ -113,9 +106,6 @@ class ValueBoxCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"💥 KABOOM! The value box for '{label}' has spectacularly failed! Error: {e}",
-**_get_log_args()
-                    
-
-
+                    **_get_log_args()
                 )
             return None

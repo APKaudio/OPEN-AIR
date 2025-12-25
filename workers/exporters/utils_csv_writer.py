@@ -34,7 +34,7 @@ LOCAL_DEBUG_ENABLE = False
 import csv
 import os
 import inspect # Import inspect module
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 # Updated imports for new logging functions
 from workers.logger.logger import  debug_log
 

@@ -5,7 +5,7 @@ import sys
 import pathlib
 
 import workers.logger.logger
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 import workers.setup.path_initializer as path_initializer
 import workers.logger.logger_config as logger_config
 import workers.setup.console_encoder as console_encoder
@@ -17,7 +17,7 @@ from workers.logger.logger import debug_log # Import debug_log
 def initialize_app(): # Removed console_print_func, debug_log_func, data_dir arguments
     """Initializes the application's components after paths and logger are set up."""
     debug_log(
-        message=f"🚀 Continuing initialization sequence for version {app_constants.current_version}.",
+        message=f"🚀 Continuing initialization sequence for version {app_constants.CURRENT_VERSION}.",
         **_get_log_args()
     )
     

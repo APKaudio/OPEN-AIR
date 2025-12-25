@@ -12,7 +12,7 @@ from workers.splash.splash_screen import SplashScreen
 from workers.Worker_Launcher import WorkerLauncher
 import display.gui_display
 from workers.logger.logger import debug_log
-import workers.setup.app_constants as app_constants # Original import restored
+from workers.mqtt.setup.config_reader import app_constants
 import workers.setup.path_initializer as path_initializer
 import workers.logger.logger_config as logger_config
 import workers.setup.console_encoder as console_encoder
@@ -67,16 +67,33 @@ def action_open_display(root, splash):
         splash.set_status("Workers launched.")
         root.update()
 
+        
+
         # Schedule the final reveal to happen after the event loop has had a chance to start properly.
+
         root.after(2000, lambda: (
+
             (print("DEBUG: _reveal_main_window SCHEDULED AND EXECUTING") if app_constants.ENABLE_DEBUG_SCREEN else None), 
+
             _reveal_main_window(root, splash)
+
         ))
 
+        
+
+        return app
+
+
+
     except Exception as e:
+
         debug_log(message=f"❌ CRITICAL ERROR in {current_function_name}: {e}", **_get_log_args())
+
         import traceback
+
         traceback.print_exc()
+
+        return None
 
 def main():
     """The main execution function for the application."""
@@ -118,13 +135,21 @@ def main():
     # root.withdraw() # Removed for diagnostic
     
     print(f"DEBUG: app_constants.LOCAL_DEBUG_ENABLE before SplashScreen: {app_constants.LOCAL_DEBUG_ENABLE}")
-    splash = SplashScreen(root, app_constants.current_version, app_constants.LOCAL_DEBUG_ENABLE, temp_print, debug_log)
+    splash = SplashScreen(root, app_constants.CURRENT_VERSION, app_constants.LOCAL_DEBUG_ENABLE, temp_print, debug_log)
     root.splash_window = splash.splash_window # Strong reference
     splash.set_status("Initialization complete. Loading UI...")
     root.update() 
     
     # Now that the splash screen is visible, proceed with building the main display.
-    action_open_display(root, splash)
+    app = action_open_display(root, splash)
+    
+    def on_closing():
+        """Gracefully shuts down the application."""
+        if app:
+            app.shutdown()
+        root.destroy()
+
+    root.protocol("WM_DELETE_WINDOW", on_closing)
     
     # Finally, enter the main event loop.
     root.mainloop()

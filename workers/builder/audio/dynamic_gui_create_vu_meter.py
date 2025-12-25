@@ -3,7 +3,7 @@
 import tkinter as tk
 from tkinter import ttk
 import math
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 import os
@@ -52,9 +52,11 @@ class VUMeterCreatorMixin:
                 "width": width
             }
 
-            def _update_vu(value):
+            def _update_vu(topic, payload): # Modified signature
                 try:
-                    float_value = float(value)
+                    data = orjson.loads(payload) # Parse payload
+                    float_value = float(data.get("value")) # Extract value
+                    
                     if float_value < min_val:
                         float_value = min_val
                     if float_value > max_val:
@@ -63,23 +65,22 @@ class VUMeterCreatorMixin:
                     x_pos = (float_value - min_val) / (max_val - min_val) * width
                     canvas.coords(indicator, x_pos - 2.5, 0, x_pos + 2.5, height)
 
-                except (ValueError, TypeError) as e:
+                except (ValueError, TypeError, orjson.JSONDecodeError) as e: # Added JSONDecodeError
                     if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"🔴 ERROR in _update_vu: {e}", file=os.path.basename(__file__), function=current_function_name 
-
-)
+                        debug_log(message=f"🔴 ERROR in _update_vu for topic {topic}: {e}", file=os.path.basename(__file__), function=current_function_name)
 
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"✅ SUCCESS! The VU meter '{label}' is now registering on the Richter scale!",
                     file=os.path.basename(__file__),
-                    version=app_constants.current_version,
+                    version=app_constants.CURRENT_VERSION,
                     function=f"{self.__class__.__name__}.{current_function_name}"
-                    
-
-
                 )
-            # self.mqtt_callbacks[path] = _update_vu
+            
+            # Subscribe to updates for this VU meter
+            if self.subscriber_router:
+                self.subscriber_router.subscribe_to_topic(path, _update_vu)
+            
             return frame
         except Exception as e:
             debug_log(message=f"💥 KABOOM! The VU meter for '{label}' has overloaded! Error: {e}")
@@ -87,10 +88,7 @@ class VUMeterCreatorMixin:
                 debug_log(
                     message=f"💥 KABOOM! The VU meter for '{label}' has overloaded! Error: {e}",
                     file=os.path.basename(__file__),
-                    version=app_constants.current_version,
+                    version=app_constants.CURRENT_VERSION,
                     function=current_function_name
-                    
-
-
                 )
             return None

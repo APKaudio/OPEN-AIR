@@ -27,7 +27,7 @@ import paho.mqtt.client as mqtt
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 
 
 # --- Global Scope Variables ---

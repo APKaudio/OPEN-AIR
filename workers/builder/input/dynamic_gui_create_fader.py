@@ -2,7 +2,7 @@
 
 import tkinter as tk
 from tkinter import ttk
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 import os
@@ -81,7 +81,7 @@ class FaderCreatorMixin:
                 debug_log(
                     message=f"✅ SUCCESS! The fader '{label}' is now sliding into existence!",
                     file=os.path.basename(__file__),
-                    version=app_constants.current_version,
+                    version=app_constants.CURRENT_VERSION,
                     function=f"{self.__class__.__name__}.{current_function_name}"
                     
 
@@ -95,7 +95,7 @@ class FaderCreatorMixin:
                 debug_log(
                     message=f"💥 KABOOM! The fader for '{label}' has gone off the rails! Error: {e}",
                     file=os.path.basename(__file__),
-                    version=app_constants.current_version,
+                    version=app_constants.CURRENT_VERSION,
                     function=current_function_name
                     
 

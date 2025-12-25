@@ -3,7 +3,7 @@
 import tkinter as tk
 from tkinter import ttk
 import webbrowser
-import workers.setup.app_constants as app_constants
+from workers.mqtt.setup.config_reader import app_constants
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 import os
@@ -54,7 +54,7 @@ class WebLinkCreatorMixin:
                 debug_log(
                     message=f"✅ SUCCESS! The portal to '{label}' has been opened!",
                     file=os.path.basename(__file__),
-                    version=app_constants.current_version,
+                    version=app_constants.CURRENT_VERSION,
                     function=f"{self.__class__.__name__}.{current_function_name}"
                     
 
@@ -67,7 +67,7 @@ class WebLinkCreatorMixin:
                 debug_log(
                     message=f"💥 KABOOM! The web link for '{label}' has collapsed into a singularity! Error: {e}",
                     file=os.path.basename(__file__),
-                    version=app_constants.current_version,
+                    version=app_constants.CURRENT_VERSION,
                     function=current_function_name
                     
 
