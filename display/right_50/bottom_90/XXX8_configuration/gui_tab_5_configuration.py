@@ -73,21 +73,27 @@ class InitialConfigurationTab(ttk.Frame):
 )
 
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(1, weight=1) # config_text_widget will expand vertically
 
+        # Top control frame for Save button
         control_frame = ttk.Frame(self)
         control_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
-        control_frame.grid_columnconfigure(0, weight=1)
-        control_frame.grid_columnconfigure(1, weight=1)
-        
+        control_frame.grid_columnconfigure(0, weight=1) # Only one column needs to expand
+
         save_button = ttk.Button(control_frame, text="Save Config", command=self._save_program_configure_action, style='Green.TButton')
         save_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-        reload_button = ttk.Button(control_frame, text="Reload Config", command=self._reload_config_action, style='Orange.TButton')
-        reload_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-
         self.config_text_widget = scrolledtext.ScrolledText(self, wrap="word", height=25, bg="#2b2b2b", fg="#cccccc", insertbackground="white", font=("Courier", 10))
         self.config_text_widget.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
+        
+        # Bottom control frame for Reload button
+        bottom_control_frame = ttk.Frame(self)
+        # Give this row weight=0 so it doesn't expand, keeping the button at its natural size
+        self.grid_rowconfigure(2, weight=0) 
+        bottom_control_frame.grid(row=2, column=0, padx=10, pady=5, sticky="sw") 
+
+        reload_button = ttk.Button(bottom_control_frame, text="Reload Config", command=self._reload_config_action, style='Orange.TButton')
+        reload_button.pack(side=tk.LEFT, anchor=tk.SW, padx=5, pady=5) # Pack to left, anchor to South-West
         
         debug_log(message=f"📕✅ Widgets created.",
                   file=current_file, version=current_version, function=current_function, 

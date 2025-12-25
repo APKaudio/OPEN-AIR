@@ -252,7 +252,21 @@ class DynamicGuiBuilder(
         
         col = 0
         row = row_offset
+        # max_cols is derived from self.config_data or override_cols (for sub-blocks)
         max_cols = int(self.config_data.get("layout_columns", 1) if override_cols is None else override_cols)
+        
+        # If processing a sub-block (override_cols is not None), then column_sizing
+        # should come from the sub-block's config ('value' in the calling context).
+        # Otherwise, for the top-level, it comes from self.config_data.
+        current_data = self.config_data if override_cols is None else widget_configs[start_index][1] # Get 'value' for the current OcaBlock
+        column_sizing = current_data.get("column_sizing", [])
+
+        # Apply column sizing from JSON config
+        for col_idx in range(max_cols):
+            sizing_info = column_sizing[col_idx] if col_idx < len(column_sizing) else {}
+            weight = sizing_info.get("weight", 1) # Default to 1 to allow expansion
+            minwidth = sizing_info.get("minwidth", 0) # Default to 0 for no minimum width
+            parent_frame.grid_columnconfigure(col_idx, weight=weight, minsize=minwidth)
 
         while index < len(widget_configs) and index < start_index + batch_size:
             key, value = widget_configs[index]
@@ -317,6 +331,14 @@ class DynamicGuiBuilder(
             col = 0
             row = 0
             max_cols = int(data.get("layout_columns", 1) if override_cols is None else override_cols)
+            column_sizing = data.get("column_sizing", [])
+
+            # Apply column sizing from JSON config
+            for col_idx in range(max_cols):
+                sizing_info = column_sizing[col_idx] if col_idx < len(column_sizing) else {}
+                weight = sizing_info.get("weight", 1) # Default to 1 to allow expansion
+                minwidth = sizing_info.get("minwidth", 0) # Default to 0 for no minimum width
+                parent_frame.grid_columnconfigure(col_idx, weight=weight, minsize=minwidth)
 
             for key, value in data.items():
                 current_path = f"{path_prefix}/{key}".strip("/")

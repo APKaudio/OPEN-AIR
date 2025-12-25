@@ -56,10 +56,18 @@ class WindowManager:
             # Its parent must be the main root window, which is stored in self.application.root.
             tear_off_window = tk.Toplevel(self.application.root)
             tear_off_window.title(f"{tab_text} - Detached")
+            tear_off_window.geometry(original_tab_frame.winfo_geometry()) # Set initial geometry based on original tab size
 
-            # Rebuild the content from scratch inside the new window
-            # This is the key: we are not moving widgets, but recreating them.
-            self.application._build_from_directory(path=build_path, parent_widget=tear_off_window)
+            # Configure the tear-off window to expand its content
+            tear_off_window.grid_rowconfigure(0, weight=1)
+            tear_off_window.grid_columnconfigure(0, weight=1)
+
+            # Create an intermediate frame to hold the content, filling the new window
+            content_frame = ttk.Frame(tear_off_window)
+            content_frame.grid(row=0, column=0, sticky="nsew")
+
+            # Rebuild the content from scratch inside the new content_frame
+            self.application._build_from_directory(path=build_path, parent_widget=content_frame)
 
             # Store the necessary info to re-attach the tab when the window is closed
             self.torn_off_windows[tear_off_window] = {

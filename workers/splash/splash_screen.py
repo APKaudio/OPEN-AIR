@@ -63,7 +63,7 @@ class SplashScreen:
             screen_width = self.parent.winfo_screenwidth()
             screen_height = self.parent.winfo_screenheight()
             x = (screen_width // 2) - (win_width // 2)
-            y = (screen_height // 2) - (win_height // 2) + 500
+            y = (screen_height // 2) - (win_height // 2) + 200
             self.splash_window.geometry(f'{win_width}x{win_height}+{x}+{y}')
             
             self.main_content_frame = tk.Frame(self.splash_window, bg="black")

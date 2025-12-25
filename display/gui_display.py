@@ -144,6 +144,11 @@ class Application(ttk.Frame):
 
         style.configure('TFrame', background=colors["bg"])
 
+        # Add configurations for general TButton and custom buttons here
+        style.configure('TButton', background="#FF8C00", foreground=colors["text"]) # Orange background for generic buttons
+        style.configure('Custom.TButton', background="#FF8C00", foreground=colors["text"]) # Dark Orange for unselected custom buttons
+        style.configure('Custom.Selected.TButton', background="#FFA500", foreground=colors["text"], relief="sunken") # Orange for selected custom buttons
+
         style.configure('TNotebook',
                         background=colors["primary"],
                         borderwidth=0)
@@ -334,6 +339,12 @@ class Application(ttk.Frame):
         try:
             notebook = event.widget
             selected_tab_id = notebook.select()
+
+            if not selected_tab_id:
+                if self.app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(message="No tab selected in notebook, skipping _on_tab_change logic.", **_get_log_args())
+                return
+            
             selected_tab_frame = notebook.nametowidget(selected_tab_id)
             newly_selected_tab_name = notebook.tab(selected_tab_id, "text")
 

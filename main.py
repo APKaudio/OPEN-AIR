@@ -30,6 +30,8 @@ import pathlib
 def _reveal_main_window(root, splash):
     if app_constants.ENABLE_DEBUG_SCREEN:
         print("DEBUG: Revealing main window...")
+    root.deiconify() # Ensure main window is visible
+    splash.hide()    # Dismiss the splash screen
 
 def action_open_display(root, splash):
     """

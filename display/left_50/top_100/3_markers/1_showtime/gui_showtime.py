@@ -99,8 +99,8 @@ class ShowtimeTab(ttk.Frame):
         style.configure('TButton', background=colors["accent"], foreground=colors["text"])
         
         # Custom button styles for toggle states
-        style.configure('Custom.TButton', background=colors["accent"], foreground=colors["text"])
-        style.configure('Custom.Selected.TButton', background=colors["secondary"], foreground=colors["text"], relief="sunken")
+        style.configure('Custom.TButton', background="#FF8C00", foreground=colors["text"])
+        style.configure('Custom.Selected.TButton', background="#FFA500", foreground=colors["text"], relief="sunken")
 
     def _create_widgets(self):
         current_function = inspect.currentframe().f_code.co_name
