@@ -34,7 +34,9 @@ LOCAL_DEBUG_ENABLE = False
 import csv
 import os
 import inspect # Import inspect module
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+
+app_constants = Config.get_instance() # Get the singleton instance      
 # Updated imports for new logging functions
 from workers.logger.logger import  debug_log
 

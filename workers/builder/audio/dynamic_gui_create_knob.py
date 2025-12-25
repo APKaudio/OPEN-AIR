@@ -6,7 +6,9 @@
 import tkinter as tk
 from tkinter import ttk
 import math
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+
+app_constants = Config.get_instance() # Get the singleton instance      
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
@@ -85,6 +87,27 @@ class KnobCreatorMixin:
 
             canvas.bind("<Button-1>", on_click)
             canvas.bind("<B1-Motion>", on_drag)
+
+            # Store necessary info for update function
+            # self.topic_widgets[path] already stores (value_label, canvas)
+            # but we need to ensure min_val, max_val, fg_color, accent_color, secondary_color are accessible.
+            # It's better to pass them explicitly to _draw_knob.
+
+            def _update_knob(topic, payload):
+                import orjson
+                try:
+                    data = orjson.loads(payload)
+                    float_value = float(data.get("value"))
+                    
+                    value_label.config(text=f"{int(float_value)}")
+                    self._draw_knob(canvas, width, height, float_value, min_val, max_val, fg_color, accent_color, secondary_color)
+                except (ValueError, TypeError, orjson.JSONDecodeError) as e:
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(message=f"🔴 ERROR in _update_knob for topic {topic}: {e}", file=os.path.basename(__file__), function=current_function_name)
+
+            # Subscribe to MQTT updates for this knob
+            if self.subscriber_router:
+                self.subscriber_router.subscribe_to_topic(path, _update_knob)
 
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(

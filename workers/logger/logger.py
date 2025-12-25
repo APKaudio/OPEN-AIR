@@ -5,7 +5,8 @@
 import os
 import inspect
 from datetime import datetime
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class
+app_constants = Config.get_instance() # Get the singleton instance
 
 # --- GLOBALS ---
 _log_directory = None

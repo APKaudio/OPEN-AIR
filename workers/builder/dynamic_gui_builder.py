@@ -20,7 +20,9 @@ import time
 from workers.logger.logger import debug_log
 from workers.styling.style import THEMES, DEFAULT_THEME
 from workers.builder.input.dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+
+app_constants = Config.get_instance() # Get the singleton instance      
 from workers.utils.topic_utils import get_topic
 from workers.utils.log_utils import _get_log_args 
 
@@ -184,7 +186,8 @@ class DynamicGuiBuilder(
                 payload = {
                     "val": value,
                     "src": "gui",
-                    "ts": time.time()
+                    "ts": time.time(),
+                    "instance_id": self.state_mirror_engine.instance_id # Add instance ID
                 }
                 self.state_mirror_engine.publish_command(topic, orjson.dumps(payload))
         elif app_constants.LOCAL_DEBUG_ENABLE:

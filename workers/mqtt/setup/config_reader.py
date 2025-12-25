@@ -2,12 +2,17 @@
 
 import configparser
 import pathlib
+import threading # Import threading for thread-safe singleton
 
 class Config:
+    _instance = None
+    _lock = threading.Lock() # Class-level lock for thread-safe singleton initialization
+
     # --- Default values ---
     CURRENT_VERSION = "unknown"
     PERFORMANCE_MODE = True
     SKIP_DEP_CHECK = True
+    CLEAN_INSTALL_MODE = False
     ENABLE_DEBUG_MODE = False
     ENABLE_DEBUG_FILE = False
     ENABLE_DEBUG_SCREEN = False
@@ -20,18 +25,34 @@ class Config:
     MQTT_PASSWORD = None
 
     def __init__(self):
-        # Initialize the internal state for LOCAL_DEBUG_ENABLE
+        # This __init__ will only be called once due to the singleton pattern
+        if hasattr(self, '_initialized') and self._initialized:
+            return
+        
+        self._initialized = True
         self._local_debug_enable_state = self.ENABLE_DEBUG_SCREEN
+        self.read_config() # Read config immediately upon first instantiation
+
+    @classmethod
+    def get_instance(cls):
+        """
+        Returns the singleton instance of Config, ensuring it's initialized once.
+        """
+        if cls._instance is None:
+            with cls._lock:
+                if cls._instance is None:
+                    cls._instance = cls() # Calls __init__ which then calls read_config()
+        return cls._instance
 
     @property
     def LOCAL_DEBUG_ENABLE(self):
-        return self._local_debug_enable_state
+        return self.ENABLE_DEBUG_SCREEN # Reflects the class-level setting
 
     @LOCAL_DEBUG_ENABLE.setter
     def LOCAL_DEBUG_ENABLE(self, value):
-        self._local_debug_enable_state = value
+        # Direct modification of class-level attribute
+        Config.ENABLE_DEBUG_SCREEN = value
 
-    # This dictionary is for compatibility with older code that uses global_settings
     @property
     def global_settings(self):
         return {
@@ -47,19 +68,20 @@ class Config:
         Reads configuration from config.ini and updates class attributes.
         """
         config = configparser.ConfigParser()
-        # Assuming this file is at workers/mqtt/setup/config_reader.py, the project root is 4 levels up.
         project_root = pathlib.Path(__file__).parent.parent.parent.parent
         config_path = project_root / 'config.ini'
 
         if config_path.exists():
             config.read(config_path)
             
+            # --- Update class attributes directly ---
             if 'Version' in config:
                 cls.CURRENT_VERSION = config['Version'].get('CURRENT_VERSION', cls.CURRENT_VERSION)
             
             if 'Mode' in config:
                 cls.PERFORMANCE_MODE = config['Mode'].getboolean('PERFORMANCE_MODE', cls.PERFORMANCE_MODE)
                 cls.SKIP_DEP_CHECK = config['Mode'].getboolean('SKIP_DEP_CHECK', cls.SKIP_DEP_CHECK)
+                cls.CLEAN_INSTALL_MODE = config['Mode'].getboolean('CLEAN_INSTALL_MODE', cls.CLEAN_INSTALL_MODE)
 
             if 'Debug' in config:
                 cls.ENABLE_DEBUG_MODE = config['Debug'].getboolean('ENABLE_DEBUG_MODE', cls.ENABLE_DEBUG_MODE)
@@ -78,8 +100,4 @@ class Config:
                 cls.MQTT_PASSWORD = config['MQTT'].get('MQTT_PASSWORD', cls.MQTT_PASSWORD)
         else:
             print(f"Warning: config.ini not found at {config_path}. Using default settings.")
-
-# Instantiate the config to be used by other modules
-app_constants = Config()
-app_constants.read_config()
 

@@ -14,25 +14,23 @@ class MqttSubscriberRouter:
 
     def subscribe_to_topic(self, topic_filter: str, callback_func):
         """
-        Stores a callback function for a given topic filter and subscribes if the client is connected.
+        Stores a callback function for a given topic filter for later subscription.
+        Actual subscription happens when the client connects/reconnects.
         """
         self._subscribers[topic_filter] = callback_func
-        
-        # Avoid circular import by importing here
-        from .mqtt_connection_manager import MqttConnectionManager
-        client = MqttConnectionManager().get_client_instance()
-        
-        if client and client.is_connected():
-            client.subscribe(topic_filter)
-            debug_log(message=f"Subscribed to {topic_filter}", **_get_log_args())
-        else:
-            debug_log(message=f"Client not connected. Subscription to {topic_filter} is pending.", **_get_log_args())
+        debug_log(message=f"Topic '{topic_filter}' added to pending subscriptions.", **_get_log_args())
 
     def _on_message(self, client, userdata, msg):
         """
         Callback for when an MQTT message is received.
         It decodes the message and dispatches it to the appropriate subscriber.
         """
+        # TEMP: Raw print to definitively check if messages reach here
+        print(f"RAW MQTT MESSAGE RECEIVED: Topic='{msg.topic}', Payload='{msg.payload}'")
+        
+        # Log that a message was received at the router level
+        debug_log(message=f"MQTT Message Received: Topic='{msg.topic}', Payload='{msg.payload}'", **_get_log_args())
+
         topic = msg.topic
         try:
             payload = msg.payload.decode()
@@ -52,3 +50,12 @@ class MqttSubscriberRouter:
         Returns the _on_message method to be used by the MqttConnectionManager.
         """
         return self._on_message
+
+    def resubscribe_all_topics(self, client):
+        """
+        Instructs the MQTT client to subscribe to all topics registered with this router.
+        This is typically called after a successful connection/reconnection.
+        """
+        for topic_filter in self._subscribers.keys():
+            client.subscribe(topic_filter)
+            debug_log(message=f"Resubscribed to {topic_filter}", **_get_log_args())

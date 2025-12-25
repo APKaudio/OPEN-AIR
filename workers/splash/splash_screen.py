@@ -6,7 +6,8 @@
 # 2. Replaced dynamic animation with a pre-rendered GIF ('splash_logo.gif') using Pillow.
 # 3. Text rendering, versioning, and status updates remain unchanged.
 
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class
+app_constants = Config.get_instance() # Get the singleton instance
 import tkinter as tk
 from tkinter import ttk
 import os

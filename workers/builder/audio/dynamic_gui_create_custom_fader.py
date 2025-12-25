@@ -6,7 +6,9 @@
 import tkinter as tk
 from tkinter import ttk
 import math
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+
+app_constants = Config.get_instance() # Get the singleton instance      
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
@@ -65,6 +67,30 @@ class CustomFaderCreatorMixin:
             
             # Handle Resize
             canvas.bind("<Configure>", lambda e: self._draw_fader(canvas, e.width, e.height, value_default, min_val, max_val, secondary_color, accent_color))
+
+            # Store necessary info for update function
+            self.topic_widgets[path] = {
+                "widget": canvas,
+                "min": min_val,
+                "max": max_val,
+                "colors": (secondary_color, accent_color) # Pass colors needed for drawing
+            }
+
+            def _update_fader(topic, payload):
+                import orjson
+                try:
+                    data = orjson.loads(payload)
+                    float_value = float(data.get("value"))
+                    # Update the canvas directly
+                    self._draw_fader(canvas, canvas.winfo_width(), canvas.winfo_height(), 
+                                     float_value, min_val, max_val, secondary_color, accent_color)
+                except (ValueError, TypeError, orjson.JSONDecodeError) as e:
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(message=f"🔴 ERROR in _update_fader for topic {topic}: {e}", file=os.path.basename(__file__), function=current_function_name)
+
+            # Subscribe to MQTT updates for this fader
+            if self.subscriber_router:
+                self.subscriber_router.subscribe_to_topic(path, _update_fader)
 
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(

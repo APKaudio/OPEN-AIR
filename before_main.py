@@ -1,51 +1,29 @@
 # OPEN-AIR/before_main.py
 #
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class
 import os
 import sys
 import inspect
 import subprocess
-import argparse # Added argparse
-
 from workers.utils.log_utils import _get_log_args
+
+app_constants = Config.get_instance() # Get the singleton instance
 
 current_file = f"{os.path.basename(__file__)}"
 current_version = app_constants.CURRENT_VERSION
 
+
 def initialize_flags():
-    """Parses command-line arguments and sets corresponding flags in app_constants."""
-    parser = argparse.ArgumentParser(description="OPEN-AIR Application Pre-flight Checks")
-    parser.add_argument("--install", action="store_true", help="Force dependency installation.")
-    parser.add_argument("--debug", action="store_true", help="Enable all debugging (file and screen).")
-    parser.add_argument("--file", action="store_true", help="Enable debugging to file.")
-    parser.add_argument("--screen", action="store_true", help="Enable debugging to screen/console.")
-    
-    args = parser.parse_args()
+    """Sets global_settings based on values loaded from config.ini via app_constants."""
+    # These flags are already loaded from config.ini by app_constants.read_config()
+    # No command-line parsing is performed for debug flags, adhering to config.ini-only setting.
 
-    # Set dependency check flag
-    if args.install:
-        app_constants.SKIP_DEP_CHECK = False
-    else:
-        app_constants.SKIP_DEP_CHECK = True # Default to skip unless --install is present
-
-    # Set debug flags
-    if args.debug:
-        app_constants.ENABLE_DEBUG_MODE = True
-        app_constants.ENABLE_DEBUG_FILE = True
-        app_constants.ENABLE_DEBUG_SCREEN = True
-    
-    if args.file:
-        app_constants.ENABLE_DEBUG_FILE = True
-    
-    if args.screen:
-        app_constants.ENABLE_DEBUG_SCREEN = True
-
-    # Update global_settings based on the new flags
+    # Update global_settings for compatibility with older code if necessary
     app_constants.global_settings["general_debug_enabled"] = app_constants.ENABLE_DEBUG_MODE
     app_constants.global_settings["debug_to_terminal"] = app_constants.ENABLE_DEBUG_SCREEN
     app_constants.global_settings["debug_to_file"] = app_constants.ENABLE_DEBUG_FILE
-    
-# --- Call initialize_flags immediately to parse arguments and set constants ---
+
+# --- Call initialize_flags immediately to ensure global_settings are set ---
 initialize_flags()
         
 # --- Constants (No Magic Numbers) ---
@@ -245,32 +223,22 @@ def action_check_dependancies(console_print_func, debug_log_func, should_clean_i
 
 
 def run_interactive_pre_check(console_print_func, debug_log_func):
-    if app_constants.SKIP_DEP_CHECK: # Check the flag after argparse has set it
-        console_print_func("✅ Dependency check skipped due to SKIP_DEP_CHECK flag. Use --install to force.")
+    # Dependency check and clean install mode are now controlled by config.ini
+    if app_constants.SKIP_DEP_CHECK:
+        console_print_func("✅ Dependency check skipped as per config.ini.")
         return
 
-    # console_print_func("🚀 Starting dependency pre-check for OPEN-AIR. 🚀")
+    console_print_func("🚀 Starting dependency pre-check for OPEN-AIR. 🚀")
     
-    # Prompt user for action
-    user_choice = input("Do you want to [C]lean install (uninstall and reinstall all external libraries) or just [V]erify and install missing ones? (C/V): ").strip().lower()
+    should_clean_install = app_constants.CLEAN_INSTALL_MODE
 
-    should_clean_install = False
-    if user_choice == 'c':
-        should_clean_install = True
-        #console_print_func("💡 Clean install mode selected. All external libraries will be reinstalled.")
-    
-        #console_print_func("💡 Verify and install missing libraries mode selected.")
+    if should_clean_install:
+        console_print_func("💡 Clean install mode enabled as per config.ini. All external libraries will be reinstalled.")
+    else:
+        console_print_func("💡 Verify and install missing libraries mode enabled as per config.ini.")
 
-    # Pass should_clean_install to the dependency check function
-    
     if not action_check_dependancies(console_print_func, debug_log_func, should_clean_install):
         sys.exit(1)
 
-if __name__ == "__main__":
-    # When run directly, use simple print statements as mock loggers
-    def _standalone_debug_log(message):
-        print(message)
-    def _standalone_debug_log(message, *args, **kwargs):
-        if app_constants.ENABLE_DEBUG_SCREEN: # Use the new flag
-            print(f"DEBUG (standalone): {message}")
+
 

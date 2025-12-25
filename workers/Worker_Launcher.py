@@ -21,7 +21,9 @@ from datetime import datetime
 
 # --- Imports for logging and workers ---
 from workers.logger.logger import  debug_log
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+
+app_constants = Config.get_instance() # Get the singleton instance      
 from workers.utils.log_utils import _get_log_args 
 # from workers.active.worker_active_marker_tune_and_collect import MarkerGoGetterWorker
 ## from workers.active.worker_active_peak_publisher import ActivePeakPublisher

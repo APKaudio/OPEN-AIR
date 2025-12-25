@@ -1,7 +1,8 @@
 # workers/setup/config_validator.py
 
 import inspect
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class
+app_constants = Config.get_instance() # Get the singleton instance
 from workers.utils.log_utils import _get_log_args 
 
 

@@ -9,7 +9,9 @@ import paho.mqtt.client as mqtt
 import threading
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+
+app_constants = Config.get_instance() # Get the singleton instance      
 
 class MqttConnectionManager:
     _instance = None
@@ -39,12 +41,13 @@ class MqttConnectionManager:
         """Callback for when the MQTT client connects to the broker."""
         if rc == 0:
             debug_log(message="✅ Successfully connected to MQTT Broker.", **_get_log_args())
-            # Here we would re-subscribe to topics if needed.
-            # The subscriber_router will handle the actual subscriptions.
+            if self.subscriber_router:
+                # Tell the router to re-subscribe to all known topics
+                self.subscriber_router.resubscribe_all_topics(client)
         else:
             debug_log(message=f"❌ Failed to connect to MQTT Broker with result code {rc}", **_get_log_args())
 
-    def connect_to_broker(self, address=None, port=None, on_message_callback=None):
+    def connect_to_broker(self, address=None, port=None, on_message_callback=None, subscriber_router=None):
         """Connects the MQTT client to the broker."""
         if self.client and self.client.is_connected():
             debug_log(message="MQTT client is already connected.", **_get_log_args())
@@ -53,6 +56,7 @@ class MqttConnectionManager:
         self.broker_address = address if address is not None else app_constants.MQTT_BROKER_ADDRESS
         self.broker_port = port if port is not None else app_constants.MQTT_BROKER_PORT
         self.on_message_callback = on_message_callback
+        self.subscriber_router = subscriber_router # Store subscriber_router
 
         try:
             self.client = mqtt.Client()

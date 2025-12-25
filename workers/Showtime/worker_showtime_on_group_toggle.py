@@ -2,7 +2,9 @@
 import inspect
 from workers.logger.logger import  debug_log
 from workers.utils.log_utils import _get_log_args
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+
+app_constants = Config.get_instance() # Get the singleton instance      
 from workers.Showtime.worker_showtime_tune import on_tune_request_from_selection
 
 def on_group_toggle(showtime_tab_instance, group_name):

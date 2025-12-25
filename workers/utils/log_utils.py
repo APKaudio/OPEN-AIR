@@ -1,7 +1,9 @@
 # workers/utils/log_utils.py
 import inspect
 import os
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+
+app_constants = Config.get_instance() # Get the singleton instance      
 
 def _get_log_args():
     """Helper to get common debug_log arguments.

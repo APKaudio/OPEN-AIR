@@ -15,7 +15,8 @@
 #
 # Version 20251224.001000.4 (OPTIMIZED)
 
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class
+app_constants = Config.get_instance() # Get the singleton instance
 
 # 📚 Python's standard library modules are our trusty sidekicks!
 import os
@@ -62,11 +63,12 @@ class Application(ttk.Frame):
         
         # --- Initialize MQTT and Logic Layers ---
         self.subscriber_router = MqttSubscriberRouter()
-        self.state_mirror_engine = StateMirrorEngine(base_topic="OPEN-AIR") # Using a base topic for the whole app
+        self.state_mirror_engine = StateMirrorEngine(base_topic="OPEN-AIR", subscriber_router=self.subscriber_router) # Using a base topic for the whole app
         
         self.mqtt_connection_manager = MqttConnectionManager()
         self.mqtt_connection_manager.connect_to_broker(
-            on_message_callback=self.subscriber_router.get_on_message_callback()
+            on_message_callback=self.subscriber_router.get_on_message_callback(),
+            subscriber_router=self.subscriber_router
         )
             
         # Initialize utility classes

@@ -6,7 +6,9 @@ import sys
 import importlib.util
 import pathlib
 from tkinter import ttk, Frame
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+
+app_constants = Config.get_instance() # Get the singleton instance      
 from workers.logger.logger import debug_log # Import the global debug_log
 from workers.utils.log_utils import _get_log_args
 

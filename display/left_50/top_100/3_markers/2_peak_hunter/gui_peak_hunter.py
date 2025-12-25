@@ -39,7 +39,8 @@ from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from workers.styling.style import THEMES, DEFAULT_THEME
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class
+app_constants = Config.get_instance() # Get the singleton instance
 
 LOCAL_DEBUG_ENABLE = False
 

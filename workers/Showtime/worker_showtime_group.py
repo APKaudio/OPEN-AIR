@@ -18,7 +18,9 @@ import inspect
 from collections import defaultdict
 from workers.logger.logger import  debug_log
 from workers.utils.log_utils import _get_log_args
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+
+app_constants = Config.get_instance() # Get the singleton instance      
 
 
 def process_and_sort_markers(showtime_tab_instance):

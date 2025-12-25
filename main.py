@@ -1,31 +1,30 @@
-import before_main # Moved to top
-before_main.initialize_flags() # Call early to set flags
-
+import sys
+import os
 import inspect
 import importlib
 import tkinter as tk
-import os
-import sys
+import pathlib
 
-# --- Module Imports ---
+# --- Custom Module Imports (Config MUST be read first) ---
+from workers.mqtt.setup.config_reader import Config # Import the Config class
+app_constants = Config.get_instance() # Get the singleton instance and ensure config is read
+
+# --- Core Application Imports ---
+import before_main # Moved to top - app_constants is already global
+before_main.initialize_flags() # Call early to set flags
+
+# Other essential modules
 from workers.splash.splash_screen import SplashScreen
 from workers.Worker_Launcher import WorkerLauncher
 import display.gui_display
 from workers.logger.logger import debug_log
-from workers.mqtt.setup.config_reader import app_constants
+
 import workers.setup.path_initializer as path_initializer
 import workers.logger.logger_config as logger_config
 import workers.setup.console_encoder as console_encoder
 import workers.setup.debug_cleaner as debug_cleaner
 from workers.setup.application_initializer import initialize_app
 from workers.utils.log_utils import _get_log_args
-
-# Imports moved from inside main()'s try block
-from workers.setup.path_initializer import initialize_paths
-from workers.logger.logger import set_log_directory
-from workers.setup.debug_cleaner import clear_debug_directory
-from workers.setup.console_encoder import configure_console_encoding
-import pathlib
 
 def _reveal_main_window(root, splash):
     if app_constants.ENABLE_DEBUG_SCREEN:

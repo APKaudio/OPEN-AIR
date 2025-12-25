@@ -34,7 +34,9 @@ import inspect
 import os
 
 from workers.logger.logger import  debug_log
-from workers.mqtt.setup.config_reader import app_constants
+from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+
+app_constants = Config.get_instance() # Get the singleton instance      
 
 # --- Version Information ---
 Current_Date = 20251215  ##Update on the day the change was made
