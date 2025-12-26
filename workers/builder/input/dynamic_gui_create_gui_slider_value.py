@@ -54,7 +54,7 @@ class SliderValueCreatorMixin:
     A mixin class that provides the functionality for creating a
     slider widget combined with a text entry box.
     """
-    def _create_slider_value(self, parent_frame, label, config, path):
+    def _create_slider_value(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
         # Creates a slider and an entry box for a numerical value.
         current_function_name = inspect.currentframe().f_code.co_name
 
@@ -73,7 +73,7 @@ class SliderValueCreatorMixin:
             # --- Layout Refactor: Start ---
             # Line 1: Label
             label_widget = ttk.Label(sub_frame, text=f"{label}:")
-            label_widget.pack(side=tk.TOP, fill=tk.X, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X), pady=(0, DEFAULT_PAD_Y))
+            label_widget.pack(side=tk.TOP, fill=tk.X, padx=(DEFAULT_PAD_X, DEFAULT_PAD_Y), pady=(0, DEFAULT_PAD_Y))
 
             # Line 2: Slider
             min_val = float(config.get('min', '0'))
@@ -148,19 +148,21 @@ class SliderValueCreatorMixin:
                 self.topic_widgets[path] = (entry_value, slider)
                 
                 # --- New MQTT Wiring ---
-                if self.state_mirror_engine and self.subscriber_router:
-                    widget_id = path
-                    
-                    # 1. Register widget
-                    self.state_mirror_engine.register_widget(widget_id, entry_value, self.tab_name)
+                widget_id = path
+                
+                # 1. Register widget
+                state_mirror_engine.register_widget(widget_id, entry_value, self.tab_name)
 
-                    # 2. Bind variable trace for outgoing messages
-                    callback = lambda: self.state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
-                    bind_variable_trace(entry_value, callback)
+                # 2. Bind variable trace for outgoing messages
+                callback = lambda: state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
+                bind_variable_trace(entry_value, callback)
 
-                    # 3. Subscribe to topic for incoming messages
-                    topic = get_topic("OPEN-AIR", self.tab_name, widget_id)
-                    self.subscriber_router.subscribe_to_topic(topic, self.state_mirror_engine.sync_incoming_mqtt_to_gui)
+                # 3. Subscribe to topic for incoming messages
+                topic = get_topic("OPEN-AIR", self.tab_name, widget_id)
+                subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
+
+                # 4. Broadcast initial state
+                state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
 
 
             if app_constants.global_settings['debug_enabled']:

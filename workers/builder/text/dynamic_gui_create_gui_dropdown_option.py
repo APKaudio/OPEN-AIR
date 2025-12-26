@@ -51,7 +51,7 @@ class GuiDropdownOptionCreatorMixin:
     A mixin class that provides the functionality for creating a
     dropdown (Combobox) widget.
     """
-    def _create_gui_dropdown_option(self, parent_frame, label, config, path):
+    def _create_gui_dropdown_option(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
         # Creates a dropdown menu for multiple choice options.
         current_function_name = inspect.currentframe().f_code.co_name
 
@@ -160,7 +160,8 @@ class GuiDropdownOptionCreatorMixin:
                                 message=f"GUI ACTION: Publishing to '{path}' with value '{selected_value}'",
                                 **_get_log_args()
                             )
-                        self._transmit_command(widget_name=path, value=selected_value)
+                        # Instead of self._transmit_command, directly broadcast the change
+                        state_mirror_engine.broadcast_gui_change_to_mqtt(path)
                         self._current_selected_key_for_path = selected_key # Update for consistency
 
                 except ValueError:
@@ -173,14 +174,16 @@ class GuiDropdownOptionCreatorMixin:
             dropdown.bind("<<ComboboxSelected>>", on_select)
             dropdown.pack(side=tk.LEFT, padx=DEFAULT_PAD_X)
 
-            if path and self.state_mirror_engine:
+            if path:
                 # Register the StringVar with the StateMirrorEngine for MQTT updates
-                self.state_mirror_engine.register_widget(path, selected_value_var, self.tab_name)
+                state_mirror_engine.register_widget(path, selected_value_var, self.tab_name)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (StringVar: {selected_value_var.get()}).",
                         **_get_log_args()
                     )
+                # Broadcast initial state
+                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
             return sub_frame
 
         except Exception as e:

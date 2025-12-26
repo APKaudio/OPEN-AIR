@@ -11,7 +11,7 @@ from workers.utils.log_utils import _get_log_args
 import os
 
 class VUMeterCreatorMixin:
-    def _create_vu_meter(self, parent_frame, label, config, path):
+    def _create_vu_meter(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
         """Creates a VU meter widget."""
         current_function_name = "_create_vu_meter"
         if app_constants.global_settings['debug_enabled']:
@@ -46,30 +46,18 @@ class VUMeterCreatorMixin:
             # The indicator
             indicator = canvas.create_rectangle(0, 0, 5, height, fill='yellow', outline='')
             
-            self.topic_widgets[path] = {
-                "widget": canvas,
-                "indicator": indicator,
-                "min": min_val,
-                "max": max_val,
-                "width": width
-            }
+            if path:
+                self.topic_widgets[path] = {
+                    "canvas": canvas,
+                    "indicator": indicator,
+                    "min": min_val,
+                    "max": max_val,
+                    "width": width
+                }
 
-            def _update_vu(topic, payload): # Modified signature
-                try:
-                    data = orjson.loads(payload) # Parse payload
-                    float_value = float(data.get("value")) # Extract value
-                    
-                    if float_value < min_val:
-                        float_value = min_val
-                    if float_value > max_val:
-                        float_value = max_val
-                    
-                    x_pos = (float_value - min_val) / (max_val - min_val) * width
-                    canvas.coords(indicator, x_pos - 2.5, 0, x_pos + 2.5, height)
-
-                except (ValueError, TypeError, orjson.JSONDecodeError) as e: # Added JSONDecodeError
-                    if app_constants.global_settings['debug_enabled']:
-                        debug_logger(message=f"🔴 ERROR in _update_vu for topic {topic}: {e}", file=os.path.basename(__file__), function=current_function_name)
+                # Subscribe to updates for this VU meter
+                topic = get_topic("OPEN-AIR", self.tab_name, path) # Use self.tab_name from DynamicGuiBuilder
+                subscriber_router.subscribe_to_topic(topic, self._on_vu_update_mqtt)
 
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
@@ -78,10 +66,6 @@ class VUMeterCreatorMixin:
                     version=app_constants.CURRENT_VERSION,
                     function=f"{self.__class__.__name__}.{current_function_name}"
                 )
-            
-            # Subscribe to updates for this VU meter
-            if self.subscriber_router:
-                self.subscriber_router.subscribe_to_topic(path, _update_vu)
             
             return frame
         except Exception as e:
@@ -94,3 +78,44 @@ class VUMeterCreatorMixin:
                     function=current_function_name
                 )
             return None
+    
+    def _on_vu_update_mqtt(self, topic, payload):
+        import orjson
+        try:
+            payload_data = orjson.loads(payload) # Parse payload
+            float_value = float(payload_data.get("val", 0.0)) # Extract 'val' from payload
+            
+            # Extract widget path from topic
+            expected_prefix = f"OPEN-AIR/{self.tab_name}/" # Assuming self.tab_name is available from DynamicGuiBuilder
+            if topic.startswith(expected_prefix):
+                widget_path = topic[len(expected_prefix):]
+            else:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"⚠️ Unexpected topic format for VU meter update: {topic}", **_get_log_args())
+                return
+
+            widget_info = self.topic_widgets.get(widget_path)
+            if widget_info:
+                canvas = widget_info["canvas"]
+                indicator = widget_info["indicator"]
+                min_val = widget_info["min"]
+                max_val = widget_info["max"]
+                width = widget_info["width"]
+
+                if float_value < min_val:
+                    float_value = min_val
+                if float_value > max_val:
+                    float_value = max_val
+                
+                x_pos = (float_value - min_val) / (max_val - min_val) * width
+                canvas.coords(indicator, x_pos - 2.5, 0, x_pos + 2.5, canvas.winfo_height()) # Use actual canvas height
+
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"🎶 VU meter '{widget_path}' updated to {float_value}", **_get_log_args())
+            else:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"⚠️ VU meter widget not found for path: {widget_path}", **_get_log_args())
+
+        except (ValueError, TypeError, orjson.JSONDecodeError) as e:
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"🔴 ERROR in _on_vu_update_mqtt for topic {topic}: {e}. Payload: {payload}", **_get_log_args())

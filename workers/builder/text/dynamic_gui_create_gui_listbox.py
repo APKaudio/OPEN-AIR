@@ -54,9 +54,10 @@ class GuiListboxCreatorMixin:
     A mixin class that provides the functionality for creating a
     Listbox widget.
     """
-    def _create_gui_listbox(self, parent_frame, label, config, path, subscriber_router):
+    def _create_gui_listbox(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
         # Creates a listbox menu for multiple choice options.
         current_function_name = inspect.currentframe().f_code.co_name
+        self.state_mirror_engine = state_mirror_engine # Store for use in instance methods
         self.subscriber_router = subscriber_router
         self.label = label # Store label for use in instance methods
         self.path = path # Store path for use in instance methods
@@ -164,14 +165,21 @@ class GuiListboxCreatorMixin:
 
             listbox.bind("<<ListboxSelect>>", on_select)
 
-            if path and self.state_mirror_engine:
+            if path:
                 # Register the StringVar with the StateMirrorEngine for MQTT updates
-                self.state_mirror_engine.register_widget(path, self.selected_option_var, self.tab_name)
+                state_mirror_engine.register_widget(path, self.selected_option_var, self.tab_name)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (StringVar: {self.selected_option_var.get()}).",
                         **_get_log_args()
                     )
+                
+                # Add trace for broadcasting the overall selected option
+                callback = lambda *args: state_mirror_engine.broadcast_gui_change_to_mqtt(path)
+                self.selected_option_var.trace_add("write", callback)
+
+                # Broadcast initial state of the selected_option_var
+                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
 
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(

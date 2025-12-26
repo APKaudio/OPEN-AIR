@@ -10,7 +10,7 @@ from workers.utils.log_utils import _get_log_args
 import os
 
 class DirectionalButtonsCreatorMixin:
-    def _create_directional_buttons(self, parent_frame, label, config, path):
+    def _create_directional_buttons(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
         """Creates a set of directional buttons (up, down, left, right)."""
         current_function_name = "_create_directional_buttons"
         if app_constants.global_settings['debug_enabled']:
@@ -38,41 +38,49 @@ class DirectionalButtonsCreatorMixin:
         right_button.grid(row=2, column=2)
         down_button.grid(row=3, column=1)
 
+        import orjson # Imported here for payload construction
+        import time # Imported for timestamp
+
         # Commands (these would typically publish MQTT messages)
+        def _publish_command(action):
+            action_path = f"{path}/{action}"
+            topic = get_topic("OPEN-AIR", self.tab_name, action_path)
+            payload_data = {
+                "val": True,
+                "src": "gui",
+                "ts": time.time(),
+                "instance_id": state_mirror_engine.instance_id
+            }
+            state_mirror_engine.publish_command(topic, orjson.dumps(payload_data))
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"Published MQTT command: {topic} val: {True}", **_get_log_args())
+
+
         def _move_up():
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(message=f"Move Up for {path}", file=os.path.basename(__file__), function="_move_up")
-            # self.mqtt_util.publish(path + "/up", 1)
+            _publish_command("up")
 
         def _move_down():
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(message=f"Move Down for {path}", file=os.path.basename(__file__), function="_move_down")
-            # self.mqtt_util.publish(path + "/down", 1)
+            _publish_command("down")
 
         def _move_left():
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(message=f"Move Left for {path}", file=os.path.basename(__file__), function="_move_left")
-            # self.mqtt_util.publish(path + "/left", 1)
+            _publish_command("left")
 
         def _move_right():
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(message=f"Move Right for {path}", file=os.path.basename(__file__), function="_move_right")
-            # self.mqtt_util.publish(path + "/right", 1)
+            _publish_command("right")
 
         up_button.config(command=_move_up)
         down_button.config(command=_move_down)
         left_button.config(command=_move_left)
         right_button.config(command=_move_right)
 
-        self.topic_widgets[path] = {
-            "widget": frame,
-            "buttons": {
-                "up": up_button,
-                "down": down_button,
-                "left": left_button,
-                "right": right_button
-            }
-        }
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
                 message=f"✅ SUCCESS! The directional buttons for '{label}' are pointing the way!",

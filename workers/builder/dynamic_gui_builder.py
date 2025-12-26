@@ -362,21 +362,18 @@ class DynamicGuiBuilder(
                     self._create_dynamic_widgets(parent_frame=target_frame, data=value.get("fields", {}), path_prefix=current_path, override_cols=block_cols)
                 
                 elif widget_type in self.widget_factory:
-                    if widget_type == "_GuiListbox": # Special case for listbox
-                        target_frame = self.widget_factory[widget_type](
-                            parent_frame=parent_frame,
-                            label=value.get("label_active", key),
-                            config=value,
-                            path=current_path,
-                            subscriber_router=self.subscriber_router # Pass subscriber_router only for listbox
-                        )
-                    else: # Other widgets do not receive subscriber_router
-                        target_frame = self.widget_factory[widget_type](
-                            parent_frame=parent_frame,
-                            label=value.get("label_active", key),
-                            config=value,
-                            path=current_path
-                        )
+                    # Prepare common kwargs for widget factories
+                    factory_kwargs = {
+                        "parent_frame": parent_frame,
+                        "label": value.get("label_active", key),
+                        "config": value,
+                        "path": current_path,
+                        "state_mirror_engine": self.state_mirror_engine,  # Pass state_mirror_engine
+                        "subscriber_router": self.subscriber_router       # Pass subscriber_router
+                    }
+
+                    target_frame = self.widget_factory[widget_type](**factory_kwargs)
+
                 if target_frame:
                     target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)
                     col += col_span
@@ -447,21 +444,17 @@ class DynamicGuiBuilder(
                         self._create_dynamic_widgets(parent_frame=target_frame, data=value.get("fields", {}), path_prefix=current_path, override_cols=block_cols)
                     
                     elif widget_type in self.widget_factory:
-                        if widget_type == "_GuiListbox": # Special case for listbox
-                            target_frame = self.widget_factory[widget_type](
-                                parent_frame=parent_frame,
-                                label=value.get("label_active", key),
-                                config=value,
-                                path=current_path,
-                                subscriber_router=self.subscriber_router # Pass subscriber_router only for listbox
-                            )
-                        else: # Other widgets do not receive subscriber_router
-                            target_frame = self.widget_factory[widget_type](
-                                parent_frame=parent_frame,
-                                label=value.get("label_active", key),
-                                config=value,
-                                path=current_path
-                            )
+                        # Prepare common kwargs for widget factories
+                        factory_kwargs = {
+                            "parent_frame": parent_frame,
+                            "label": value.get("label_active", key),
+                            "config": value,
+                            "path": current_path,
+                            "state_mirror_engine": self.state_mirror_engine,  # Pass state_mirror_engine
+                            "subscriber_router": self.subscriber_router       # Pass subscriber_router
+                        }
+
+                        target_frame = self.widget_factory[widget_type](**factory_kwargs)
 
                     if target_frame:
                         target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)

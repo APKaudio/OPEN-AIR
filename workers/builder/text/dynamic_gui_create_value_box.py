@@ -53,7 +53,7 @@ class ValueBoxCreatorMixin:
     A mixin class that provides the functionality for creating an
     editable text box widget.
     """
-    def _create_value_box(self, parent_frame, label, config, path):
+    def _create_value_box(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
         # Creates an editable text box (_Value).
         current_function_name = inspect.currentframe().f_code.co_name
 
@@ -81,19 +81,22 @@ class ValueBoxCreatorMixin:
                 self.topic_widgets[path] = entry
                 
                 # --- New MQTT Wiring ---
-                if self.state_mirror_engine and self.subscriber_router:
+                if state_mirror_engine and subscriber_router: # Now explicitly passed
                     widget_id = path
                     
                     # 1. Register widget
-                    self.state_mirror_engine.register_widget(widget_id, entry_value, self.tab_name)
+                    state_mirror_engine.register_widget(widget_id, entry_value, self.tab_name)
 
                     # 2. Bind variable trace for outgoing messages
-                    callback = lambda: self.state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
+                    callback = lambda *args: state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id) # Added *args
                     bind_variable_trace(entry_value, callback)
 
                     # 3. Subscribe to topic for incoming messages
                     topic = get_topic("OPEN-AIR", self.tab_name, widget_id)
-                    self.subscriber_router.subscribe_to_topic(topic, self.state_mirror_engine.sync_incoming_mqtt_to_gui)
+                    subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
+                    
+                    # 4. Broadcast initial state
+                    state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
 
 
             if app_constants.global_settings['debug_enabled']:

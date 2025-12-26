@@ -10,7 +10,7 @@ from workers.utils.log_utils import _get_log_args
 import os
 
 class TextInputCreatorMixin:
-    def _create_text_input(self, parent_frame, label, config, path):
+    def _create_text_input(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
         """Creates a text input widget."""
         current_function_name = "_create_text_input"
         if app_constants.global_settings['debug_enabled']:
@@ -41,27 +41,22 @@ class TextInputCreatorMixin:
                 try:
                     if app_constants.global_settings['debug_enabled']:
                         debug_logger(message=f"Text changed for {label}: {text_var.get()}", file=os.path.basename(__file__), function="_on_text_change")
+                    state_mirror_engine.broadcast_gui_change_to_mqtt(path)
                 except Exception as e:
                     if app_constants.global_settings['debug_enabled']:
-                        debug_logger(message=f"🔴 ERROR in _on_text_change: {e}", file=os.path.basename(__file__), function="_on_text_change", 
+                        debug_logger(message=f"🔴 ERROR in _on_text_change: {e}", file=os.path.basename(__file__), function="_on_text_change")
 
-)
+            text_var.trace_add("write", _on_text_change) # Use trace_add for consistency
 
-            text_var.trace("w", _on_text_change)
-
-            self.topic_widgets[path] = {
-                "widget": entry,
-                "variable": text_var
-            }
-
-            def _update_text(value):
-                try:
-                    text_var.set(str(value))
-                except (ValueError, TypeError) as e:
-                    if app_constants.global_settings['debug_enabled']:
-                        debug_logger(message=f"🔴 ERROR in _update_text: {e}", file=os.path.basename(__file__), function=current_function_name 
-
-)
+            if path:
+                state_mirror_engine.register_widget(path, text_var, self.tab_name)
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
+                        message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (StringVar: {text_var.get()}).",
+                        **_get_log_args()
+                    )
+                # Broadcast initial state
+                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
             
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
@@ -73,7 +68,6 @@ class TextInputCreatorMixin:
 
 
                 )
-            # self.mqtt_callbacks[path] = _update_text
             return frame
         except Exception as e:
             debug_logger(message=f"💥 KABOOM! The text input '{label}' has disintegrated! Error: {e}")

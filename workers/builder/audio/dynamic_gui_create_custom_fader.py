@@ -15,7 +15,7 @@ from workers.styling.style import THEMES, DEFAULT_THEME
 import os
 
 class CustomFaderCreatorMixin:
-    def _create_custom_fader(self, parent_frame, label, config, path):
+    def _create_custom_fader(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
         """Creates a custom fader widget."""
         current_function_name = "_create_custom_fader"
         if app_constants.global_settings['debug_enabled']:
@@ -81,7 +81,7 @@ class CustomFaderCreatorMixin:
                 # Update the StringVar, which will trigger the trace for visual update
                 if fader_value_var.get() != new_val: # Only update if value changed to prevent unnecessary MQTT messages
                     fader_value_var.set(new_val)
-                    self._transmit_command(widget_name=path, value=new_val)
+                    state_mirror_engine.broadcast_gui_change_to_mqtt(path) # Use state_mirror_engine directly
 
             canvas.bind("<B1-Motion>", on_drag)
             canvas.bind("<Button-1>", on_drag)
@@ -90,8 +90,8 @@ class CustomFaderCreatorMixin:
             canvas.bind("<Configure>", lambda e: update_fader_visuals()) # Redraw on resize
 
             # Register the StringVar with the StateMirrorEngine for MQTT updates
-            if path and self.state_mirror_engine:
-                self.state_mirror_engine.register_widget(path, fader_value_var, self.tab_name)
+            if path:
+                state_mirror_engine.register_widget(path, fader_value_var, self.tab_name)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {fader_value_var.get()}).",
@@ -140,5 +140,5 @@ class CustomFaderCreatorMixin:
         small_line_length_half = line_length_half * 0.6 # 60% of the main line's half length
         line_offset = 6 # Vertical offset for the small lines
 
-        canvas.create_line(cx - small_line_length_half, y_pos - line_offset, cx + small_line_length_half, y_pos - line_offset, fill=track_col, width=1)
+        canvas.create_line(cx - small_line_length_half, y_pos - line_offset, cx + small_line_half, y_pos - line_offset, fill=track_col, width=1)
         canvas.create_line(cx - small_line_length_half, y_pos + line_offset, cx + small_line_length_half, y_pos + line_offset, fill=track_col, width=1)

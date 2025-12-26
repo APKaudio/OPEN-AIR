@@ -42,7 +42,7 @@ class LabelCreatorMixin:
     """
     A mixin class that provides the functionality for creating a label widget.
     """
-    def _create_label(self, parent_frame, label, value, units=None, path=None):
+    def _create_label(self, parent_frame, label, value, units=None, path=None, state_mirror_engine=None, subscriber_router=None):
         current_function_name = inspect.currentframe().f_code.co_name
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
@@ -64,19 +64,22 @@ class LabelCreatorMixin:
                 self.topic_widgets[path] = label_widget
                 
                 # --- New MQTT Wiring ---
-                if self.state_mirror_engine and self.subscriber_router:
+                if state_mirror_engine and subscriber_router: # Now explicitly passed
                     widget_id = path
                     
                     # 1. Register widget
-                    self.state_mirror_engine.register_widget(widget_id, label_var, self.tab_name)
+                    state_mirror_engine.register_widget(widget_id, label_var, self.tab_name)
 
                     # 2. Bind variable trace for outgoing messages
-                    callback = lambda: self.state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
+                    callback = lambda *args: state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id) # Added *args
                     bind_variable_trace(label_var, callback)
 
                     # 3. Subscribe to topic for incoming messages
                     topic = get_topic("OPEN-AIR", self.tab_name, widget_id)
-                    self.subscriber_router.subscribe_to_topic(topic, self.state_mirror_engine.sync_incoming_mqtt_to_gui)
+                    subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
+
+                    # 4. Broadcast initial state
+                    state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
 
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(

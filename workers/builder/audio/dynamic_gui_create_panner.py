@@ -15,7 +15,7 @@ from workers.styling.style import THEMES, DEFAULT_THEME
 import os
 
 class PannerCreatorMixin:
-    def _create_panner(self, parent_frame, label, config, path):
+    def _create_panner(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
         """Creates a rotary panner widget."""
         current_function_name = "_create_panner"
         if app_constants.global_settings['debug_enabled']:
@@ -81,7 +81,7 @@ class PannerCreatorMixin:
                 # Update the StringVar, which will trigger the trace for visual update
                 if panner_value_var.get() != new_val: # Only update if value changed to prevent unnecessary MQTT messages
                     panner_value_var.set(new_val)
-                    self._transmit_command(widget_name=path, value=new_val)
+                    state_mirror_engine.broadcast_gui_change_to_mqtt(path) # Use state_mirror_engine directly
 
             def on_click(event):
                 self._last_drag_y_panner = event.y # Initialize drag start position
@@ -90,8 +90,8 @@ class PannerCreatorMixin:
             canvas.bind("<B1-Motion>", on_drag)
 
             # Register the StringVar with the StateMirrorEngine for MQTT updates
-            if path and self.state_mirror_engine:
-                self.state_mirror_engine.register_widget(path, panner_value_var, self.tab_name)
+            if path:
+                state_mirror_engine.register_widget(path, panner_value_var, self.tab_name)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {panner_value_var.get()}).",

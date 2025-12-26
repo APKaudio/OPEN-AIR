@@ -10,7 +10,7 @@ from workers.utils.log_utils import _get_log_args
 import os
 
 class FaderCreatorMixin:
-    def _create_fader(self, parent_frame, label, config, path):
+    def _create_fader(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
         """Creates a fader widget."""
         current_function_name = "_create_fader"
         if app_constants.global_settings['debug_enabled']:
@@ -70,13 +70,13 @@ class FaderCreatorMixin:
                 # The _silent_update flag in StateMirrorEngine handles the suppression
                 
                 # Publish the value via MQTT
-                self._transmit_command(widget_name=path, value=fader_value_var.get())
+                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
 
             scale.config(command=_on_scale_change) # Bind command to the trace
 
-            if path and self.state_mirror_engine:
+            if path:
                 # Register the StringVar with the StateMirrorEngine for MQTT updates
-                self.state_mirror_engine.register_widget(path, fader_value_var, self.tab_name)
+                state_mirror_engine.register_widget(path, fader_value_var, self.tab_name)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {fader_value_var.get()}).",

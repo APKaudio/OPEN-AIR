@@ -61,7 +61,7 @@ def debug_logger(message: str, **kwargs):
         
         # Format: Timestamp Icon CleanContext Message
         # Matches: 1766723800.674347 💬 dynamicguicreatelabelfromconfig Message
-        print(f"{current_ts} 💬 {clean_context}{message}")
+        print(f"{current_ts}💬{clean_context}\n{message}")
     
     # 2. FILE/BUFFER OUTPUT
     _process_and_buffer_log_message("💬 ", message, kwargs)
@@ -72,7 +72,7 @@ def console_log(message: str):
     """
     current_ts = f"{time.time():.6f}"
     # Console logs usually don't have deep context
-    print(f"{current_ts}🖥️{message}")
+    print(f"{current_ts}\n🖥️{message}")
     _process_and_buffer_log_message("🖥️", message, {})
 
 # --- Alias for compatibility ---
@@ -137,7 +137,7 @@ def _write_to_file(timestamp, level, message, context_data):
             
             clean_level = level.strip() 
 
-            log_entry = f"{timestamp} {clean_level} {clean_context}{message}"
+            log_entry = f"{timestamp}{clean_level}{clean_context}{message}"
             
             # Append extras if they exist (excluding file/function since we used them)
             extras = {k: v for k, v in context_data.items() if k not in ['file', 'function']}

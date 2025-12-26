@@ -56,7 +56,7 @@ class GuiCheckboxCreatorMixin:
     A mixin class that provides the functionality for creating a
     checkbox widget.
     """
-    def _create_gui_checkbox(self, parent_frame, label, config, path):
+    def _create_gui_checkbox(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
         # Creates a checkbox widget.
         current_function_name = inspect.currentframe().f_code.co_name
 
@@ -83,28 +83,17 @@ class GuiCheckboxCreatorMixin:
                 else:
                     return config.get('label_inactive', config.get('label', ''))
             
-            def update_label():
+            def update_label(*args): # Add *args to accept trace arguments
                 # Manually update the checkbox text
                 checkbox.config(text=get_label_text())
 
             def toggle_and_publish():
                 # Flips the state and publishes the change via MQTT.
-                new_state = state_var.get()
-                # Pass raw boolean instead of JSON string
-                payload = new_state
-                if app_constants.global_settings['debug_enabled']:
-                    debug_logger(
-                        message=f"GUI ACTION: Publishing state change for '{label}' to path '{path}' with value '{new_state}'.",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}"
-                        
+                # The state_var is automatically updated by the Checkbutton,
+                # so we just need to broadcast the current state.
+                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
+                # The label update is handled by the trace on state_var now.
 
-
-                    )
-                self._transmit_command(widget_name=path, value=payload)
-                # Update the label after the state change
-                update_label()
 
             # Create the checkbox button with an initial label.
             checkbox = ttk.Checkbutton(
@@ -115,14 +104,19 @@ class GuiCheckboxCreatorMixin:
             )
             checkbox.pack(side=tk.LEFT, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
             
+            # Add trace to update label whenever state_var changes (from GUI or MQTT)
+            state_var.trace_add("write", update_label)
+
             # Store the widget and its state variable for external updates.
-            if path and self.state_mirror_engine:
-                self.state_mirror_engine.register_widget(path, state_var, self.tab_name)
+            if path:
+                state_mirror_engine.register_widget(path, state_var, self.tab_name)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (BooleanVar: {state_var.get()}).",
                         **_get_log_args()
                     )
+                # Broadcast initial state
+                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
 
 
             if app_constants.global_settings['debug_enabled']:
@@ -136,7 +130,7 @@ class GuiCheckboxCreatorMixin:
             return sub_frame
 
         except Exception as e:
-            (f"❌ Error in {current_function_name} for '{label}': {e}")
+            debug_logger(f"❌ Error in {current_function_name} for '{label}': {e}") # Changed from print to debug_logger
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
                     message=f"💥 KABOOM! The checkbox for '{label}' suffered a quantum entanglement failure! Error: {e}",

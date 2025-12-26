@@ -12,7 +12,7 @@ import os
 from workers.setup.path_initializer import GLOBAL_PROJECT_ROOT # Import GLOBAL_PROJECT_ROOT
 
 class AnimationDisplayCreatorMixin:
-    def _create_animation_display(self, parent_frame, label, config, path):
+    def _create_animation_display(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
         """Creates an animation display widget."""
         current_function_name = "_create_animation_display"
         if app_constants.global_settings['debug_enabled']:
@@ -54,14 +54,12 @@ class AnimationDisplayCreatorMixin:
                 # If even placeholder creation fails, create a generic error label
                 anim_label = ttk.Label(frame, text=f"[Animation Error]\n{e_placeholder}", fg="red", bg="black", wraplength=150)
                 anim_label.pack(side=tk.LEFT)
-                self.topic_widgets[path] = {"widget": anim_label, "frames": []}
                 return frame # Exit early if critical failure
         except Exception as e:
             debug_logger(message=f"🔴 ERROR loading animation: {e}", **_get_log_args())
             # Fallback to an error label for other loading errors
             anim_label = ttk.Label(frame, text=f"[Animation Error]\n{e}", fg="red", bg="black", wraplength=150)
             anim_label.pack(side=tk.LEFT)
-            self.topic_widgets[path] = {"widget": anim_label, "frames": []}
             return frame # Exit early if critical failure
 
         anim_label = ttk.Label(frame)
@@ -70,11 +68,6 @@ class AnimationDisplayCreatorMixin:
         if frames:
             anim_label.config(image=frames[0]) # Display the first frame or placeholder
 
-        self.topic_widgets[path] = {
-            "widget": anim_label,
-            "frames": frames
-        }
-        
         def _update_frame(value):
             try:
                 frame_index = int(value)
@@ -84,10 +77,45 @@ class AnimationDisplayCreatorMixin:
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(message=f"🔴 ERROR updating animation frame: {e}", file=os.path.basename(__file__), function=current_function_name)
 
+        if path:
+            self.topic_widgets[path] = _update_frame # Store the update callable
+
+            # --- MQTT Subscription for incoming updates ---
+            topic = get_topic("OPEN-AIR", self.tab_name, path) # Use self.tab_name from DynamicGuiBuilder
+            subscriber_router.subscribe_to_topic(topic, self._on_animation_frame_update_mqtt)
+
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
                 message=f"✅ SUCCESS! The animation for '{label}' is ready to roll!",
                 **_get_log_args()
             )
-        # self.mqtt_callbacks[path] = _update_frame
         return frame
+
+    def _on_animation_frame_update_mqtt(self, topic, payload):
+        import orjson # Imported here to avoid circular dependency or top-level import issues
+        try:
+            payload_data = orjson.loads(payload)
+            value = payload_data.get('val')
+            
+            # Extract widget path from topic
+            # topic is "OPEN-AIR/<tab_name>/<path>"
+            expected_prefix = f"OPEN-AIR/{self.tab_name}/" # Assuming self.tab_name is available from DynamicGuiBuilder
+            if topic.startswith(expected_prefix):
+                widget_path = topic[len(expected_prefix):]
+            else:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"⚠️ Unexpected topic format for animation frame update: {topic}", **_get_log_args())
+                return
+            
+            update_func = self.topic_widgets.get(widget_path)
+            if update_func:
+                update_func(value)
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"🎞️ Animation '{widget_path}' frame updated to {value}", **_get_log_args())
+            else:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"⚠️ Animation update function not found for path: {widget_path}", **_get_log_args())
+
+        except (orjson.JSONDecodeError, AttributeError) as e:
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"❌ Error processing animation MQTT update for {topic}: {e}. Payload: {payload}", **_get_log_args())

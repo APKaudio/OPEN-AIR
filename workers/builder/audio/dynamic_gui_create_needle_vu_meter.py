@@ -15,7 +15,7 @@ from workers.styling.style import THEMES, DEFAULT_THEME
 import os
 
 class NeedleVUMeterCreatorMixin:
-    def _create_needle_vu_meter(self, parent_frame, label, config, path):
+    def _create_needle_vu_meter(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
         """Creates a needle-style VU meter widget."""
         current_function_name = "_create_needle_vu_meter"
         if app_constants.global_settings['debug_enabled']:
@@ -54,29 +54,21 @@ class NeedleVUMeterCreatorMixin:
                 accent_color, secondary_color, fg_color, danger_color
             )
             
-            self.topic_widgets[path] = {
-                "widget": canvas,
-                "size": size,
-                "min": min_val,
-                "max": max_val,
-                "red_zone_start": red_zone_start,
-                "colors": (accent_color, secondary_color, fg_color, danger_color)
-            }
+            if path:
+                self.topic_widgets[path] = {
+                    "canvas": canvas,
+                    "size": size,
+                    "min": min_val,
+                    "max": max_val,
+                    "red_zone_start": red_zone_start,
+                    "colors": (accent_color, secondary_color, fg_color, danger_color)
+                }
 
-            def _update_needle(topic, payload): # Modified signature
-                try:
-                    data = orjson.loads(payload) # Parse payload
-                    float_value = float(data.get("value")) # Extract value
-                    
-                    self._draw_needle_vu_meter(
-                        canvas, size, float_value, min_val, max_val, red_zone_start,
-                        accent_color, secondary_color, fg_color, danger_color
-                    )
-                except (ValueError, TypeError, orjson.JSONDecodeError) as e: # Added JSONDecodeError
-                    if app_constants.global_settings['debug_enabled']:
-                        debug_logger(message=f"🔴 ERROR in _update_needle for topic {topic}: {e}", file=os.path.basename(__file__), function=current_function_name)
+                # Subscribe to updates for this Needle VU meter
+                topic = get_topic("OPEN-AIR", self.tab_name, path) # Use self.tab_name from DynamicGuiBuilder
+                subscriber_router.subscribe_to_topic(topic, self._on_needle_vu_update_mqtt)
             
-            # Handle Resize
+            # Handle Resize (still using original values as the draw function is self-contained)
             canvas.bind("<Configure>", lambda e: self._draw_needle_vu_meter(
                 canvas, size, value_default, min_val, max_val, red_zone_start,
                 accent_color, secondary_color, fg_color, danger_color
@@ -88,10 +80,6 @@ class NeedleVUMeterCreatorMixin:
                     **_get_log_args()
                 )
             
-            # Subscribe to updates for this Needle VU meter
-            if self.subscriber_router:
-                self.subscriber_router.subscribe_to_topic(path, _update_needle)
-            
             return frame
 
         except Exception as e:
@@ -102,6 +90,44 @@ class NeedleVUMeterCreatorMixin:
                     **_get_log_args()
                 )
             return None
+
+    def _on_needle_vu_update_mqtt(self, topic, payload):
+        import orjson
+        try:
+            payload_data = orjson.loads(payload)
+            float_value = float(payload_data.get("val", 0.0))
+            
+            # Extract widget path from topic
+            expected_prefix = f"OPEN-AIR/{self.tab_name}/"
+            if topic.startswith(expected_prefix):
+                widget_path = topic[len(expected_prefix):]
+            else:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"⚠️ Unexpected topic format for needle VU meter update: {topic}", **_get_log_args())
+                return
+
+            widget_info = self.topic_widgets.get(widget_path)
+            if widget_info:
+                canvas = widget_info["canvas"]
+                size = widget_info["size"]
+                min_val = widget_info["min"]
+                max_val = widget_info["max"]
+                red_zone_start = widget_info["red_zone_start"]
+                accent_color, secondary_color, fg_color, danger_color = widget_info["colors"]
+
+                self._draw_needle_vu_meter(
+                    canvas, size, float_value, min_val, max_val, red_zone_start,
+                    accent_color, secondary_color, fg_color, danger_color
+                )
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"🎵 Needle VU meter '{widget_path}' updated to {float_value}", **_get_log_args())
+            else:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"⚠️ Needle VU meter widget not found for path: {widget_path}", **_get_log_args())
+
+        except (ValueError, TypeError, orjson.JSONDecodeError) as e:
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"🔴 ERROR in _on_needle_vu_update_mqtt for topic {topic}: {e}. Payload: {payload}", **_get_log_args())
 
 
     def _draw_needle_vu_meter(self, canvas, size, value, min_val, max_val, red_zone_start, accent, secondary, fg, danger):

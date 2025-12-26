@@ -46,7 +46,7 @@ current_file = f"{os.path.basename(__file__)}"
 TOPIC_DELIMITER = "/"
 
 class GuiButtonToggleCreatorMixin:
-    def _create_gui_button_toggle(self, parent_frame, label, config, path):
+    def _create_gui_button_toggle(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
         # Creates a single button that toggles between two states (e.g., ON/OFF).
         current_function_name = inspect.currentframe().f_code.co_name
 
@@ -91,22 +91,24 @@ class GuiButtonToggleCreatorMixin:
                 self.topic_widgets[path] = (state_var, update_button_state)
 
                 # --- New MQTT Wiring ---
-                if self.state_mirror_engine and self.subscriber_router:
-                    widget_id = path
-                    
-                    # 1. Register widget
-                    self.state_mirror_engine.register_widget(widget_id, state_var, self.tab_name)
+                widget_id = path
+                
+                # 1. Register widget
+                state_mirror_engine.register_widget(widget_id, state_var, self.tab_name)
 
-                    # 2. Bind variable trace for outgoing messages
-                    callback = lambda: self.state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
-                    bind_variable_trace(state_var, callback)
+                # 2. Bind variable trace for outgoing messages
+                callback = lambda: state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
+                bind_variable_trace(state_var, callback)
 
-                    # 3. Also trace changes to update the button state
-                    state_var.trace_add("write", update_button_state)
+                # 3. Also trace changes to update the button state
+                state_var.trace_add("write", update_button_state)
 
-                    # 4. Subscribe to topic for incoming messages
-                    topic = get_topic("OPEN-AIR", self.tab_name, widget_id)
-                    self.subscriber_router.subscribe_to_topic(topic, self.state_mirror_engine.sync_incoming_mqtt_to_gui)
+                # 4. Subscribe to topic for incoming messages
+                topic = get_topic("OPEN-AIR", self.tab_name, widget_id)
+                subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
+
+                # 5. Broadcast initial state
+                state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
 
 
             if app_constants.global_settings['debug_enabled']:

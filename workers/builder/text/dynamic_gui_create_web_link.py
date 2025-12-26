@@ -11,7 +11,7 @@ from workers.utils.log_utils import _get_log_args
 import os
 
 class WebLinkCreatorMixin:
-    def _create_web_link(self, parent_frame, label, config, path):
+    def _create_web_link(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
         """Creates a web link widget."""
         current_function_name = "_create_web_link"
         if app_constants.global_settings['debug_enabled']:
@@ -49,8 +49,6 @@ class WebLinkCreatorMixin:
 
 
             link_label.bind("<Button-1>", _open_url)
-
-            self.topic_widgets[path] = {"widget": link_label}
 
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
