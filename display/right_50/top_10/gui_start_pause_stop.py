@@ -64,12 +64,18 @@ class StartPauseStopGui(ttk.Frame):
     """
     A GUI component for Start/Pause/Stop functionality, instantiating DynamicGuiBuilder.
     """
-    def __init__(self, parent, config, *args, **kwargs):
+    def __init__(self, parent, *args, **kwargs): # Add explicit args
         """
         Initializes the Frequency frame and the dynamic GUI builder.
         """
+        config = kwargs.pop('config', {}) # Pop config dict from kwargs
         super().__init__(parent, *args, **kwargs)
-        self.config_data = config
+
+        # Explicitly extract state_mirror_engine and subscriber_router from config
+        self.state_mirror_engine = config.get('state_mirror_engine')
+        self.subscriber_router = config.get('subscriber_router')
+
+        self.config_data = config # Keep the original config data and ensure it has state/subscriber
         
         # --- Dynamic GUI Builder ---
         current_function_name = inspect.currentframe().f_code.co_name
@@ -82,7 +88,7 @@ class StartPauseStopGui(ttk.Frame):
             self.dynamic_gui = DynamicGuiBuilder(
                 parent=self,
                 json_path=JSON_CONFIG_FILE,
-                config=self.config_data
+                config=self.config_data # Pass the full config dictionary
             )
             debug_logger(
                 message="✅ The StartPauseStopGui did initialize its dynamic GUI builder.",

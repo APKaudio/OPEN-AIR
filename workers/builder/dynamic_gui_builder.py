@@ -399,7 +399,7 @@ class DynamicGuiBuilder(
 
             # --- Publish entire GUI config to MQTT ---
             if self.state_mirror_engine:
-                config_topic = f"{get_topic(self.state_mirror_engine.base_topic, '', 'GUI/Config/Finished')}"
+                config_topic = get_topic(self.state_mirror_engine.base_topic, 'GUI/Config/Finished')
                 payload = orjson.dumps(self.config_data)
                 self.state_mirror_engine.publish_command(config_topic, payload)
                 if app_constants.global_settings['debug_enabled']:

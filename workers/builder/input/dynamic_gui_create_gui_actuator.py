@@ -39,12 +39,6 @@ from workers.mqtt.setup.config_reader import Config # Import the Config class
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.utils.topic_utils import get_topic
-
-LOCAL_DEBUG_ENABLE = False
-
-# --- Global Scope Variables ---
-current_file = f"{os.path.basename(__file__)}"
-
 # --- Constants ---
 DEFAULT_PAD_X = 5
 DEFAULT_PAD_Y = 2

@@ -42,12 +42,15 @@ current_file = os.path.basename(__file__)
 
 class ScanViewGUIFrame(ttk.Frame):
     
-    def __init__(self, parent, config=None, *args, **kwargs):
+    def __init__(self, parent, *args, **kwargs):
         """
         Initializes the Scan View GUI with a Seaborn/Matplotlib plot.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        
+
+        # Extract config from kwargs
+        config = kwargs.pop('config', {})
+
         # Log entry
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
@@ -56,20 +59,13 @@ class ScanViewGUIFrame(ttk.Frame):
             )
         try:
             super().__init__(parent, *args, **kwargs)
-            
-            # The parent will use .pack() or .grid() on this frame.
-            # This frame will use .grid() for its own children.
-            
-            # Configure grid for expansion: Row 0 is canvas (weight 1), Row 1 is toolbar (weight 0)
-            self.grid_rowconfigure(0, weight=1) 
-            self.grid_rowconfigure(1, weight=0)
-            self.grid_columnconfigure(0, weight=1)
-            
-            # FIX: Ensure config is not None before calling .get()
-            safe_config = config if config is not None else {}
-            
-            # Use theme from parent if available, otherwise fallback
-            self.theme_colors = safe_config.get("theme_colors", {
+
+            # Store the MQTT components, extracted from config
+            self.state_mirror_engine = config.get('state_mirror_engine')
+            self.subscriber_router = config.get('subscriber_router')
+
+            # Use theme from config if available, otherwise fallback
+            self.theme_colors = config.get("theme_colors", {
                 "bg": "#2b2b2b", "fg": "#dcdcdc", "fg_alt": "#888888", "accent": "#f4902c"
             })
 

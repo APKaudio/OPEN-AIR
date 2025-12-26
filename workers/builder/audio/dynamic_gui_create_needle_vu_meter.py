@@ -13,6 +13,7 @@ from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 import os
+from workers.utils.topic_utils import get_topic # <--- ADD THIS LINE
 
 class NeedleVUMeterCreatorMixin:
     def _create_needle_vu_meter(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):

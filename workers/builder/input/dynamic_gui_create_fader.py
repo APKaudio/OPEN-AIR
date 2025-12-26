@@ -82,6 +82,8 @@ class FaderCreatorMixin:
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {fader_value_var.get()}).",
                         **_get_log_args()
                     )
+                # Broadcast initial state
+                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
 
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(

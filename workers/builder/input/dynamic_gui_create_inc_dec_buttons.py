@@ -63,6 +63,9 @@ class IncDecButtonsCreatorMixin:
                 # Use a lambda that calls broadcast_gui_change_to_mqtt
                 callback = lambda *args: state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
                 current_value.trace_add("write", callback)
+
+                # 3. Broadcast initial state
+                state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
     
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(

@@ -9,6 +9,7 @@ app_constants = Config.get_instance() # Get the singleton instance
 from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 import os
+from workers.utils.topic_utils import get_topic
 
 class VUMeterCreatorMixin:
     def _create_vu_meter(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):

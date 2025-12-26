@@ -47,15 +47,17 @@ class PresetPusherGui(ttk.Frame):
     """
     A GUI Frame that hosts the DynamicGuiBuilder to generate frequency configuration controls.
     """
-    def __init__(self, parent, config, **kwargs):
-        """
-        Initializes the PresetPusherGui.
-        """
+    def __init__(self, parent, **kwargs):
         # Initialize the superclass (ttk.Frame) with the remaining kwargs
+        # Extract config from kwargs first
+        config = kwargs.pop('config', {})
         super().__init__(parent, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
 
-        self.config_data = config # Store the config for later use
+        # Store state_mirror_engine and subscriber_router from the extracted config
+        self.state_mirror_engine = config.get('state_mirror_engine')
+        self.subscriber_router = config.get('subscriber_router')
+        self.config_data = config # Store the full config for later use, including MQTT components
         
         # --- Dynamic GUI Builder ---
         current_function_name = "__init__"
@@ -67,21 +69,10 @@ class PresetPusherGui(ttk.Frame):
                             )
 
         try:
-            # Prepare configuration for the builder
-            builder_config = {
-                # "base_topic": MQTT_TOPIC_FILTER,
-                "log_to_gui_console": None,
-                "log_to_gui_treeview": None  # Assuming no treeview for this component
-            }
-            
-            # Merge passed config if it exists
-            if self.config_data:
-                builder_config.update(self.config_data)
-
             self.dynamic_gui = DynamicGuiBuilder(
                 parent=self,
                 json_path=JSON_CONFIG_FILE,
-                config=builder_config
+                config=self.config_data # Pass the full config dictionary
             )
             
             

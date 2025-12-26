@@ -54,12 +54,18 @@ class ShowtimeTab(ttk.Frame):
     """
     def __init__(self, parent, *args, **kwargs):
         current_function = inspect.currentframe().f_code.co_name
-        if 'config' in kwargs:
-            kwargs.pop('config')
+        
+        # Pop config first to prevent passing it to super().__init__ which doesn't expect it
+        config = kwargs.pop('config', {}) # Now retrieve config explicitly
+
         super().__init__(parent, *args, **kwargs)
         
         self.current_file = current_file
         self.current_version = current_version
+        
+        # Store state_mirror_engine and subscriber_router extracted from config
+        self.state_mirror_engine = config.get('state_mirror_engine')
+        self.subscriber_router = config.get('subscriber_router')
         
         # State variables
         self.marker_data = []

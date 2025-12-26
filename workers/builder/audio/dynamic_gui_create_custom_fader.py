@@ -13,6 +13,7 @@ from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 import os
+from workers.utils.topic_utils import get_topic
 
 class CustomFaderCreatorMixin:
     def _create_custom_fader(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
@@ -140,5 +141,5 @@ class CustomFaderCreatorMixin:
         small_line_length_half = line_length_half * 0.6 # 60% of the main line's half length
         line_offset = 6 # Vertical offset for the small lines
 
-        canvas.create_line(cx - small_line_length_half, y_pos - line_offset, cx + small_line_half, y_pos - line_offset, fill=track_col, width=1)
+        canvas.create_line(cx - small_line_length_half, y_pos - line_offset, cx + small_line_length_half, y_pos - line_offset, fill=track_col, width=1)
         canvas.create_line(cx - small_line_length_half, y_pos + line_offset, cx + small_line_length_half, y_pos + line_offset, fill=track_col, width=1)

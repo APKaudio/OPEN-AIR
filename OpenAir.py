@@ -49,6 +49,7 @@ def action_open_display(root, splash, mqtt_connection_manager, subscriber_router
         ApplicationModule = importlib.import_module("display.gui_display")
         Application = getattr(ApplicationModule, "Application")
         
+        debug_logger(message=f"DEBUG: Preparing to instantiate Application with: mqtt_connection_manager={mqtt_connection_manager}, subscriber_router={subscriber_router}, state_mirror_engine={state_mirror_engine}", **_get_log_args())
         # This is the primary long-running GUI task.
         # We pass the root window to the Application so it can call update() internally.
         app = Application(parent=root, root=root,
@@ -149,6 +150,9 @@ def main():
     if managers is None:
         debug_logger(message="❌ Manager launch failed. Exiting application.", **_get_log_args())
         sys.exit(1)
+
+    # Debug: Inspect managers dictionary
+    debug_logger(message=f"DEBUG: Managers launched: {managers}", **_get_log_args())
 
     # Now that the splash screen is visible, proceed with building the main display.
     app = action_open_display(root, splash,

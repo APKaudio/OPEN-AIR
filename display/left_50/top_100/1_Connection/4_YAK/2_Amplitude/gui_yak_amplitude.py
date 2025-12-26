@@ -52,15 +52,19 @@ class GenericInstrumentGui(ttk.Frame):
     A generic container that instantiates a DynamicGuiBuilder based on its own filename.
     Designed to render even if network utilities (MQTT) are disabled or missing.
     """
-    def __init__(self, parent, *args, **kwargs):
-        # Protocol 2.7: Display the entire file.
-        # Consume 'config' and other non-standard keys passed by the orchestrator 
-        config = kwargs.pop('config', None)
-        
-        super().__init__(parent, *args, **kwargs)
-        current_function_name = inspect.currentframe().f_code.co_name
-        self.current_class_name = self.__class__.__name__
-
+        def __init__(self, parent, *args, **kwargs):
+            # Protocol 2.7: Display the entire file.
+            # Consume 'config' and other non-standard keys passed by the orchestrator
+            config = kwargs.pop('config', {}) # Ensure config is always a dict
+    
+            super().__init__(parent, *args, **kwargs)
+            current_function_name = inspect.currentframe().f_code.co_name
+            self.current_class_name = self.__class__.__name__
+    
+            # Extract state_mirror_engine and subscriber_router from the config dictionary
+            self.state_mirror_engine = config.get('state_mirror_engine')
+            self.subscriber_router = config.get('subscriber_router')
+            self.config_data = config # Store the full config for later use if needed
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
                 message=f"🖥️🟢 SUMMONING: Preparing to build the GUI for '{module_name}'",
@@ -128,7 +132,8 @@ class GenericInstrumentGui(ttk.Frame):
             
             self.dynamic_gui = DynamicGuiBuilder(
                 parent=self,
-                json_path=processed_path
+                json_path=processed_path,
+                config=self.config_data # Pass the full config dictionary here
             )
             
             # If we reach here, the builder at least started.
