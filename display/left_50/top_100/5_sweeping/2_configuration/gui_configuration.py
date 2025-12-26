@@ -48,9 +48,9 @@ class PresetPusherGui(ttk.Frame):
     A GUI Frame that hosts the DynamicGuiBuilder to generate frequency configuration controls.
     """
     def __init__(self, parent, **kwargs):
-        # Initialize the superclass (ttk.Frame) with the remaining kwargs
         # Extract config from kwargs first
         config = kwargs.pop('config', {})
+        # Initialize the superclass (ttk.Frame) with the remaining kwargs
         super().__init__(parent, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
 

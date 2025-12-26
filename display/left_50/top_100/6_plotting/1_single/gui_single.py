@@ -54,11 +54,11 @@ class PresetPusherGui(ttk.Frame):
         """
         Initializes the PresetPusherGui.
         """
-        super().__init__(parent, **kwargs)
-        self.pack(fill=tk.BOTH, expand=True)
-
         # Extract config from kwargs first
         config = kwargs.pop('config', {})
+
+        super().__init__(parent, **kwargs)
+        self.pack(fill=tk.BOTH, expand=True)
 
         # Store state_mirror_engine and subscriber_router from the extracted config
         self.state_mirror_engine = config.get('state_mirror_engine')
