@@ -1,4 +1,4 @@
-# managers/yak_manager/manager_yak_rx.py
+# Proxy/yak_manager/manager_yak_rx.py
 #
 # This file (manager_yak_rx.py) processes the response from an SCPI query and publishes the parsed output values to MQTT.
 # A complete and comprehensive pre-amble that describes the file and the functions within.
@@ -23,8 +23,12 @@ import inspect
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
+from workers.mqtt.setup.config_reader import Config # Import the Config class
+app_constants = Config.get_instance() # Get the singleton instance
 import orjson
 
+from workers.mqtt.setup.config_reader import Config # Import the Config class
+app_constants = Config.get_instance() # Get the singleton instance
 
 LOCAL_DEBUG_ENABLE = False
 
@@ -32,9 +36,48 @@ class YakRxManager:
     """
     Processes responses from the instrument and publishes outputs to MQTT.
     """
-    def __init__(self, mqtt_controller):
-        self.mqtt_util = mqtt_controller
+    def __init__(self, mqtt_connection_manager, subscriber_router, yak_translator):
+        self.mqtt_util = mqtt_connection_manager
+        self.subscriber_router = subscriber_router
+        self.yak_translator = yak_translator
         self.NAB_BANDWIDTH_TRIGGER_PATH = ['yak', 'Bandwidth', 'nab', 'NAB_bandwidth_settings', 'scpi_details', 'generic_model', 'trigger']
+        self._setup_mqtt_subscriptions()
+
+    def _setup_mqtt_subscriptions(self):
+        # Subscribes to MQTT topics for receiving responses from the proxy.
+        topic = "OPEN-AIR/Proxy/Rx_Outbox"
+        self.subscriber_router.subscribe_to_topic(topic, self._on_rx_outbox_message)
+        debug_log(message=f"✅ YakRxManager subscribed to '{topic}' for proxy responses.", **_get_log_args())
+
+    def _on_rx_outbox_message(self, topic, payload):
+        # Handles incoming MQTT messages from the Proxy's Rx_Outbox.
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(message=f"📥 Rx_Outbox message received on Topic: '{topic}', Payload: '{payload}'", **_get_log_args())
+        
+        try:
+            payload_data = orjson.loads(payload)
+            response_value = payload_data.get("response")
+            command_sent = payload_data.get("command")
+            correlation_id = payload_data.get("correlation_id")
+
+            if correlation_id and response_value:
+                command_context = self.yak_translator.retrieve_command_context(correlation_id)
+                if command_context:
+                    path_parts = command_context.get("path_parts")
+                    command_details = command_context.get("command_details") # This would be the 'outputs' part
+                    
+                    if path_parts and command_details:
+                        self.process_response(path_parts, {"scpi_outputs": command_details}, response_value)
+                    else:
+                        debug_log(message=f"❌ Incomplete command context retrieved for correlation_id: {correlation_id}", **_get_log_args(), level="ERROR")
+                else:
+                    debug_log(message=f"❌ No command context found for correlation_id: {correlation_id}. Cannot process response.", **_get_log_args(), level="ERROR")
+            else:
+                debug_log(message=f"❌ Missing 'response' or 'correlation_id' in Rx_Outbox payload: {payload}", **_get_log_args(), level="ERROR")
+        except orjson.JSONDecodeError:
+            debug_log(message=f"❌ Failed to decode JSON payload from '{topic}': {payload}", **_get_log_args(), level="ERROR")
+        except Exception as e:
+            debug_log(message=f"❌ Error processing Rx_Outbox message from '{topic}': {e}", **_get_log_args(), level="CRITICAL")
 
     def process_response(self, path_parts, command_details, response):
         """
@@ -54,28 +97,18 @@ class YakRxManager:
             debug_log(
                 message=f"ℹ️ YakRxManager received a response from the device.",
                 **_get_log_args()
-
-
-            )        if app_constants.LOCAL_DEBUG_ENABLE: 
+            )
             debug_log(
                 message=f"ℹ️ Path Parts: {path_parts}",
                 **_get_log_args()
-
-
             )
-        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"ℹ️ Command Details: {orjson.dumps(outputs, indent=2)}",
                 **_get_log_args()
-
-
             )
-        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"ℹ️ Raw Response: {response}",
                 **_get_log_args()
-
-
             )
         
         try:
@@ -169,12 +202,7 @@ class YakRxManager:
                 output_topic = f"{base_output_topic}/{key}/value"
                 
                 # Publish the value to the MQTT topic
-                self.mqtt_util.publish_message(
-                    topic=output_topic,
-                    subtopic="",
-                    value=raw_value,
-                    retain=True
-                )
+                self.mqtt_util.get_client_instance().publish(topic=output_topic, payload=raw_value, qos=0, retain=True)
                 if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message=f"💾 Published to '{output_topic}' with value: '{raw_value}'.",

@@ -56,34 +56,12 @@ def console_log(message: str):
 
 def _write_to_log(level: str, message: str, args: dict = None):
     """
-    Internal function to handle logging. Buffers if directory is missing.
-    Checks app_constants.global_settings["debug_to_file"] before writing to file.
+    Writes a formatted message to the debug log file if enabled.
+    This is the lowest-level logging function.
     """
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    
-    global _log_directory, _log_buffer
-    
-    if _log_directory is None:
-        # 🛡️ BUFFER IT!
-        _log_buffer.append((timestamp, level, message, args))
-    else:
-        # Write directly, but only if file debugging is enabled
-        if app_constants.global_settings["debug_to_file"]:
-            _write_to_file(timestamp, level, message, args)
-        
-        # Also print to console if debug_to_terminal is enabled
-        if app_constants.global_settings["debug_to_terminal"]:
-            # Format for console: Timestamp [LEVEL] Message {args}
-            arg_str_console = ""
-            if args:
-                # Filter out the 'file', 'version', 'function' for console output
-                filtered_args = {k: v for k, v in args.items() if k not in ['file', 'version', 'function']}
-                if filtered_args:
-                    arg_str_console = f" {filtered_args}"
+    if not app_constants.global_settings['debug_to_file']:
+        return
 
-            # Remove leading emoji for console output if it's already in the level string
-            display_level = level.lstrip('📍🐛💬')
-            print(f"{timestamp} [{display_level}] {message}{arg_str_console}")
 
 def _write_to_file(timestamp, level, message, args):
     """Helper to actually write to the disk."""

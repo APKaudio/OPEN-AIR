@@ -45,15 +45,6 @@ class Config:
         return cls._instance
 
     @property
-    def LOCAL_DEBUG_ENABLE(self):
-        return self.ENABLE_DEBUG_SCREEN # Reflects the class-level setting
-
-    @LOCAL_DEBUG_ENABLE.setter
-    def LOCAL_DEBUG_ENABLE(self, value):
-        # Direct modification of class-level attribute
-        Config.ENABLE_DEBUG_SCREEN = value
-
-    @property
     def global_settings(self):
         return {
             "general_debug_enabled": self.ENABLE_DEBUG_MODE,
@@ -62,10 +53,9 @@ class Config:
             "log_truncation_enabled": self.LOG_TRUNCATION_ENABLED,
         }
 
-    @classmethod
-    def read_config(cls):
+    def read_config(self):
         """
-        Reads configuration from config.ini and updates class attributes.
+        Reads configuration from config.ini and updates instance attributes.
         """
         config = configparser.ConfigParser()
         project_root = pathlib.Path(__file__).parent.parent.parent.parent
@@ -74,30 +64,29 @@ class Config:
         if config_path.exists():
             config.read(config_path)
             
-            # --- Update class attributes directly ---
             if 'Version' in config:
-                cls.CURRENT_VERSION = config['Version'].get('CURRENT_VERSION', cls.CURRENT_VERSION)
+                self.CURRENT_VERSION = config['Version'].get('CURRENT_VERSION', self.CURRENT_VERSION)
             
             if 'Mode' in config:
-                cls.PERFORMANCE_MODE = config['Mode'].getboolean('PERFORMANCE_MODE', cls.PERFORMANCE_MODE)
-                cls.SKIP_DEP_CHECK = config['Mode'].getboolean('SKIP_DEP_CHECK', cls.SKIP_DEP_CHECK)
-                cls.CLEAN_INSTALL_MODE = config['Mode'].getboolean('CLEAN_INSTALL_MODE', cls.CLEAN_INSTALL_MODE)
+                self.PERFORMANCE_MODE = config['Mode'].getboolean('PERFORMANCE_MODE', self.PERFORMANCE_MODE)
+                self.SKIP_DEP_CHECK = config['Mode'].getboolean('SKIP_DEP_CHECK', self.SKIP_DEP_CHECK)
+                self.CLEAN_INSTALL_MODE = config['Mode'].getboolean('CLEAN_INSTALL_MODE', self.CLEAN_INSTALL_MODE)
 
             if 'Debug' in config:
-                cls.ENABLE_DEBUG_MODE = config['Debug'].getboolean('ENABLE_DEBUG_MODE', cls.ENABLE_DEBUG_MODE)
-                cls.ENABLE_DEBUG_FILE = config['Debug'].getboolean('ENABLE_DEBUG_FILE', cls.ENABLE_DEBUG_FILE)
-                cls.ENABLE_DEBUG_SCREEN = config['Debug'].getboolean('ENABLE_DEBUG_SCREEN', cls.ENABLE_DEBUG_SCREEN)
-                cls.LOG_TRUNCATION_ENABLED = config['Debug'].getboolean('LOG_TRUNCATION_ENABLED', cls.LOG_TRUNCATION_ENABLED)
+                self.ENABLE_DEBUG_MODE = config['Debug'].getboolean('ENABLE_DEBUG_MODE', self.ENABLE_DEBUG_MODE)
+                self.ENABLE_DEBUG_FILE = config['Debug'].getboolean('ENABLE_DEBUG_FILE', self.ENABLE_DEBUG_FILE)
+                self.ENABLE_DEBUG_SCREEN = config['Debug'].getboolean('ENABLE_DEBUG_SCREEN', self.ENABLE_DEBUG_SCREEN)
+                self.LOG_TRUNCATION_ENABLED = config['Debug'].getboolean('LOG_TRUNCATION_ENABLED', self.LOG_TRUNCATION_ENABLED)
 
             if 'UI' in config:
-                cls.UI_LAYOUT_SPLIT_EQUAL = int(config['UI'].get('LAYOUT_SPLIT_EQUAL', cls.UI_LAYOUT_SPLIT_EQUAL))
-                cls.UI_LAYOUT_FULL_WEIGHT = int(config['UI'].get('LAYOUT_FULL_WEIGHT', cls.UI_LAYOUT_FULL_WEIGHT))
+                self.UI_LAYOUT_SPLIT_EQUAL = int(config['UI'].get('LAYOUT_SPLIT_EQUAL', self.UI_LAYOUT_SPLIT_EQUAL))
+                self.UI_LAYOUT_FULL_WEIGHT = int(config['UI'].get('LAYOUT_FULL_WEIGHT', self.UI_LAYOUT_FULL_WEIGHT))
 
             if 'MQTT' in config:
-                cls.MQTT_BROKER_ADDRESS = config['MQTT'].get('BROKER_ADDRESS', cls.MQTT_BROKER_ADDRESS)
-                cls.MQTT_BROKER_PORT = int(config['MQTT'].get('BROKER_PORT', cls.MQTT_BROKER_PORT))
-                cls.MQTT_USERNAME = config['MQTT'].get('MQTT_USERNAME', cls.MQTT_USERNAME)
-                cls.MQTT_PASSWORD = config['MQTT'].get('MQTT_PASSWORD', cls.MQTT_PASSWORD)
+                self.MQTT_BROKER_ADDRESS = config['MQTT'].get('BROKER_ADDRESS', self.MQTT_BROKER_ADDRESS)
+                self.MQTT_BROKER_PORT = int(config['MQTT'].get('BROKER_PORT', self.MQTT_BROKER_PORT))
+                self.MQTT_USERNAME = config['MQTT'].get('MQTT_USERNAME', self.MQTT_USERNAME)
+                self.MQTT_PASSWORD = config['MQTT'].get('MQTT_PASSWORD', self.MQTT_PASSWORD)
         else:
             print(f"Warning: config.ini not found at {config_path}. Using default settings.")
 

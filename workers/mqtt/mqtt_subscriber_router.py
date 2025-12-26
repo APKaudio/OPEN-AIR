@@ -26,7 +26,7 @@ class MqttSubscriberRouter:
         It decodes the message and dispatches it to the appropriate subscriber.
         """
         # TEMP: Raw print to definitively check if messages reach here
-        print(f"RAW MQTT MESSAGE RECEIVED: Topic='{msg.topic}', Payload='{msg.payload}'")
+        
         
         # Log that a message was received at the router level
         debug_log(message=f"MQTT Message Received: Topic='{msg.topic}', Payload='{msg.payload}'", **_get_log_args())
@@ -38,7 +38,7 @@ class MqttSubscriberRouter:
             debug_log(message=f"Could not decode payload for topic {topic}", **_get_log_args())
             return
             
-        for topic_filter, callback_func in self._subscribers.items():
+        for topic_filter, callback_func in list(self._subscribers.items()): # Iterate over a copy
             if mqtt.topic_matches_sub(topic_filter, topic):
                 try:
                     callback_func(topic, payload)
@@ -56,6 +56,6 @@ class MqttSubscriberRouter:
         Instructs the MQTT client to subscribe to all topics registered with this router.
         This is typically called after a successful connection/reconnection.
         """
-        for topic_filter in self._subscribers.keys():
+        for topic_filter in list(self._subscribers.keys()): # Iterate over a copy
             client.subscribe(topic_filter)
             debug_log(message=f"Resubscribed to {topic_filter}", **_get_log_args())

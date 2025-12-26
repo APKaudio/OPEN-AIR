@@ -17,7 +17,7 @@ def publish_payload(topic: str, payload: str, retain: bool = False):
     client = connection_manager.get_client_instance()
     if client and client.is_connected():
         client.publish(topic, payload, retain=retain)
-        debug_log(message=f"Published to {topic}: {payload}", **_get_log_args())
+        debug_log(message=f"📤 Published to {topic}: {payload}", **_get_log_args())
     else:
         debug_log(message=f"❌ Not connected to broker. Cannot publish to {topic}.", **_get_log_args())
 

@@ -61,7 +61,7 @@ class GenericInstrumentGui(ttk.Frame):
         current_function_name = inspect.currentframe().f_code.co_name
         self.current_class_name = self.__class__.__name__
 
-        if app_constants.LOCAL_DEBUG_ENABLE:
+        if app_constants.global_settings['debug_to_terminal']:
             debug_log(
                 message=f"🖥️🟢 SUMMONING: Preparing to build the GUI for '{module_name}'",
                 **_get_log_args()
@@ -100,7 +100,7 @@ class GenericInstrumentGui(ttk.Frame):
             processed_path = str(abs_json_path)
             
             if needs_wrapping:
-                if app_constants.LOCAL_DEBUG_ENABLE:
+                if app_constants.global_settings['debug_to_terminal']:
                     debug_log(
                         message=f"🖥️🔍 NORMALIZING: Wrapping JSON structure for {module_name}",
                         **_get_log_args()
@@ -140,7 +140,7 @@ class GenericInstrumentGui(ttk.Frame):
             error_msg = f"❌ CRITICAL FAILURE in Wrapper: {e}"
             
             self.status_label.config(text=error_msg, foreground="red")
-            if app_constants.LOCAL_DEBUG_ENABLE:
+            if app_constants.global_settings['debug_to_terminal']:
                 debug_log(
                     message=f"🖥️🔴 Great Scott! The wrapper has failed to contain the builder! {e}",
                     **_get_log_args()
@@ -153,7 +153,7 @@ class GenericInstrumentGui(ttk.Frame):
         """
         current_function_name = inspect.currentframe().f_code.co_name
         
-        if app_constants.LOCAL_DEBUG_ENABLE:
+        if app_constants.global_settings['debug_to_terminal']:
             debug_log(
                 message=f"🖥️🔵 Tab '{module_name}' activated! Stand back, I'm checking the data flow!",
                 **_get_log_args()

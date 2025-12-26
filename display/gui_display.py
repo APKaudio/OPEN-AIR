@@ -46,7 +46,7 @@ class Application(ttk.Frame):
     The main application class that orchestrates the GUI build process.
     OPTIMIZED: Implements Layout Caching and Guarded Logging.
     """
-    def __init__(self, parent, root=None):
+    def __init__(self, parent, root=None, mqtt_connection_manager=None, subscriber_router=None, state_mirror_engine=None, visa_proxy=None):
         super().__init__(parent)
         self.root = root
         self.app_constants = app_constants
@@ -61,15 +61,12 @@ class Application(ttk.Frame):
                 **_get_log_args()
             )
         
-        # --- Initialize MQTT and Logic Layers ---
-        self.subscriber_router = MqttSubscriberRouter()
-        self.state_mirror_engine = StateMirrorEngine(base_topic="OPEN-AIR", subscriber_router=self.subscriber_router) # Using a base topic for the whole app
-        
-        self.mqtt_connection_manager = MqttConnectionManager()
-        self.mqtt_connection_manager.connect_to_broker(
-            on_message_callback=self.subscriber_router.get_on_message_callback(),
-            subscriber_router=self.subscriber_router
-        )
+        # --- Initialize MQTT and Logic Layers (injected) ---
+        self.mqtt_connection_manager = mqtt_connection_manager
+        self.subscriber_router = subscriber_router
+        self.state_mirror_engine = state_mirror_engine
+        self.visa_proxy = visa_proxy # Store visa_proxy
+
             
         # Initialize utility classes
         self.theme_colors = self._apply_styles(theme_name="DEFAULT_THEME")
@@ -130,6 +127,8 @@ class Application(ttk.Frame):
             debug_log(message="Initiating application shutdown...", **_get_log_args())
         
         self.mqtt_connection_manager.disconnect()
+        if self.visa_proxy:
+            self.visa_proxy.shutdown()
 
     def _trigger_initial_tab_selection(self):
         """Triggers the _on_tab_change event for the initially selected tab of each notebook."""

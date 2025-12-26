@@ -134,16 +134,6 @@ class GuiListboxCreatorMixin:
                 widget = event.widget
                 selection_indices = widget.curselection()
                 if not selection_indices:
-                    # If nothing is selected, clear the var
-                    if selected_option_var.get():
-                        selected_option_var.set("") # Clear selection in var
-                        # And potentially publish 'false' for previously selected
-                        if self._last_selected_option_listbox:
-                            old_key = next((key for key, opt in options_map.items() if opt.get('label_active', key) == self._last_selected_option_listbox), None)
-                            if old_key:
-                                old_path = f"{path}/options/{old_key}/selected"
-                                self._transmit_command(widget_name=old_path, value='false')
-                                self._last_selected_option_listbox = ""
                     return
 
                 selected_index = selection_indices[0]
@@ -153,23 +143,13 @@ class GuiListboxCreatorMixin:
                     selected_key = next((key for key, opt in options_map.items() if opt.get('label_active', key) == selected_label), None)
                     
                     if selected_key:
-                        # Update the StringVar directly. This will trigger the trace.
-                        selected_option_var.set(selected_label)
-
-                        # Publish MQTT messages only if the selection actually changed for state synchronization
-                        if selected_key != self._last_selected_option_listbox:
-                            # Deselect the previous option
-                            if self._last_selected_option_listbox:
-                                old_key_to_deselect = next((key for key, opt in options_map.items() if opt.get('label_active', key) == self._last_selected_option_listbox), None)
-                                if old_key_to_deselect:
-                                    old_path = f"{path}/options/{old_key_to_deselect}/selected"
-                                    self._transmit_command(widget_name=old_path, value='false')
-
-                            # Select the new option
-                            new_path = f"{path}/options/{selected_key}/selected"
-                            self._transmit_command(widget_name=new_path, value='true')
-                            
-                            self._last_selected_option_listbox = selected_key # Update for the next comparison
+                        # Iterate over all options to enforce single selection
+                        for key, opt in options_map.items():
+                            is_selected = (key == selected_key)
+                            topic_path = f"{path}/options/{key}/selected"
+                            self._transmit_command(widget_name=topic_path, value=str(is_selected).lower())
+                        
+                        selected_option_var.set(selected_label) # Update the GUI
 
                         if app_constants.LOCAL_DEBUG_ENABLE: 
                             debug_log(

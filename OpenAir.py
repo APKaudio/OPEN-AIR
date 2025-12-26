@@ -25,6 +25,7 @@ import workers.setup.console_encoder as console_encoder
 import workers.setup.debug_cleaner as debug_cleaner
 from workers.setup.application_initializer import initialize_app
 from workers.utils.log_utils import _get_log_args
+from managers.manager_launcher import launch_managers
 
 def _reveal_main_window(root, splash):
     if app_constants.ENABLE_DEBUG_SCREEN:
@@ -32,7 +33,7 @@ def _reveal_main_window(root, splash):
     root.deiconify() # Ensure main window is visible
     splash.hide()    # Dismiss the splash screen
 
-def action_open_display(root, splash):
+def action_open_display(root, splash, mqtt_connection_manager, subscriber_router, state_mirror_engine, visa_proxy):
     """
     Builds and displays the main application window, ensuring the splash
     screen remains responsive by updating the event loop between heavy steps.
@@ -50,7 +51,10 @@ def action_open_display(root, splash):
         
         # This is the primary long-running GUI task.
         # We pass the root window to the Application so it can call update() internally.
-        app = Application(parent=root, root=root)
+        app = Application(parent=root, root=root,
+                          mqtt_connection_manager=mqtt_connection_manager,
+                          subscriber_router=subscriber_router,
+                          state_mirror_engine=state_mirror_engine)
         app.pack(fill=tk.BOTH, expand=True)
         splash.set_status("Main window constructed.")
         root.update()
@@ -133,14 +137,24 @@ def main():
     root.geometry("1600x1200")
     # root.withdraw() # Removed for diagnostic
     
-    print(f"DEBUG: app_constants.LOCAL_DEBUG_ENABLE before SplashScreen: {app_constants.LOCAL_DEBUG_ENABLE}")
-    splash = SplashScreen(root, app_constants.CURRENT_VERSION, app_constants.LOCAL_DEBUG_ENABLE, temp_print, debug_log)
+   
+    splash = SplashScreen(root, app_constants.CURRENT_VERSION, app_constants.global_settings['debug_to_terminal'], temp_print, debug_log)
     root.splash_window = splash.splash_window # Strong reference
     splash.set_status("Initialization complete. Loading UI...")
     root.update() 
     
+    # Launch managers
+    managers = launch_managers(app=None, splash=splash) # Pass app=None for now, will be updated.
+    
+    if managers is None:
+        debug_log(message="❌ Manager launch failed. Exiting application.", **_get_log_args())
+        sys.exit(1)
+
     # Now that the splash screen is visible, proceed with building the main display.
-    app = action_open_display(root, splash)
+    app = action_open_display(root, splash,
+                              mqtt_connection_manager=managers["mqtt_connection_manager"],
+                              subscriber_router=managers["subscriber_router"],
+                              state_mirror_engine=managers["state_mirror_engine"])
     
     def on_closing():
         """Gracefully shuts down the application."""

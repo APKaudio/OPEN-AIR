@@ -24,6 +24,7 @@ import inspect
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
+from workers
 
 LOCAL_DEBUG_ENABLE = False
 
@@ -61,7 +62,7 @@ def fill_scpi_placeholders(scpi_command_template: str, scpi_inputs: dict):
             
             if placeholder in filled_command:
                 filled_command = filled_command.replace(placeholder, value_to_substitute)
-                            if app_constants.LOCAL_DEBUG_ENABLE: 
+                if app_constants.LOCAL_DEBUG_ENABLE: 
                                 debug_log(message=f"🔁 Replaced placeholder '{placeholder}' with value '{value_to_substitute}'.",
                                               **_get_log_args()
                                               

@@ -42,8 +42,6 @@ from workers.styling.style import THEMES, DEFAULT_THEME
 from workers.mqtt.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 
-LOCAL_DEBUG_ENABLE = False
-
 # --- Global Scope Variables ---
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
@@ -65,7 +63,7 @@ class MarkerPeakHunterGUI(ttk.Frame):
         """
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.LOCAL_DEBUG_ENABLE: 
+        if app_constants.global_settings['debug_to_terminal']: 
             debug_log(
                 message=f"🖥️🟢 Initializing the {self.__class__.__name__}.",
               **_get_log_args()
@@ -129,7 +127,7 @@ class MarkerPeakHunterGUI(ttk.Frame):
                 message=f"❌ Error in {current_function_name}: {e}",
              **_get_log_args()
             )
-            if app_constants.LOCAL_DEBUG_ENABLE: 
+            if app_constants.global_settings['debug_to_terminal']: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                    **_get_log_args()
@@ -167,7 +165,7 @@ class MarkerPeakHunterGUI(ttk.Frame):
         Opens a file dialog and exports the current data from the table to a CSV file.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE: 
+        if app_constants.global_settings['debug_to_terminal']: 
             debug_log(
                 message=f"🖥️🔵 Preparing to export table data to CSV.",
              **_get_log_args()
@@ -195,7 +193,7 @@ class MarkerPeakHunterGUI(ttk.Frame):
 
         except Exception as e:
             debug_log(message=f"❌ Error in {current_function_name}: {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE: 
+            if app_constants.global_settings['debug_to_terminal']: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                 **_get_log_args()
