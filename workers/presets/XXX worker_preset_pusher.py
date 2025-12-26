@@ -33,7 +33,7 @@ import orjson
 import time
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
@@ -81,8 +81,8 @@ class PresetPusherWorker:
         """
         current_function_name = inspect.currentframe().f_code.co_name
         self.mqtt_controller = mqtt_controller
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️🟢 The preset pusher has been summoned!",
               **_get_log_args()
                 
@@ -98,8 +98,8 @@ class PresetPusherWorker:
             preset_values (list): A list of values for the selected preset.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️🟢 Attuning the instrument to the selected preset. Ready the coils!",
               **_get_log_args()
                 
@@ -127,11 +127,11 @@ class PresetPusherWorker:
 
             self.mqtt_controller.publish_message(topic=FREQ_TRIGGER, subtopic="", value=True)
             self.mqtt_controller.publish_message(topic=FREQ_TRIGGER, subtopic="", value=False)
-            debug_log(message="✅ Start/Stop frequencies set.")
+            debug_logger(message="✅ Start/Stop frequencies set.")
         except Exception as e:
-            debug_log(message=f"❌ Error setting Start/Stop frequencies: {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            debug_logger(message=f"❌ Error setting Start/Stop frequencies: {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🟢️️️🔴 The frequency setter is on the fritz! The error be: {e}",
                     file=current_file, version=current_version, function=current_function_name 
 
@@ -143,14 +143,14 @@ class PresetPusherWorker:
             self.mqtt_controller.publish_message(topic=RBW_INPUT, subtopic="", value=preset_dict.get('RBW'))
             self.mqtt_controller.publish_message(topic=RBW_TRIGGER, subtopic="", value=True)
             self.mqtt_controller.publish_message(topic=RBW_TRIGGER, subtopic="", value=False)
-            debug_log(message="✅ Resolution Bandwidth (RBW) set.")
+            debug_logger(message="✅ Resolution Bandwidth (RBW) set.")
 
         # --- Conditional: Set VBW ---
         if preset_dict.get('VBW') is not None and preset_dict.get('VBW').lower() != 'null':
             self.mqtt_controller.publish_message(topic=VBW_INPUT, subtopic="", value=preset_dict.get('VBW'))
             self.mqtt_controller.publish_message(topic=VBW_TRIGGER, subtopic="", value=True)
             self.mqtt_controller.publish_message(topic=VBW_TRIGGER, subtopic="", value=False)
-            debug_log(message="✅ Video Bandwidth (VBW) set.")
+            debug_logger(message="✅ Video Bandwidth (VBW) set.")
 
         # --- Conditional: Set Amplitude Rig ---
         ref_level = preset_dict.get('RefLevel')
@@ -162,7 +162,7 @@ class PresetPusherWorker:
             self.mqtt_controller.publish_message(topic=AMP_PREAMP, subtopic="", value=preamp)
             self.mqtt_controller.publish_message(topic=AMP_TRIGGER, subtopic="", value=True)
             self.mqtt_controller.publish_message(topic=AMP_TRIGGER, subtopic="", value=False)
-            debug_log(message="✅ Amplitude settings (RefLevel, Attenuation, Preamp) set.")
+            debug_logger(message="✅ Amplitude settings (RefLevel, Attenuation, Preamp) set.")
         
         # --- Conditional: Set Trace Modes ---
         trace_modes = [preset_dict.get(f'Trace{i}Mode') for i in range(1, 5)]
@@ -173,10 +173,10 @@ class PresetPusherWorker:
             self.mqtt_controller.publish_message(topic=TRACE_MODE_4_INPUT, subtopic="", value=trace_modes[3])
             self.mqtt_controller.publish_message(topic=TRACE_TRIGGER, subtopic="", value=True)
             self.mqtt_controller.publish_message(topic=TRACE_TRIGGER, subtopic="", value=False)
-            debug_log(message="✅ Trace modes set.")
+            debug_logger(message="✅ Trace modes set.")
         
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️✅ The tuning sequence is complete! All command triggers have been sent.",
               **_get_log_args()
                 

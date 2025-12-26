@@ -5,7 +5,7 @@ from tkinter import ttk
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 import os
 
@@ -13,8 +13,8 @@ class TextInputCreatorMixin:
     def _create_text_input(self, parent_frame, label, config, path):
         """Creates a text input widget."""
         current_function_name = "_create_text_input"
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to forge a text input field for '{label}'.",
 **_get_log_args()
                 
@@ -39,11 +39,11 @@ class TextInputCreatorMixin:
 
             def _on_text_change(*args):
                 try:
-                    if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"Text changed for {label}: {text_var.get()}", file=os.path.basename(__file__), function="_on_text_change")
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(message=f"Text changed for {label}: {text_var.get()}", file=os.path.basename(__file__), function="_on_text_change")
                 except Exception as e:
-                    if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"🔴 ERROR in _on_text_change: {e}", file=os.path.basename(__file__), function="_on_text_change", 
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(message=f"🔴 ERROR in _on_text_change: {e}", file=os.path.basename(__file__), function="_on_text_change", 
 
 )
 
@@ -58,13 +58,13 @@ class TextInputCreatorMixin:
                 try:
                     text_var.set(str(value))
                 except (ValueError, TypeError) as e:
-                    if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"🔴 ERROR in _update_text: {e}", file=os.path.basename(__file__), function=current_function_name 
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(message=f"🔴 ERROR in _update_text: {e}", file=os.path.basename(__file__), function=current_function_name 
 
 )
             
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ SUCCESS! The text input '{label}' has been successfully forged!",
                     file=os.path.basename(__file__),
                     version=app_constants.CURRENT_VERSION,
@@ -76,9 +76,9 @@ class TextInputCreatorMixin:
             # self.mqtt_callbacks[path] = _update_text
             return frame
         except Exception as e:
-            debug_log(message=f"💥 KABOOM! The text input '{label}' has disintegrated! Error: {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            debug_logger(message=f"💥 KABOOM! The text input '{label}' has disintegrated! Error: {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"💥 KABOOM! The text input '{label}' has disintegrated! Error: {e}",
                     file=os.path.basename(__file__),
                     version=app_constants.CURRENT_VERSION,

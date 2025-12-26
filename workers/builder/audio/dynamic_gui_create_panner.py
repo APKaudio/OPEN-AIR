@@ -9,7 +9,7 @@ import math
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 import os
@@ -18,8 +18,8 @@ class PannerCreatorMixin:
     def _create_panner(self, parent_frame, label, config, path):
         """Creates a rotary panner widget."""
         current_function_name = "_create_panner"
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to forge a themed panner for '{label}'.",
                 **_get_log_args()
             )
@@ -57,8 +57,8 @@ class PannerCreatorMixin:
                 current_panner_val = panner_value_var.get()
                 value_label.config(text=f"{int(current_panner_val)}")
                 self._draw_knob(canvas, width, height, current_panner_val, min_val, max_val, fg_color, accent_color, secondary_color)
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"⚡ fluxing... Panner '{label}' updated visually to {current_panner_val} from MQTT.",
                         **_get_log_args()
                     )
@@ -92,21 +92,21 @@ class PannerCreatorMixin:
             # Register the StringVar with the StateMirrorEngine for MQTT updates
             if path and self.state_mirror_engine:
                 self.state_mirror_engine.register_widget(path, panner_value_var, self.tab_name)
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {panner_value_var.get()}).",
                         **_get_log_args()
                     )
 
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ SUCCESS! The themed panner '{label}' is calibrated!",
                     **_get_log_args()
                 )
             return frame
 
         except Exception as e:
-            debug_log(message=f"💥 KABOOM! The panner '{label}' shattered! Error: {e}")
+            debug_logger(message=f"💥 KABOOM! The panner '{label}' shattered! Error: {e}")
             return None
 
     def _draw_knob(self, canvas, width, height, value, min_val, max_val, fg, accent, secondary):

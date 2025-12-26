@@ -33,7 +33,7 @@ from tkinter import ttk
 import inspect
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
@@ -58,8 +58,8 @@ class SliderValueCreatorMixin:
         # Creates a slider and an entry box for a numerical value.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to assemble a slider for '{label}'.",
               **_get_log_args()
                 
@@ -114,7 +114,7 @@ class SliderValueCreatorMixin:
                     if min_val <= new_val <= max_val:
                         slider.set(new_val)
                 except ValueError:
-                    debug_log(message="Invalid input, please enter a number.")
+                    debug_logger(message="Invalid input, please enter a number.")
 
             slider.config(command=on_slider_move)
             entry.bind("<FocusOut>", on_entry_change)
@@ -123,8 +123,8 @@ class SliderValueCreatorMixin:
             # --- New Logic: Trace for external updates ---
             def _update_slider_from_entry_var(*args):
                 if not entry_value.get(): # Check for empty string
-                    if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message="Empty string in entry_value for slider. Ignoring update.", **_get_log_args())
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(message="Empty string in entry_value for slider. Ignoring update.", **_get_log_args())
                     return # Exit early if the string is empty
                 
                 try:
@@ -138,8 +138,8 @@ class SliderValueCreatorMixin:
                         slider.set(max_val)
                 except (ValueError, tk.TclError):
                     # Handle cases where entry_value might not be a valid float
-                    if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"Invalid value in entry_value for slider: {entry_value.get()}", **_get_log_args())
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(message=f"Invalid value in entry_value for slider: {entry_value.get()}", **_get_log_args())
             
             # Bind the trace to the entry_value
             entry_value.trace_add("write", _update_slider_from_entry_var)
@@ -163,8 +163,8 @@ class SliderValueCreatorMixin:
                     self.subscriber_router.subscribe_to_topic(topic, self.state_mirror_engine.sync_incoming_mqtt_to_gui)
 
 
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ SUCCESS! The slider '{label}' has materialized!",
 **_get_log_args()
                     
@@ -174,9 +174,9 @@ class SliderValueCreatorMixin:
             return sub_frame
 
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            debug_logger(message=f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"💥 KABOOM! The slider contraption for '{label}' has malfunctioned! Error: {e}",
 **_get_log_args()
                     

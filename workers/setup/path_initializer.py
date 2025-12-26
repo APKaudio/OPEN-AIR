@@ -5,7 +5,7 @@ import sys
 import pathlib
 from workers.mqtt.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
-from workers.logger.logger import debug_log # Import debug_log
+from workers.logger.logger import  debug_logger # import  debug_logger
 from workers.utils.log_utils import _get_log_args # Import _get_log_args
 
 GLOBAL_PROJECT_ROOT = None
@@ -17,12 +17,12 @@ def initialize_paths(): # Removed _func argument
     # --- GLOBAL PATH ANCHOR (CRITICAL FIX: Ensure this runs first!) ---
     # This defines the absolute, true root path of the project, irrespective of the CWD.
     GLOBAL_PROJECT_ROOT = pathlib.Path(__file__).resolve().parent.parent.parent # Adjust path for setup directory
-    debug_log(message=f"DEBUG: GLOBAL_PROJECT_ROOT set to {GLOBAL_PROJECT_ROOT}", **_get_log_args())
+    debug_logger(message=f"DEBUG: GLOBAL_PROJECT_ROOT set to {GLOBAL_PROJECT_ROOT}", **_get_log_args())
     # Add the project's root directory to the system path to allow for imports from
     # all sub-folders (e.g., 'configuration' and 'display'). This is a robust way to handle imports.
     if str(GLOBAL_PROJECT_ROOT) not in sys.path:
         sys.path.append(str(GLOBAL_PROJECT_ROOT))
-    debug_log(message=f"DEBUG: sys.path updated. Current sys.path: {sys.path}", **_get_log_args())
+    debug_logger(message=f"DEBUG: sys.path updated. Current sys.path: {sys.path}", **_get_log_args())
 
 
     # --- Set DATA_DIR ---

@@ -25,7 +25,7 @@ import sys
 import orjson
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 
@@ -46,7 +46,7 @@ class InitialConfigurationTab(ttk.Frame):
         editing the application's configuration.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(message=f"📕🟢 Initializing InitialConfigurationTab...",
+        debug_logger(message=f"📕🟢 Initializing InitialConfigurationTab...",
                   file=current_file, version=current_version, function=current_function, 
 
 )
@@ -56,7 +56,7 @@ class InitialConfigurationTab(ttk.Frame):
         self._create_widgets()
         self._populate_config_table()
         
-        debug_log(message=f"📕✅ InitialConfigurationTab initialized.",
+        debug_logger(message=f"📕✅ InitialConfigurationTab initialized.",
                   file=current_file, version=current_version, function=current_function, 
 
 )
@@ -67,7 +67,7 @@ class InitialConfigurationTab(ttk.Frame):
         text area for displaying the config and buttons for saving and reloading.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(message=f"📕🟢 Creating widgets for InitialConfigurationTab.",
+        debug_logger(message=f"📕🟢 Creating widgets for InitialConfigurationTab.",
                   file=current_file, version=current_version, function=current_function, 
 
 )
@@ -95,7 +95,7 @@ class InitialConfigurationTab(ttk.Frame):
         reload_button = ttk.Button(bottom_control_frame, text="Reload Config", command=self._reload_config_action, style='Orange.TButton')
         reload_button.pack(side=tk.LEFT, anchor=tk.SW, padx=5, pady=5) # Pack to left, anchor to South-West
         
-        debug_log(message=f"📕✅ Widgets created.",
+        debug_logger(message=f"📕✅ Widgets created.",
                   file=current_file, version=current_version, function=current_function, 
 
 )
@@ -105,7 +105,7 @@ class InitialConfigurationTab(ttk.Frame):
         Reads a mock config file and populates the text widget with its content.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(message=f"📕🟢 Populating config table from a mock file.",
+        debug_logger(message=f"📕🟢 Populating config table from a mock file.",
                   file=current_file, version=current_version, function=current_function, 
 
 )
@@ -132,14 +132,14 @@ marker3_freq_MHz = 333.0
             self.config_text_widget.insert(tk.END, mock_config_content)
             self.config_text_widget.config(state=tk.DISABLED)
             
-            debug_log(message=f"📕✅ Config table populated successfully.",
+            debug_logger(message=f"📕✅ Config table populated successfully.",
                       file=current_file, version=current_version, function=current_function, 
 
 )
 
         except Exception as e:
-            debug_log(message=f"❌ Error populating config table: {e}")
-            debug_log(message=f"📕🔴 Failed to populate config table. Error: {e}",
+            debug_logger(message=f"❌ Error populating config table: {e}")
+            debug_logger(message=f"📕🔴 Failed to populate config table. Error: {e}",
                       file=current_file, version=current_version, function=current_function, 
 
 )
@@ -149,7 +149,7 @@ marker3_freq_MHz = 333.0
         Handles the action of saving the edited config back to a mock file.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(message=f"📕🟢 Attempting to save mock config file...",
+        debug_logger(message=f"📕🟢 Attempting to save mock config file...",
                   file=current_file, version=current_version, function=current_function, 
 
 )
@@ -158,14 +158,14 @@ marker3_freq_MHz = 333.0
             current_content = self.config_text_widget.get('1.0', tk.END)
             # In a real app, this would write to a file. Here, we just log the action.
             
-            debug_log(message=f"📕✅ Mock configuration saved. Arrr, the treasure be safely stowed! ⚓️",
+            debug_logger(message=f"📕✅ Mock configuration saved. Arrr, the treasure be safely stowed! ⚓️",
                       file=current_file, version=current_version, function=current_function, 
 
 )
 
         except Exception as e:
             
-            debug_log(message=f"📕🔴 Failed to save configuration. Error: {e}",
+            debug_logger(message=f"📕🔴 Failed to save configuration. Error: {e}",
                       file=current_file, version=current_version, function=current_function, 
 
 )
@@ -175,7 +175,7 @@ marker3_freq_MHz = 333.0
         Handles the action of reloading a mock config from disk.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(message=f"📕🟢 Reloading config from mock disk...",
+        debug_logger(message=f"📕🟢 Reloading config from mock disk...",
                   file=current_file, version=current_version, function=current_function, 
 
 )
@@ -183,7 +183,7 @@ marker3_freq_MHz = 333.0
         self._populate_config_table()
         
         
-        debug_log(message=f"📕✅ Reloaded mock config. The map be fresh! 🗺️",
+        debug_logger(message=f"📕✅ Reloaded mock config. The map be fresh! 🗺️",
                   file=current_file, version=current_version, function=current_function, 
 
 )

@@ -20,7 +20,7 @@ import inspect
 from datetime import datetime
 
 # --- Imports for logging and workers ---
-from workers.logger.logger import  debug_log
+from workers.logger.logger import debug_logger
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
@@ -36,7 +36,6 @@ current_iteration = 2
 current_version = f"{current_date}.{current_time}.{current_iteration}"
 current_version_hash = (current_date * current_time * current_iteration)
 current_file = f"{os.path.basename(__file__)}"
-LOCAL_DEBUG_ENABLE = False
 
 class WorkerLauncher:
     """
@@ -52,8 +51,8 @@ class WorkerLauncher:
         # Initializes and starts all registered worker processes.
         current_function_name = inspect.currentframe().f_code.co_name
         
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️🟢 Eureka! We are kicking off the worker engines from '{current_function_name}'!",
                 **_get_log_args()    
             )
@@ -64,17 +63,17 @@ class WorkerLauncher:
             
             ## active_peak_publisher = ActivePeakPublisher()
             self.splash.set_status("Active Peak Publisher initialized.")
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(message="🟢️️️🔵 Worker 'ActivePeakPublisher' initialized. The lab is buzzing with activity!", **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message="🟢️️️🔵 Worker 'ActivePeakPublisher' initialized. The lab is buzzing with activity!", **_get_log_args())
 
             # --- Celebration of Success ---
-            debug_log(message="✅ All workers have been successfully conjured and set to their tasks!", **_get_log_args())
+            debug_logger(message="✅ All workers have been successfully conjured and set to their tasks!", **_get_log_args())
             return True
 
         except Exception as e:
-            debug_log(message=f"❌ A dreadful error occurred in '{current_function_name}': {e}", **_get_log_args())
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            debug_logger(message=f"❌ A dreadful error occurred in '{current_function_name}': {e}", **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🟢️️️🔴 Great Scott! The worker initialization has gone haywire in '{current_function_name}'! The error be: {e}",
                     **_get_log_args()
                     

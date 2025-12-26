@@ -23,7 +23,7 @@ import time
 import orjson
 import os
 
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
 ## from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
@@ -142,7 +142,7 @@ class BandwidthYakCommunicator:
                 self.state.sweep_time_value = final_value
                 self._publish_update(topic_suffix=gui_suffix, value=final_value)
         except Exception as e:
-            debug_log(message=f"❌ Error processing YAK output for {topic}: {e}", **_get_log_args())
+            debug_logger(message=f"❌ Error processing YAK output for {topic}: {e}", **_get_log_args())
 
     def _publish_update(self, topic_suffix, value):
         full_topic = f"{self.base_topic}/{topic_suffix}"

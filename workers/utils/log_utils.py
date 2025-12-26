@@ -1,32 +1,55 @@
 # workers/utils/log_utils.py
+#
+# Utility to capture the context (File, Function, Version) of a log call.
+#
+# Author: Anthony Peter Kuzub
+# Version: 20251226.002000.1
+#
+
 import inspect
 import os
-from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+from workers.mqtt.setup.config_reader import Config
 
-app_constants = Config.get_instance() # Get the singleton instance      
+app_constants = Config.get_instance()
 
 def _get_log_args():
-    """Helper to get common debug_log arguments.
-    
-    Returns:
-        dict: A dictionary containing 'file', 'version', and 'function' 
-              to be used with debug_log.
     """
-    if app_constants.PERFORMANCE_MODE: # This was the line where PERFORMANCE_MODE was undefined
-        return {} # Return empty dict in performance mode
+    Inspects the call stack to retrieve the filename, function name,
+    and 'current_version' of the caller.
+    """
+    try:
+        # 1. Step back one frame to find who called this function
+        frame = inspect.currentframe().f_back
         
-    # This frame navigation is crucial.
-    # inspect.currentframe() is _get_log_args
-    # f_back is the caller of _get_log_args (e.g., debug_log(...))
-    # f_back.f_back is the actual function that called debug_log.
-    frame = inspect.currentframe().f_back.f_back
+        if frame:
+            # 2. Extract Filename
+            filename = os.path.basename(frame.f_code.co_filename)
+            
+            # 3. Extract Function Name
+            function_name = frame.f_code.co_name
+            
+            # 4. Extract 'current_version' from the caller's globals
+            # (As per the Flux Capacitor Protocol: Every file defines current_version)
+            version = frame.f_globals.get('current_version', 'Unknown_Ver')
+            
+            return {
+                "file": filename,
+                "version": version,
+                "function": function_name
+            }
+            
+    except Exception as e:
+        # If the stack is unstable, return defaults to prevent a crash
+        return {
+            "file": "unknown_file",
+            "version": "unknown_ver",
+            "function": "unknown_func",
+            "error": str(e)
+        }
     
-    # Ensure app_constants has current_version defined.
-    # If not, a default or error handling might be needed.
-    # Assuming app_constants.current_version is always available.
-    
+    # Fallback
     return {
-        "file": os.path.basename(frame.f_code.co_filename),
-        "version": app_constants.CURRENT_VERSION,
-        "function": frame.f_code.co_name
+        "file": "unknown",
+        "version": "unknown",
+        "function": "unknown"
     }

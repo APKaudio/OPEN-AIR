@@ -23,7 +23,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 import pathlib
 from workers.mqtt.setup.config_reader import Config # Import the Config class
@@ -73,8 +73,8 @@ class StartPauseStopGui(ttk.Frame):
         
         # --- Dynamic GUI Builder ---
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to initialize the StartPauseStopGui.",
                 **_get_log_args()
             )
@@ -84,17 +84,17 @@ class StartPauseStopGui(ttk.Frame):
                 json_path=JSON_CONFIG_FILE,
                 config=self.config_data
             )
-            debug_log(
+            debug_logger(
                 message="✅ The StartPauseStopGui did initialize its dynamic GUI builder.",
                 **_get_log_args()
             )
         except Exception as e:
-            debug_log(
+            debug_logger(
                 message=f"❌ Error in {current_function_name}: {e}",
                 **_get_log_args()
             )
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     **_get_log_args()
                 )

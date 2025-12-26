@@ -6,7 +6,7 @@
 
 from .mqtt_connection_manager import MqttConnectionManager
 import orjson
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 
 def publish_payload(topic: str, payload: str, retain: bool = False):
@@ -17,9 +17,9 @@ def publish_payload(topic: str, payload: str, retain: bool = False):
     client = connection_manager.get_client_instance()
     if client and client.is_connected():
         client.publish(topic, payload, retain=retain)
-        debug_log(message=f"📤 Published to {topic}: {payload}", **_get_log_args())
+        debug_logger(message=f"📤 Published to {topic}: {payload}", **_get_log_args())
     else:
-        debug_log(message=f"❌ Not connected to broker. Cannot publish to {topic}.", **_get_log_args())
+        debug_logger(message=f"❌ Not connected to broker. Cannot publish to {topic}.", **_get_log_args())
 
 def publish_json_structure(base_topic: str, json_data: dict):
     """
@@ -31,6 +31,6 @@ def publish_json_structure(base_topic: str, json_data: dict):
     if client and client.is_connected():
         payload = orjson.dumps(json_data)
         client.publish(base_topic, payload, retain=True)
-        debug_log(message=f"Published JSON structure to {base_topic}", **_get_log_args())
+        debug_logger(message=f"Published JSON structure to {base_topic}", **_get_log_args())
     else:
-        debug_log(message=f"❌ Not connected to broker. Cannot publish JSON structure to {base_topic}.", **_get_log_args())
+        debug_logger(message=f"❌ Not connected to broker. Cannot publish JSON structure to {base_topic}.", **_get_log_args())

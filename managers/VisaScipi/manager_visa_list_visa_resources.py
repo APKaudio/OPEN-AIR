@@ -15,7 +15,7 @@
 
 import pyvisa
 import inspect
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 from workers.mqtt.setup.config_reader import Config
 
@@ -27,8 +27,8 @@ def list_visa_resources():
     # Lists available VISA resources (instruments).
    
     current_function = inspect.currentframe().f_code.co_name
-    if app_constants.LOCAL_DEBUG_ENABLE: 
-        debug_log(message="💳 Listing VISA resources... Let's find some devices!", **_get_log_args())
+    if app_constants.global_settings['debug_enabled']:
+        debug_logger(message="💳 Listing VISA resources... Let's find some devices!", **_get_log_args())
     try:
         rm = pyvisa.ResourceManager()
         
@@ -53,12 +53,12 @@ def list_visa_resources():
         resources = usb_resources + tcpip_resources + other_resources
         # --- End Resource Reordering Logic ---
         
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(message=f"💳 Found VISA resources (Reordered): {resources}.", **_get_log_args())
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message=f"💳 Found VISA resources (Reordered): {resources}.", **_get_log_args())
         return list(resources)
     except Exception as e:
         error_msg = f"💳 ❌ Error listing VISA resources: {e}."
         
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(message=error_msg, **_get_log_args())
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message=error_msg, **_get_log_args())
         return []

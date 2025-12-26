@@ -20,7 +20,7 @@ def initialize_flags():
 
     # Update global_settings for compatibility with older code if necessary
     app_constants.global_settings["general_debug_enabled"] = app_constants.ENABLE_DEBUG_MODE
-    app_constants.global_settings["debug_to_terminal"] = app_constants.ENABLE_DEBUG_SCREEN
+    app_constants.global_settings["debug_enabled"] = app_constants.ENABLE_DEBUG_SCREEN
     app_constants.global_settings["debug_to_file"] = app_constants.ENABLE_DEBUG_FILE
 
 # --- Call initialize_flags immediately to ensure global_settings are set ---

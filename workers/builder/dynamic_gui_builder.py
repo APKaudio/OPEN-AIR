@@ -17,7 +17,7 @@ import inspect
 import time
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.styling.style import THEMES, DEFAULT_THEME
 from workers.builder.input.dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
@@ -97,8 +97,8 @@ class DynamicGuiBuilder(
         self.current_class_name = self.__class__.__name__
         self.last_build_hash = None # ⚡ Initialize Hash Tracker
 
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-             debug_log(
+        if app_constants.global_settings['debug_enabled']:
+             debug_logger(
                  message=f"🖥️🟢 Igniting the DynamicGuiBuilder v{current_version}",
                  file=current_file,
                  version=current_version,
@@ -106,7 +106,7 @@ class DynamicGuiBuilder(
              )
 
         if json_path is None:
-            debug_log(message=f"❌ Error in __init__: Missing critical argument: json_path.")
+            debug_logger(message=f"❌ Error in __init__: Missing critical argument: json_path.")
             return
 
         self.pack(fill=tk.BOTH, expand=True)
@@ -173,7 +173,7 @@ class DynamicGuiBuilder(
             self._load_and_build_from_file()
 
         except Exception as e:
-            debug_log(message=f"❌ Error in __init__: {e}")
+            debug_logger(message=f"❌ Error in __init__: {e}")
 
     def _transmit_command(self, widget_name: str, value):
         if self.state_mirror_engine:
@@ -190,8 +190,8 @@ class DynamicGuiBuilder(
                     "instance_id": self.state_mirror_engine.instance_id # Add instance ID
                 }
                 self.state_mirror_engine.publish_command(topic, orjson.dumps(payload))
-        elif app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(message=f"[DUMMY] _transmit_command called for {widget_name} with value {value}", **_get_log_args())
+        elif app_constants.global_settings['debug_enabled']:
+            debug_logger(message=f"[DUMMY] _transmit_command called for {widget_name} with value {value}", **_get_log_args())
 
     def _apply_styles(self, theme_name):
         style = ttk.Style()
@@ -268,9 +268,9 @@ class DynamicGuiBuilder(
                 
                 # Check if the file has changed since the last build
                 if self.last_build_hash == current_hash:
-                    if app_constants.LOCAL_DEBUG_ENABLE:
+                    if app_constants.global_settings['debug_enabled']:
                         # Use a simple message to avoid overhead
-                        debug_log(message=f"⚡ Config unchanged for {self.json_filepath.name}. Skipping GUI rebuild.")
+                        debug_logger(message=f"⚡ Config unchanged for {self.json_filepath.name}. Skipping GUI rebuild.")
                     return
 
                 # If changed, update hash and parse JSON
@@ -281,21 +281,19 @@ class DynamicGuiBuilder(
                 self._rebuild_gui()
                 self.gui_built = True
             else:
-                debug_log(message=f"🟡 Warning: Config file missing at {self.json_filepath}")
+                debug_logger(message=f"🟡 Warning: Config file missing at {self.json_filepath}")
         except Exception as e:
-            debug_log(message=f"❌ Error in _load_and_build_from_file: {e}")
+            debug_logger(message=f"❌ Error in _load_and_build_from_file: {e}")
 
     def _rebuild_gui(self):
         # Solution B: Silent Running Protocol (Log Suppression)
-        previous_debug_enable_state = app_constants.LOCAL_DEBUG_ENABLE
-        app_constants.LOCAL_DEBUG_ENABLE = False
 
         previous_performance_mode = app_constants.PERFORMANCE_MODE
         app_constants.PERFORMANCE_MODE = True
 
         try:
-            if previous_debug_enable_state:
-                debug_log(message="🖥️🔁 Tearing down the old world to build a new one!", **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message="🖥️🔁 Tearing down the old world to build a new one!", **_get_log_args())
             
             # Solution A: Layout Locking
             self.pack_forget() 
@@ -310,9 +308,7 @@ class DynamicGuiBuilder(
             self._create_widgets_in_batches(self.scroll_frame, widget_configs)
             
         except Exception as e:
-            app_constants.LOCAL_DEBUG_ENABLE = True
-            debug_log(message=f"❌ Error in _rebuild_gui: {e}", **_get_log_args())
-            app_constants.LOCAL_DEBUG_ENABLE = False
+            debug_logger(message=f"❌ Error in _rebuild_gui: {e}", **_get_log_args())
             
         finally:
             # Restore states in the final batch completion, not here.
@@ -366,13 +362,21 @@ class DynamicGuiBuilder(
                     self._create_dynamic_widgets(parent_frame=target_frame, data=value.get("fields", {}), path_prefix=current_path, override_cols=block_cols)
                 
                 elif widget_type in self.widget_factory:
-                    target_frame = self.widget_factory[widget_type](
-                        parent_frame=parent_frame,
-                        label=value.get("label_active", key),
-                        config=value,
-                        path=current_path
-                    )
-
+                    if widget_type == "_GuiListbox": # Special case for listbox
+                        target_frame = self.widget_factory[widget_type](
+                            parent_frame=parent_frame,
+                            label=value.get("label_active", key),
+                            config=value,
+                            path=current_path,
+                            subscriber_router=self.subscriber_router # Pass subscriber_router only for listbox
+                        )
+                    else: # Other widgets do not receive subscriber_router
+                        target_frame = self.widget_factory[widget_type](
+                            parent_frame=parent_frame,
+                            label=value.get("label_active", key),
+                            config=value,
+                            path=current_path
+                        )
                 if target_frame:
                     target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)
                     col += col_span
@@ -391,12 +395,19 @@ class DynamicGuiBuilder(
             self.pack(fill=tk.BOTH, expand=True) # Re-show the parent now that all widgets are created
 
             # Restore logging state
-            previous_debug_enable_state = getattr(self, '_previous_debug_state', True) # Retrieve saved state
-            app_constants.LOCAL_DEBUG_ENABLE = previous_debug_enable_state
             app_constants.PERFORMANCE_MODE = False
             
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(message="✅ Batch processing complete! All widgets built.", **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message="✅ Batch processing complete! All widgets built.", **_get_log_args())
+
+            # --- Publish entire GUI config to MQTT ---
+            if self.state_mirror_engine:
+                config_topic = f"{get_topic(self.state_mirror_engine.base_topic, '', 'GUI/Config/Finished')}"
+                payload = orjson.dumps(self.config_data)
+                self.state_mirror_engine.publish_command(config_topic, payload)
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"✅ Published entire GUI config to MQTT topic: {config_topic}", **_get_log_args())
+
 
     def _create_dynamic_widgets(self, parent_frame, data, path_prefix="", override_cols=None):
         """
@@ -436,12 +447,21 @@ class DynamicGuiBuilder(
                         self._create_dynamic_widgets(parent_frame=target_frame, data=value.get("fields", {}), path_prefix=current_path, override_cols=block_cols)
                     
                     elif widget_type in self.widget_factory:
-                        target_frame = self.widget_factory[widget_type](
-                            parent_frame=parent_frame,
-                            label=value.get("label_active", key),
-                            config=value,
-                            path=current_path
-                        )
+                        if widget_type == "_GuiListbox": # Special case for listbox
+                            target_frame = self.widget_factory[widget_type](
+                                parent_frame=parent_frame,
+                                label=value.get("label_active", key),
+                                config=value,
+                                path=current_path,
+                                subscriber_router=self.subscriber_router # Pass subscriber_router only for listbox
+                            )
+                        else: # Other widgets do not receive subscriber_router
+                            target_frame = self.widget_factory[widget_type](
+                                parent_frame=parent_frame,
+                                label=value.get("label_active", key),
+                                config=value,
+                                path=current_path
+                            )
 
                     if target_frame:
                         target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)

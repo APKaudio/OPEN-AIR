@@ -30,7 +30,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 import os
 import tkinter as tk
 from tkinter import ttk
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 import inspect
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
@@ -50,8 +50,8 @@ class GuiButtonToggleCreatorMixin:
         # Creates a single button that toggles between two states (e.g., ON/OFF).
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to engineer a toggle button for '{label}'.",
               **_get_log_args()
             )
@@ -109,17 +109,17 @@ class GuiButtonToggleCreatorMixin:
                     self.subscriber_router.subscribe_to_topic(topic, self.state_mirror_engine.sync_incoming_mqtt_to_gui)
 
 
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ SUCCESS! The toggle button '{label}' is alive!",
                     **_get_log_args()
                 )
             return sub_frame
 
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            debug_logger(message=f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"💥 KABOOM! The toggle button for '{label}' went into a paradoxical state! Error: {e}",
                     **_get_log_args()
                 )

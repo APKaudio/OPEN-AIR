@@ -7,7 +7,7 @@
 import pyvisa
 import inspect
 import datetime
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 from workers.mqtt.setup.config_reader import Config
 
@@ -25,8 +25,8 @@ class VisaConnector:
         # Establishes a connection to a VISA instrument.
         
         current_function = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(message=f"💳 Connecting to instrument: {resource_name}. Fingers crossed!", **_get_log_args())
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message=f"💳 Connecting to instrument: {resource_name}. Fingers crossed!", **_get_log_args())
         try:
             rm = pyvisa.ResourceManager()
             inst = rm.open_resource(resource_name)
@@ -35,14 +35,14 @@ class VisaConnector:
             inst.write_termination = '\n'
             inst.query_delay = 0.1
             
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(message=f"💳 Connection successful to {resource_name}. We're in!", **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"💳 Connection successful to {resource_name}. We're in!", **_get_log_args())
             return inst
         except Exception as e:
             error_msg = f"💳 ❌ An unexpected error occurred while connecting to {resource_name}: {e}."
             
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(message=error_msg, **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=error_msg, **_get_log_args())
             return None
 
     def connect_instrument_logic(self, resource_name):
@@ -77,5 +77,5 @@ class VisaConnector:
             
             return self.inst 
         except Exception as e:
-            debug_log(message=f"💳 ❌ Error during connection logic: {e}", **_get_log_args())
+            debug_logger(message=f"💳 ❌ Error during connection logic: {e}", **_get_log_args())
             return False

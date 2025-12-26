@@ -34,7 +34,7 @@ import inspect
 import orjson
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
@@ -60,8 +60,8 @@ class GuiCheckboxCreatorMixin:
         # Creates a checkbox widget.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to spawn a checkbox for '{label}'.",
               **_get_log_args()
                 
@@ -92,8 +92,8 @@ class GuiCheckboxCreatorMixin:
                 new_state = state_var.get()
                 # Pass raw boolean instead of JSON string
                 payload = new_state
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"GUI ACTION: Publishing state change for '{label}' to path '{path}' with value '{new_state}'.",
                         file=current_file,
                         version=current_version,
@@ -118,15 +118,15 @@ class GuiCheckboxCreatorMixin:
             # Store the widget and its state variable for external updates.
             if path and self.state_mirror_engine:
                 self.state_mirror_engine.register_widget(path, state_var, self.tab_name)
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (BooleanVar: {state_var.get()}).",
                         **_get_log_args()
                     )
 
 
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ SUCCESS! The checkbox '{label}' has been successfully instantiated.",
 **_get_log_args()
                     
@@ -137,8 +137,8 @@ class GuiCheckboxCreatorMixin:
 
         except Exception as e:
             (f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"💥 KABOOM! The checkbox for '{label}' suffered a quantum entanglement failure! Error: {e}",
 **_get_log_args()
                     

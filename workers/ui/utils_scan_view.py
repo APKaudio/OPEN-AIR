@@ -33,19 +33,19 @@ import traceback
 import numpy as np
 from matplotlib.offsetbox import AnchoredText 
 
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 
 
 def _find_and_plot_peaks(ax, data, start_freq_MHz, end_freq_MHz):
     # [A brief, one-sentence description of the function's purpose.]
     # Finds and plots local peaks on a Matplotlib axis.
-    debug_log(message=f"▶️ _find_and_plot_peaks with {len(data) if data else 0} data points.",
+    debug_logger(message=f"▶️ _find_and_plot_peaks with {len(data) if data else 0} data points.",
                 file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
     try:
         if not data:
-            debug_log(message="✅ No data to search for peaks.")
+            debug_logger(message="✅ No data to search for peaks.")
             return
 
         x_data = np.array(data)[:, 0]
@@ -75,16 +75,16 @@ def _find_and_plot_peaks(ax, data, start_freq_MHz, end_freq_MHz):
         for peak_x, peak_y in sorted_peaks:
             ax.axvline(x=peak_x, color='orange', linestyle='--', linewidth=1, zorder=4)
         
-        debug_log(message=f"✅ Found and plotted {len(sorted_peaks)} peaks.")
+        debug_logger(message=f"✅ Found and plotted {len(sorted_peaks)} peaks.")
     except Exception as e:
-        debug_log(message=f"❌ Error in _find_and_plot_peaks: {e}")
-        debug_log(message=f"Arrr, the code be capsized in peak finding! The error be: {e}\n{traceback.format_exc()}",
+        debug_logger(message=f"❌ Error in _find_and_plot_peaks: {e}")
+        debug_logger(message=f"Arrr, the code be capsized in peak finding! The error be: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
 def _setup_zoom_events(ax, canvas, original_xlim):
     # [A brief, one-sentence description of the function's purpose.]
     # Sets up event handlers for horizontal zooming on the plot.
-    debug_log(message=f"▶️ _setup_zoom_events.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_logger(message=f"▶️ _setup_zoom_events.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
     
     try:
         drag_start_x = None
@@ -111,30 +111,30 @@ def _setup_zoom_events(ax, canvas, original_xlim):
         canvas.mpl_connect('button_press_event', on_press)
         canvas.mpl_connect('button_release_event', on_release)
         canvas.mpl_connect('button_press_event', on_double_click)
-        debug_log(message="✅ Zoom events are now live!")
+        debug_logger(message="✅ Zoom events are now live!")
     except Exception as e:
-        debug_log(message=f"❌ Error in _setup_zoom_events: {e}")
-        debug_log(message=f"Great Scott! The zoom mechanism has backfired! Error: {e}\n{traceback.format_exc()}",
+        debug_logger(message=f"❌ Error in _setup_zoom_events: {e}")
+        debug_logger(message=f"Great Scott! The zoom mechanism has backfired! Error: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
 def reset_zoom(ax, canvas):
     # [A brief, one-sentence description of the function's purpose.]
     # Resets the plot to its original, full x-axis view.
-    debug_log(message=f"▶️ reset_zoom.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_logger(message=f"▶️ reset_zoom.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
     try:
         if hasattr(ax, 'original_xlim'):
             ax.set_xlim(ax.original_xlim)
             canvas.draw_idle()
-        debug_log(message="✅ Zoom reset.")
+        debug_logger(message="✅ Zoom reset.")
     except Exception as e:
-        debug_log(message=f"❌ Error in reset_zoom: {e}")
-        debug_log(message=f"It's madness! The zoom refused to reset! Error: {e}\n{traceback.format_exc()}",
+        debug_logger(message=f"❌ Error in reset_zoom: {e}")
+        debug_logger(message=f"It's madness! The zoom refused to reset! Error: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
 def update_single_plot(scan_view_tab_instance, data, start_freq_MHz, end_freq_MHz, plot_title, line_color='yellow'):
     # [A brief, one-sentence description of the function's purpose.]
     # Updates the single plot in the Scan View tab with new data.
-    debug_log(message=f"▶️ update_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_logger(message=f"▶️ update_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
         
     try:
         plot_info = scan_view_tab_instance.plot
@@ -182,8 +182,8 @@ def update_single_plot(scan_view_tab_instance, data, start_freq_MHz, end_freq_MH
         _setup_zoom_events(ax=ax, canvas=canvas, original_xlim=(start_freq_MHz, end_freq_MHz))
 
         canvas.draw()
-        debug_log(message="✅ Plot updated.")
+        debug_logger(message="✅ Plot updated.")
     except Exception as e:
-        debug_log(message=f"❌ Error in update_plot: {e}")
-        debug_log(message=f"Arrr, the plot be capsized! The error be: {e}\n{traceback.format_exc()}",
+        debug_logger(message=f"❌ Error in update_plot: {e}")
+        debug_logger(message=f"Arrr, the plot be capsized! The error be: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)

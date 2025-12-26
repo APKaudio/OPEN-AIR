@@ -14,7 +14,7 @@
 #
 
 import inspect
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 from workers.mqtt.setup.config_reader import Config
 
@@ -26,23 +26,23 @@ def disconnect_instrument(inst):
     # Closes the connection to a VISA instrument.
    
     current_function = inspect.currentframe().f_code.co_name
-    if app_constants.LOCAL_DEBUG_ENABLE: 
-        debug_log(message="💳 Disconnecting instrument... Saying goodbye!", **_get_log_args())
+    if app_constants.global_settings['debug_enabled']:
+        debug_logger(message="💳 Disconnecting instrument... Saying goodbye!", **_get_log_args())
     if inst:
         try:
             inst.close()
             
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(message="💳 Instrument connection closed. All done!", **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message="💳 Instrument connection closed. All done!", **_get_log_args())
             return True
         except Exception as e:
             error_msg = f"💳 ❌ An unexpected error occurred while disconnecting instrument: {e}."
             
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(message=error_msg, **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=error_msg, **_get_log_args())
             return False
-    if app_constants.LOCAL_DEBUG_ENABLE: 
-        debug_log(message="💳 No instrument to disconnect. Already gone!", **_get_log_args())
+    if app_constants.global_settings['debug_enabled']:
+        debug_logger(message="💳 No instrument to disconnect. Already gone!", **_get_log_args())
     return False
 
 class VisaDisconnector:

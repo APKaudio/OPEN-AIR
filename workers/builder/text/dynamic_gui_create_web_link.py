@@ -6,7 +6,7 @@ import webbrowser
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 import os
 
@@ -14,8 +14,8 @@ class WebLinkCreatorMixin:
     def _create_web_link(self, parent_frame, label, config, path):
         """Creates a web link widget."""
         current_function_name = "_create_web_link"
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to open a portal (web link) for '{label}'.",
 **_get_log_args()
                 
@@ -37,13 +37,13 @@ class WebLinkCreatorMixin:
             
             def _open_url(event):
                 try:
-                    if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"Opening URL: {url}", file=os.path.basename(__file__), function="_open_url")
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(message=f"Opening URL: {url}", file=os.path.basename(__file__), function="_open_url")
                     webbrowser.open_new(url)
                 except Exception as e:
-                    debug_log(message=f"🔴 ERROR opening URL: {e}")
-                    if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"🔴 ERROR opening URL: {e}", file=os.path.basename(__file__), function="_open_url", 
+                    debug_logger(message=f"🔴 ERROR opening URL: {e}")
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(message=f"🔴 ERROR opening URL: {e}", file=os.path.basename(__file__), function="_open_url", 
 
 )
 
@@ -52,8 +52,8 @@ class WebLinkCreatorMixin:
 
             self.topic_widgets[path] = {"widget": link_label}
 
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ SUCCESS! The portal to '{label}' has been opened!",
                     file=os.path.basename(__file__),
                     version=app_constants.CURRENT_VERSION,
@@ -64,9 +64,9 @@ class WebLinkCreatorMixin:
                 )
             return frame
         except Exception as e:
-            debug_log(message=f"💥 KABOOM! The web link for '{label}' has collapsed into a singularity! Error: {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            debug_logger(message=f"💥 KABOOM! The web link for '{label}' has collapsed into a singularity! Error: {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"💥 KABOOM! The web link for '{label}' has collapsed into a singularity! Error: {e}",
                     file=os.path.basename(__file__),
                     version=app_constants.CURRENT_VERSION,

@@ -11,7 +11,7 @@ import orjson
 import inspect
 import uuid
 import time
-from workers.logger.logger import debug_log, console_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 from workers.mqtt import mqtt_publisher_service
@@ -45,8 +45,8 @@ class StateMirrorEngine:
         # Subscribe to everything under the base topic (e.g., OPEN-AIR/Mixing Console/#)
         wildcard_topic = f"{self.base_topic}/#"
         
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🧪 Great Scott! Attaching electrodes to the timeline! Subscribing to: {wildcard_topic}",
                 **_get_log_args()
             )
@@ -79,14 +79,14 @@ class StateMirrorEngine:
         Called when the GUI changes (User Input).
         It broadcasts the change to the MQTT broker, including the instance_id.
         """
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"➡️ Entering broadcast_gui_change_to_mqtt for widget '{widget_id}'. _silent_update: {self._silent_update}",
                 **_get_log_args()
             )
         if self._silent_update:
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🤫 Suppressing broadcast for widget '{widget_id}' due to _silent_update flag.",
                     **_get_log_args()
                 )
@@ -114,20 +114,20 @@ class StateMirrorEngine:
             }
             payload_json = orjson.dumps(payload_data)
             
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"DEBUG: Payload JSON to be published from StateMirrorEngine: {payload_json}",
                     **_get_log_args()
                 )
             mqtt_publisher_service.publish_payload(found_full_topic, payload_json)
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"⬆️ GUI Change Broadcast: Widget '{widget_id}' to {value} on {found_full_topic}. (Instance: {self.instance_id})",
                     **_get_log_args()
                 )
         else:
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"⚠️ Attempted to broadcast change for unregistered widget_id: {widget_id}",
                     **_get_log_args()
                 )
@@ -141,21 +141,21 @@ class StateMirrorEngine:
 
     def publish_command(self, topic: str, payload: str):
         """Publishes a command to the MQTT broker."""
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"➡️ Entering publish_command for topic '{topic}'. _silent_update: {self._silent_update}",
                 **_get_log_args()
             )
         if self._silent_update:
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🤫 Suppressing command publication for topic '{topic}' due to _silent_update flag.",
                     **_get_log_args()
                 )
             return
 
         mqtt_publisher_service.publish_payload(topic, payload)
-        debug_log(message=f"Published command to topic {topic}", **_get_log_args())
+        debug_logger(message=f"Published command to topic {topic}", **_get_log_args())
 
     def sync_incoming_mqtt_to_gui(self, topic, payload):
         """
@@ -176,8 +176,8 @@ class StateMirrorEngine:
             # This handles empty strings, simple strings like 'OFFLINE', etc.
             stripped_payload = payload_str.strip()
             if not stripped_payload.startswith(('{', '[')):
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"⚠️ Non-JSON payload received for topic '{topic}'. Payload: '{payload_str}'. Ignoring for StateMirrorEngine.",
                         **_get_log_args()
                     )
@@ -186,8 +186,8 @@ class StateMirrorEngine:
             data = orjson.loads(stripped_payload)
             
             # 🧪 LOGGING: Confirm receipt
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"📥 Great Scott! Message returned! Topic: {topic}",
                     **_get_log_args()
                 )
@@ -201,8 +201,8 @@ class StateMirrorEngine:
             if source == "gui" and sender_instance_id == self.instance_id:
                 # This is an echo of our own voice!
                 # We acknowledge it, but we DO NOT touch the widget or re-trigger logic.
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"🐈‍⬛ Déjà vu detected (Source: GUI, Instance: {sender_instance_id}). Ignoring echo to preserve causality.",
                         **_get_log_args()
                     )
@@ -222,8 +222,8 @@ class StateMirrorEngine:
                 
                 # Only update if different (prevent jitter)
                 if str(current_val) != str(new_value):
-                    if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(
                             message=f"⚡ fluxing... Updating GUI Widget '{widget_info['id']}' to {new_value}",
                             **_get_log_args()
                         )
@@ -238,7 +238,7 @@ class StateMirrorEngine:
                 pass
 
         except Exception as e:
-            debug_log(
+            debug_logger(
                 message=f"🔥 The Flux Capacitor is cracking! Error in sync_incoming_mqtt_to_gui: {e}",
                 **_get_log_args()
             )

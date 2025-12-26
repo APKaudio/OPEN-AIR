@@ -20,7 +20,7 @@
 
 import os
 import inspect
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
 from workers.mqtt.setup.config_reader import Config # Import the Config class
@@ -47,12 +47,12 @@ class YakRxManager:
         # Subscribes to MQTT topics for receiving responses from the proxy.
         topic = "OPEN-AIR/Proxy/Rx_Outbox"
         self.subscriber_router.subscribe_to_topic(topic, self._on_rx_outbox_message)
-        debug_log(message=f"✅ YakRxManager subscribed to '{topic}' for proxy responses.", **_get_log_args())
+        debug_logger(message=f"✅ YakRxManager subscribed to '{topic}' for proxy responses.", **_get_log_args())
 
     def _on_rx_outbox_message(self, topic, payload):
         # Handles incoming MQTT messages from the Proxy's Rx_Outbox.
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(message=f"📥 Rx_Outbox message received on Topic: '{topic}', Payload: '{payload}'", **_get_log_args())
+        debug_logger(message=f"📥 Rx_Outbox message received on Topic: '{topic}', Payload: '{payload}'", **_get_log_args())
         
         try:
             payload_data = orjson.loads(payload)
@@ -69,23 +69,23 @@ class YakRxManager:
                     if path_parts and command_details:
                         self.process_response(path_parts, {"scpi_outputs": command_details}, response_value)
                     else:
-                        debug_log(message=f"❌ Incomplete command context retrieved for correlation_id: {correlation_id}", **_get_log_args(), level="ERROR")
+                        debug_logger(message=f"❌ Incomplete command context retrieved for correlation_id: {correlation_id}", **_get_log_args(), level="ERROR")
                 else:
-                    debug_log(message=f"❌ No command context found for correlation_id: {correlation_id}. Cannot process response.", **_get_log_args(), level="ERROR")
+                    debug_logger(message=f"❌ No command context found for correlation_id: {correlation_id}. Cannot process response.", **_get_log_args(), level="ERROR")
             else:
-                debug_log(message=f"❌ Missing 'response' or 'correlation_id' in Rx_Outbox payload: {payload}", **_get_log_args(), level="ERROR")
+                debug_logger(message=f"❌ Missing 'response' or 'correlation_id' in Rx_Outbox payload: {payload}", **_get_log_args(), level="ERROR")
         except orjson.JSONDecodeError:
-            debug_log(message=f"❌ Failed to decode JSON payload from '{topic}': {payload}", **_get_log_args(), level="ERROR")
+            debug_logger(message=f"❌ Failed to decode JSON payload from '{topic}': {payload}", **_get_log_args(), level="ERROR")
         except Exception as e:
-            debug_log(message=f"❌ Error processing Rx_Outbox message from '{topic}': {e}", **_get_log_args(), level="CRITICAL")
+            debug_logger(message=f"❌ Error processing Rx_Outbox message from '{topic}': {e}", **_get_log_args(), level="CRITICAL")
 
     def process_response(self, path_parts, command_details, response):
         """
         Parses the response and publishes the results to MQTT topics.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🐐🐐🐐📡 The agent reports back! Response from device: '{response}'",
                 **_get_log_args()
 
@@ -93,20 +93,20 @@ class YakRxManager:
             )
 
         outputs = command_details.get("scpi_outputs", {})
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"ℹ️ YakRxManager received a response from the device.",
                 **_get_log_args()
             )
-            debug_log(
+            debug_logger(
                 message=f"ℹ️ Path Parts: {path_parts}",
                 **_get_log_args()
             )
-            debug_log(
+            debug_logger(
                 message=f"ℹ️ Command Details: {orjson.dumps(outputs, indent=2)}",
                 **_get_log_args()
             )
-            debug_log(
+            debug_logger(
                 message=f"ℹ️ Raw Response: {response}",
                 **_get_log_args()
             )
@@ -120,8 +120,8 @@ class YakRxManager:
             
             # Check if this is the specific command with the known key swap issue
             if path_parts == self.NAB_BANDWIDTH_TRIGGER_PATH and len(output_keys) >= 5:
-                if app_constants.LOCAL_DEBUG_ENABLE: 
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"🔍🔵 Detected NAB_bandwidth_settings command with key order issue. Keys before fix: {output_keys}",
                         **_get_log_args()
 
@@ -166,8 +166,8 @@ class YakRxManager:
                          # SWAP REQUIRED: Swap the 4th and 5th keys in the list to match SCPI order
                         temp_keys[3], temp_keys[4] = temp_keys[4], temp_keys[3]
                         output_keys = temp_keys
-                        if app_constants.LOCAL_DEBUG_ENABLE: 
-                            debug_log(
+                        if app_constants.global_settings['debug_enabled']:
+                            debug_logger(
                                 message=f"🟢️️️🟡 Corrected YAK key swap. Keys after fix: {output_keys}",
                                 **_get_log_args()
 
@@ -178,8 +178,8 @@ class YakRxManager:
 
 
             if len(response_parts) != len(output_keys):
-                if app_constants.LOCAL_DEBUG_ENABLE: 
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"❌🔴 Mismatched response length after potential correction! Expected {len(output_keys)} parts, but received {len(response_parts)}.",
                         **_get_log_args()
 
@@ -203,20 +203,20 @@ class YakRxManager:
                 
                 # Publish the value to the MQTT topic
                 self.mqtt_util.get_client_instance().publish(topic=output_topic, payload=raw_value, qos=0, retain=True)
-                if app_constants.LOCAL_DEBUG_ENABLE: 
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"💾 Published to '{output_topic}' with value: '{raw_value}'.",
                         **_get_log_args()
 
 
                     )
             
-            debug_log(message="✅ Response processed and all output values published to MQTT.", **_get_log_args())
+            debug_logger(message="✅ Response processed and all output values published to MQTT.", **_get_log_args())
 
         except Exception as e:
-            debug_log(message=f"❌ Error processing response: {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            debug_logger(message=f"❌ Error processing response: {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"❌🔴 The response processing has been shipwrecked! The error be: {e}",
                     **_get_log_args()
 

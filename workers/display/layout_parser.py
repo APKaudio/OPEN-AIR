@@ -13,7 +13,8 @@ import inspect
 import pathlib
 import tkinter as tk
 from tkinter import ttk
-from workers.utils.log_utils import _get_log_args 
+from workers.utils.log_utils import _get_log_args  
+from workers.logger.logger import  debug_logger
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
@@ -23,9 +24,8 @@ class LayoutParser:
     Parses directory structures to determine the GUI layout (e.g., PanedWindow, Notebook).
     This is a stateless utility class.
     """
-    def __init__(self, current_version, LOCAL_DEBUG_ENABLE, debug_log_func):
+    def __init__(self, current_version, debug_log_func):
         self.current_version = current_version
-        self.LOCAL_DEBUG_ENABLE = LOCAL_DEBUG_ENABLE
         self.debug_log = debug_log_func if debug_log_func else (lambda message, **kwargs: None)
 
     @staticmethod
@@ -51,15 +51,12 @@ class LayoutParser:
         Returns a dictionary describing the layout and relevant parsed data.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        self.debug_log(
-            message=f"Parsing directory: '{path}'",
-            **_get_log_args()
-        )
+        debug_logger(message=f"Parsing directory: '{path}'",            **_get_log_args()       )
 
         try:
             sub_dirs = sorted([d for d in path.iterdir() if d.is_dir()])
         except FileNotFoundError:
-            self.debug_log(
+            debug_logger(
                 message=f"❌ Error: Directory not found for parsing: {path}",
                 **_get_log_args()
             )
@@ -76,7 +73,7 @@ class LayoutParser:
             is_vertical = any(d.name.startswith('top_') or d.name.startswith('bottom_') for d in layout_dirs)
 
             if is_horizontal and is_vertical:
-                self.debug_log(
+                debug_logger(
                     message=f"❌ Layout Error: Cannot mix horizontal and vertical layouts in '{path}'.",
                     **_get_log_args()
                 )
@@ -96,7 +93,7 @@ class LayoutParser:
                         percentage = int(sub_dir.name.split('_')[1])
                     except (IndexError, ValueError):
                         percentage = app_constants.UI_LAYOUT_SPLIT_EQUAL
-                        self.debug_log(
+                        debug_logger(
                             message=f"⚠️ Warning: Could not parse percentage from '{sub_dir.name}'. Defaulting to {percentage}.",
                             **_get_log_args()
                         )
@@ -117,7 +114,7 @@ class LayoutParser:
                         percentage = int(sub_dir.name.split('_')[1])
                     except (IndexError, ValueError):
                         percentage = app_constants.UI_LAYOUT_SPLIT_EQUAL
-                        self.debug_log(
+                        debug_logger(
                             message=f"⚠️ Warning: Could not parse percentage from '{sub_dir.name}'. Defaulting to {percentage}.",
                             **_get_log_args()
                         )
@@ -125,7 +122,7 @@ class LayoutParser:
                     layout_data['panels'].append({'name': sub_dir.name, 'path': sub_dir, 'weight': percentage})
                 layout_data['panel_percentages'] = percentages
             else:
-                 self.debug_log(
+                 debug_logger(
                     message=f"Found layout_dirs but no clear orientation detected in '{path}'.",
                     **_get_log_args()
                 )
@@ -162,7 +159,7 @@ class LayoutParser:
             layout_data['child_containers'] = [d for d in sub_dirs if d.name.startswith("child_")]
             layout_data['gui_files'] = sorted([f for f in path.iterdir() if f.is_file() and f.name.startswith("gui_") and f.suffix == '.py'])
 
-        self.debug_log(
+        debug_logger(
             message=f"Parsed layout for '{path}': Type='{layout_type}', Data={layout_data}",
             **_get_log_args()
         )

@@ -7,8 +7,6 @@ import sys
 import io
 import re
 
-LOCAL_DEBUG_ENABLE = False
-
 class CSVToJSONApp(tk.Tk):
     """
     A Tkinter application to convert a CSV file to a nested JSON structure

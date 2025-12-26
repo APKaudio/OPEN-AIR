@@ -27,7 +27,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import inspect
 from tkinter import filedialog
-from workers.logger.logger import  debug_log
+from workers.logger.logger import  debug_logger
 from workers.importers.worker_marker_file_import_handling import (
     maker_file_load_markers_file,
     maker_file_load_ias_html,
@@ -73,7 +73,7 @@ def append_wwb_zip_action(importer_tab_instance):
         filetypes=[("Shure Wireless Workbench files", "*.zip"), ("All files", "*.*")]
     )
     if not file_path:
-        debug_log(
+        debug_logger(
             message="🟢️️️🟡 'Append WWB.zip' action cancelled by user.",
             file=importer_tab_instance.current_file,
             version=importer_tab_instance.current_version,
@@ -105,7 +105,7 @@ def append_sb_v2_pdf_action(importer_tab_instance):
         filetypes=[("Sound Base V2 PDF files", "*.pdf"), ("All files", "*.*")]
     )
     if not file_path:
-        debug_log(
+        debug_logger(
             message="🟢️️️🟡 'Append SB V2.pdf' action cancelled by user.",
             file=importer_tab_instance.current_file,
             version=importer_tab_instance.current_version,

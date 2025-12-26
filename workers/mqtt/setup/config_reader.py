@@ -48,7 +48,7 @@ class Config:
     def global_settings(self):
         return {
             "general_debug_enabled": self.ENABLE_DEBUG_MODE,
-            "debug_to_terminal": self.ENABLE_DEBUG_SCREEN,
+            "debug_enabled": self.ENABLE_DEBUG_SCREEN,
             "debug_to_file": self.ENABLE_DEBUG_FILE,
             "log_truncation_enabled": self.LOG_TRUNCATION_ENABLED,
         }
@@ -87,6 +87,12 @@ class Config:
                 self.MQTT_BROKER_PORT = int(config['MQTT'].get('BROKER_PORT', self.MQTT_BROKER_PORT))
                 self.MQTT_USERNAME = config['MQTT'].get('MQTT_USERNAME', self.MQTT_USERNAME)
                 self.MQTT_PASSWORD = config['MQTT'].get('MQTT_PASSWORD', self.MQTT_PASSWORD)
+            
+            print("--- Loaded Debug Settings ---")
+            print(f"ENABLE_DEBUG_MODE: {self.ENABLE_DEBUG_MODE}")
+            print(f"ENABLE_DEBUG_FILE: {self.ENABLE_DEBUG_FILE}")
+            print(f"ENABLE_DEBUG_SCREEN: {self.ENABLE_DEBUG_SCREEN}")
+            print("-----------------------------")
         else:
             print(f"Warning: config.ini not found at {config_path}. Using default settings.")
 

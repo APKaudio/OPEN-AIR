@@ -37,7 +37,7 @@ import orjson
 from collections import defaultdict
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 
@@ -87,7 +87,7 @@ class MqttConductorFrame(ttk.Frame):
         """
         current_function_name = inspect.currentframe().f_code.co_name
         
-        debug_log(
+        debug_logger(
             message=f"🐐🟢 Initializing the '{self.__class__.__name__}' GUI frame. This one's a masterpiece of form over function!",
 **_get_log_args()
             
@@ -103,8 +103,8 @@ class MqttConductorFrame(ttk.Frame):
             self._apply_styles(theme_name=DEFAULT_THEME)
 
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name}: {e}")
-            debug_log(
+            debug_logger(message=f"❌ Error in {current_function_name}: {e}")
+            debug_logger(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
               **_get_log_args()
                 

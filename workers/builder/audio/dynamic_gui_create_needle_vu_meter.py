@@ -9,7 +9,7 @@ import math
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 import os
@@ -18,8 +18,8 @@ class NeedleVUMeterCreatorMixin:
     def _create_needle_vu_meter(self, parent_frame, label, config, path):
         """Creates a needle-style VU meter widget."""
         current_function_name = "_create_needle_vu_meter"
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to calibrate a themed needle VU meter for '{label}'.",
                 **_get_log_args()
             )
@@ -73,8 +73,8 @@ class NeedleVUMeterCreatorMixin:
                         accent_color, secondary_color, fg_color, danger_color
                     )
                 except (ValueError, TypeError, orjson.JSONDecodeError) as e: # Added JSONDecodeError
-                    if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"🔴 ERROR in _update_needle for topic {topic}: {e}", file=os.path.basename(__file__), function=current_function_name)
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(message=f"🔴 ERROR in _update_needle for topic {topic}: {e}", file=os.path.basename(__file__), function=current_function_name)
             
             # Handle Resize
             canvas.bind("<Configure>", lambda e: self._draw_needle_vu_meter(
@@ -82,8 +82,8 @@ class NeedleVUMeterCreatorMixin:
                 accent_color, secondary_color, fg_color, danger_color
             ))
 
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ SUCCESS! The themed needle VU meter for '{label}' is twitching with life!",
                     **_get_log_args()
                 )
@@ -95,9 +95,9 @@ class NeedleVUMeterCreatorMixin:
             return frame
 
         except Exception as e:
-            debug_log(message=f"💥 KABOOM! The needle VU meter for '{label}' has flatlined! Error: {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            debug_logger(message=f"💥 KABOOM! The needle VU meter for '{label}' has flatlined! Error: {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"💥 KABOOM! The needle VU meter for '{label}' has flatlined! Error: {e}",
                     **_get_log_args()
                 )

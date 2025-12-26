@@ -25,7 +25,7 @@ app_constants = Config.get_instance() # Get the singleton instance
 # import re # Not needed in deprecated stub
 
 # --- Utility and Manager Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 # from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility # Not needed in deprecated stub
 # from managers.VisaScipi.manager_visa_dispatch_scpi import ScpiDispatcher # Not needed in deprecated stub
@@ -42,7 +42,7 @@ class DeprecatedYaketyYakManager: # Renamed class
     """
     def __init__(self, *args, **kwargs):
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_logger(
             message=f"❌❌❌ WARNING: DeprecatedYaketyYakManager is being instantiated. Use YakTranslator instead!",
             **_get_log_args()
         )

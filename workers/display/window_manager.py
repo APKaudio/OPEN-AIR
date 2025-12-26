@@ -9,7 +9,7 @@ import pathlib
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
-from workers.logger.logger import debug_log # Import the global debug_log
+from workers.logger.logger import  debug_logger # Import the global debug_log
 from workers.utils.log_utils import _get_log_args
 
 class WindowManager:
@@ -45,7 +45,7 @@ class WindowManager:
             # Ensure the tab is designed for lazy loading and has a build path
             build_path = getattr(original_tab_frame, "build_path", None)
             if not build_path:
-                debug_log(message=f"🖥️🟡 Tab '{tab_text}' is not designed to be torn off (no build_path).", **_get_log_args())
+                debug_logger(message=f"🖥️🟡 Tab '{tab_text}' is not designed to be torn off (no build_path).", **_get_log_args())
                 return
             
             # Store details needed to re-attach the tab later
@@ -86,12 +86,12 @@ class WindowManager:
 
             tear_off_window.after(1, set_protocol)
 
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(message=f"🖥️✅ Tab '{tab_text}' has been liberated into its own Toplevel window!", **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"🖥️✅ Tab '{tab_text}' has been liberated into its own Toplevel window!", **_get_log_args())
 
         except Exception as e:
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(message=f"🖥️🔴 Error tearing off tab: {e}", **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"🖥️🔴 Error tearing off tab: {e}", **_get_log_args())
 
     def _on_tear_off_window_close(self, top_level_window):
         """
@@ -111,8 +111,8 @@ class WindowManager:
             # but it is ready to be lazy-loaded again if clicked.
             original_notebook.insert('end', original_tab_frame, text=tab_text)
 
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(message=f"🖥️🟢 Tab '{tab_text}' re-attached to its original notebook.", **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"🖥️🟢 Tab '{tab_text}' re-attached to its original notebook.", **_get_log_args())
 
             top_level_window.destroy()
         else:
@@ -125,15 +125,15 @@ class WindowManager:
         This is a placeholder and requires significant logic to implement fully.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message="🖥️🟡 Re-attaching tab functionality is currently a theoretical construct. Implementation pending further research!",
                 **_get_log_args()
             )
 
 # Example of how to integrate into gui_display.py:
 # In Application.__init__:
-# self.window_manager = WindowManager(self, app_constants.current_version, app_constants.LOCAL_DEBUG_ENABLE,  debug_log)
+# self.window_manager = WindowManager(self, app_constants.current_version, app_constants.LOCAL_DEBUG_ENABLE,  debug_logger)
 #
 # In Application._build_from_directory (when creating a notebook):
 # notebook.bind('<Control-Button-1>', self.window_manager.tear_off_tab)

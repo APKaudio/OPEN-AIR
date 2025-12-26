@@ -32,7 +32,7 @@ except ImportError:
     PANDAS_NUMPY_AVAILABLE = False
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.importers.worker_marker_file_import_handling import maker_file_check_for_markers_file
 # FIXED: Importing tuning functions from the correct location.
@@ -74,8 +74,8 @@ class ShowtimeTab(ttk.Frame):
         self._apply_styles(theme_name=DEFAULT_THEME)
         self._create_widgets()
 
-        if app_constants.global_settings['debug_to_terminal']: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️🟢 Initialized ShowtimeTab.",
 **_get_log_args()
                 
@@ -156,7 +156,7 @@ class ShowtimeTab(ttk.Frame):
         tune_button = ttk.Button(tune_frame, text="Tune", command=lambda: on_tune_request_from_selection(self))
         tune_button.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-        debug_log(
+        debug_logger(
             message=f"✅ Widgets created for ShowtimeTab.",
           **_get_log_args()
             
@@ -168,8 +168,8 @@ class ShowtimeTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         
         if event is None or event.widget.tab(event.widget.select(), "text") == "Showtime":
-            if app_constants.global_settings['debug_to_terminal']:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message="🟢️️️🟢 'Showtime' tab activated. Reloading marker data and buttons.",
                     file=current_file,
                     version=current_version,
@@ -184,8 +184,8 @@ class ShowtimeTab(ttk.Frame):
             self._create_group_buttons()
             self._create_device_buttons()
     
-            if app_constants.global_settings['debug_to_terminal']:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message="✅ 'Showtime' tab setup complete.",
                     file=current_file,
                     version=current_version,
@@ -199,8 +199,8 @@ class ShowtimeTab(ttk.Frame):
 
     def _create_zone_buttons(self):
         current_function = inspect.currentframe().f_code.co_name
-        if app_constants.global_settings['debug_to_terminal']:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message="🟢️️️🟢 Creating Zone buttons.",
         **_get_log_args()
                 
@@ -223,8 +223,8 @@ class ShowtimeTab(ttk.Frame):
                 style='Custom.TButton'
             )
             zone_button.pack(side=tk.LEFT, padx=2, pady=2)
-            if app_constants.global_settings['debug_to_terminal']:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ Created button for Zone: {zone_name}.",
                **_get_log_args()
 
@@ -232,8 +232,8 @@ class ShowtimeTab(ttk.Frame):
 
     def _create_group_buttons(self):
         current_function = inspect.currentframe().f_code.co_name
-        if app_constants.global_settings['debug_to_terminal']:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message="🟢️️️🟢 Creating Group filter buttons.",
 **_get_log_args()
                 
@@ -274,8 +274,8 @@ class ShowtimeTab(ttk.Frame):
         else:
             self.group_frame.grid_remove()
             
-        if app_constants.global_settings['debug_to_terminal']:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"✅ Group buttons updated for selected zone.",
 **_get_log_args()
                 
@@ -285,8 +285,8 @@ class ShowtimeTab(ttk.Frame):
 
     def _create_device_buttons(self):
         current_function = inspect.currentframe().f_code.co_name
-        if app_constants.global_settings['debug_to_terminal']:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message="🟢️️️🟢 Creating Device buttons.",
 **_get_log_args()
                 
@@ -304,8 +304,8 @@ class ShowtimeTab(ttk.Frame):
         filtered_devices = []
         if self.selected_zone and self.selected_group:
             filtered_devices = self.grouped_markers[self.selected_zone][self.selected_group]
-            if app_constants.global_settings['debug_to_terminal']:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🔍 Showing devices for Zone: {self.selected_zone} and Group: {self.selected_group}.",
 **_get_log_args()               
 
@@ -314,8 +314,8 @@ class ShowtimeTab(ttk.Frame):
         elif self.selected_zone:
             for group_name in self.grouped_markers[self.selected_zone]:
                 filtered_devices.extend(self.grouped_markers[self.selected_zone][group_name])
-            if app_constants.global_settings['debug_to_terminal']:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🔍 Showing all devices for selected Zone: {self.selected_zone}.",
 **_get_log_args()               
 
@@ -323,8 +323,8 @@ class ShowtimeTab(ttk.Frame):
                 )
         else:
             filtered_devices = self.marker_data
-            if app_constants.global_settings['debug_to_terminal']:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message="🔍 Showing all devices from MARKERS.csv.",
 **_get_log_args()               
 
@@ -352,8 +352,8 @@ class ShowtimeTab(ttk.Frame):
             col = i % 4
             button.grid(row=row, column=col, padx=5, pady=5, sticky="ew")
 
-        if app_constants.global_settings['debug_to_terminal']:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"✅ Created {len(filtered_devices)} device buttons.",
 **_get_log_args()
                 

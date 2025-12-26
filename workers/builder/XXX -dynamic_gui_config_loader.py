@@ -32,7 +32,7 @@ import pathlib
 import os # For os.path.basename and os.getcwd
 
 # Assuming sys.path is already set up by main.py
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
@@ -86,8 +86,8 @@ def get_json_filepath_from_base_topic(
             app_config_filename = "dataset_configuration_application.json"
             app_config_filepath = DATASET_ROOT_DIR / "configuration" / app_config_filename
             if app_config_filepath.is_file():
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"🔍🔵 Found JSON config for 'application' at: {app_config_filepath}",
                         file=calling_file,
                         version=calling_version,
@@ -101,15 +101,15 @@ def get_json_filepath_from_base_topic(
             app_filepaths_config_filename = "dataset_configuration_application_filepaths.json"
             app_filepaths_config_filepath = DATASET_ROOT_DIR / "configuration" / app_filepaths_config_filename
             if app_filepaths_config_filepath.is_file():
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"🔍🔵 Found JSON config for 'application_filepaths' at: {app_filepaths_config_filepath}",
                         file=calling_file,
                         version=calling_version,
                         function=f"{class_name}.{current_function_name}",
                       
                     )
-                    debug_log(
+                    debug_logger(
                         message=f"🔍🔵 Exiting get_json_filepath_from_base_topic() with path: {app_filepaths_config_filepath}",
                         file=calling_file,
                         version=calling_version,
@@ -124,15 +124,15 @@ def get_json_filepath_from_base_topic(
             orchestration_filename = "dataset_configuration_orchestration.json"
             orchestration_filepath = DATASET_ROOT_DIR / "Orchestration" / orchestration_filename
             if orchestration_filepath.is_file():
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"🔍🔵 Found JSON config for 'Orchestration' at: {orchestration_filepath}",
                         file=calling_file,
                         version=calling_version,
                         function=f"{class_name}.{current_function_name}",
                       
                     )
-                    debug_log(
+                    debug_logger(
                         message=f"🔍🔵 Exiting get_json_filepath_from_base_topic() with path: {orchestration_filepath}",
                         file=calling_file,
                         version=calling_version,
@@ -147,15 +147,15 @@ def get_json_filepath_from_base_topic(
         repo_filename = f"dataset_YAK_{simple_topic_parts}.json"
         repo_filepath = DATASET_ROOT_DIR / "YAK" / repo_filename
         if repo_filepath.is_file():
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🔍🔵 Found JSON config (fallback repo) at: {repo_filepath}",
                     file=calling_file,
                     version=calling_version,
                     function=f"{class_name}.{current_function_name}",
                   
                 )
-                debug_log(
+                debug_logger(
                     message=f"🔍🔵 Exiting get_json_filepath_from_base_topic() with path: {repo_filepath}",
                     file=calling_file,
                     version=calling_version,
@@ -167,15 +167,15 @@ def get_json_filepath_from_base_topic(
         config_filename = f"dataset_configuration_{simple_topic_parts}.json"
         config_filepath = DATASET_ROOT_DIR / "configuration" / config_filename
         if config_filepath.is_file():
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🔍🔵 Found JSON config (fallback config) at: {config_filepath}",
                     file=calling_file,
                     version=calling_version,
                     function=f"{class_name}.{current_function_name}",
                   
                 )
-                debug_log(
+                debug_logger(
                     message=f"🔍🔵 Exiting get_json_filepath_from_base_topic() with path: {config_filepath}",
                     file=calling_file,
                     version=calling_version,
@@ -184,15 +184,15 @@ def get_json_filepath_from_base_topic(
                 )
             return config_filepath
 
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"⚠️ Warning: No JSON config file found for base_topic: {base_topic}",
                 file=calling_file,
                 version=calling_version,
                 function=f"{class_name}.{current_function_name}",
               
             )
-            debug_log(
+            debug_logger(
                 message=f"🔍🔵 Exiting get_json_filepath_from_base_topic() with path: None (No file found)",
                 file=calling_file,
                 version=calling_version,
@@ -206,15 +206,15 @@ def get_json_filepath_from_base_topic(
         final_filename = f"{filename_prefix}{core_topic_name}.json"
         final_filepath = DATASET_ROOT_DIR / target_subdir / final_filename
         if final_filepath.is_file():
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🔍🔵 Found JSON config (prefixed match) at: {final_filepath}",
                     file=calling_file,
                     version=calling_version,
                     function=f"{class_name}.{current_function_name}",
                   
                 )
-                debug_log(
+                debug_logger(
                     message=f"🔍🔵 Exiting get_json_filepath_from_base_topic() with path: {final_filepath}",
                     file=calling_file,
                     version=calling_version,
@@ -223,15 +223,15 @@ def get_json_filepath_from_base_topic(
                 )
             return final_filepath
 
-    if app_constants.LOCAL_DEBUG_ENABLE:
-        debug_log(
+    if app_constants.global_settings['debug_enabled']:
+        debug_logger(
             message=f"⚠️ Warning: No JSON config file found for base_topic: {base_topic}",
             file=calling_file,
             version=calling_version,
             function=f"{class_name}.{current_function_name}",
           
         )
-        debug_log(
+        debug_logger(
             message=f"🔍🔵 Exiting get_json_filepath_from_base_topic() with path: None (No file found)",
             file=calling_file,
             version=calling_version,

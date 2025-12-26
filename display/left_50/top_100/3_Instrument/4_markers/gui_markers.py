@@ -24,7 +24,7 @@ import inspect
 
 # --- Protocol: Integration Layer ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.logger.logger import  debug_log
+from workers.logger.logger import  debug_logger
 from workers.mqtt.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 from workers.utils.log_utils import _get_log_args 
@@ -64,8 +64,8 @@ class GenericInstrumentGui(ttk.Frame):
         current_function_name = inspect.currentframe().f_code.co_name
         self.current_class_name = self.__class__.__name__
 
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🖥️🟢 SUMMONING: Preparing to build the GUI for '{module_name}'",
                 **_get_log_args()
             )
@@ -86,7 +86,7 @@ class GenericInstrumentGui(ttk.Frame):
                 
                 if not abs_json_path.exists():
                     error_msg = f"🟡 WARNING: Sacred Scroll missing at {abs_json_path}"
-                    debug_log(message=error_msg, **_get_log_args())
+                    debug_logger(message=error_msg, **_get_log_args())
                     self.status_label.config(text=error_msg, foreground="orange")
                     return
 
@@ -103,8 +103,8 @@ class GenericInstrumentGui(ttk.Frame):
                 processed_path = str(abs_json_path)
                 
                 if needs_wrapping:
-                    if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"🖥️🔍 NORMALIZING: Wrapping JSON structure for {module_name}", **_get_log_args())
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(message=f"🖥️🔍 NORMALIZING: Wrapping JSON structure for {module_name}", **_get_log_args())
                     temp_path = abs_json_path.parent / f"temp_norm_{abs_json_path.name}"
                     norm_data = {
                         "Generic_Display_Block": {
@@ -133,16 +133,16 @@ class GenericInstrumentGui(ttk.Frame):
             except Exception as e:
                 error_msg = f"❌ CRITICAL FAILURE in Wrapper: {e}"
                 self.status_label.config(text=error_msg, foreground="red")
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"🖥️🔴 Great Scott! The wrapper has failed to contain the builder! {e}",
                         **_get_log_args()
                     )
         
         current_function_name = inspect.currentframe().f_code.co_name
         
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🖥️🔵 Tab '{module_name}' activated! Stand back, I'm checking the data flow!",
                 **_get_log_args()
             )

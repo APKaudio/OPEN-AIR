@@ -24,7 +24,7 @@ import orjson
 import os
 import inspect
 
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
@@ -95,8 +95,8 @@ class FrequencyYakCommunicator:
                 retain=False
             )
             
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🐐✅ YAK command dispatched. Sent {value_hz} Hz to {input_topic}.",
                     **_get_log_args()
                     
@@ -107,9 +107,9 @@ class FrequencyYakCommunicator:
             self.update_all_from_device()
 
         except Exception as e:
-            debug_log(message=f"❌ Error dispatching YAK command: {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            debug_logger(message=f"❌ Error dispatching YAK command: {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🟢️️️🔴 YAK dispatch failed! The error be: {e}",
                     **_get_log_args()
                     
@@ -119,8 +119,8 @@ class FrequencyYakCommunicator:
 
     def update_all_from_device(self):
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🐐🟢 Triggering NAB_Frequency_settings to synchronize all 4 frequency values.",
                 **_get_log_args()
                 
@@ -142,7 +142,7 @@ class FrequencyYakCommunicator:
             retain=False
         )
         
-        debug_log(message="✅ UPDATE ALL command sent to refresh frequency values from device.", **_get_log_args())
+        debug_logger(message="✅ UPDATE ALL command sent to refresh frequency values from device.", **_get_log_args())
 
     def process_yak_output(self, topic, payload):
         current_function_name = inspect.currentframe().f_code.co_name
@@ -152,8 +152,8 @@ class FrequencyYakCommunicator:
             gui_suffix = self.YAK_NAB_OUTPUTS.get(yak_suffix)
             
             if not gui_suffix:
-                if app_constants.LOCAL_DEBUG_ENABLE: 
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"🟡 Unknown YAK output suffix: {yak_suffix}. Ignoring.",
                         **_get_log_args()
                         
@@ -179,8 +179,8 @@ class FrequencyYakCommunicator:
                 
                 self._publish_update(topic_suffix=gui_suffix, value=value_mhz)
                 
-                if app_constants.LOCAL_DEBUG_ENABLE: 
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"🐐✅ YAK output processed. Synced {gui_suffix} with {value_mhz} MHz.",
                         **_get_log_args()
                         
@@ -188,8 +188,8 @@ class FrequencyYakCommunicator:
 
                     )
             except ValueError:
-                if app_constants.LOCAL_DEBUG_ENABLE: 
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"🟢️️️🟡 Could not convert YAK output '{cleaned_value}' to float for topic {topic}. Skipping update.",
                         **_get_log_args()
                         
@@ -199,9 +199,9 @@ class FrequencyYakCommunicator:
             
             
         except Exception as e:
-            debug_log(message=f"❌ Error processing YAK output for {topic}: {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            debug_logger(message=f"❌ Error processing YAK output for {topic}: {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🟢️️️🔴 NAB synchronization failed! The error be: {e}",
                     **_get_log_args()
                     

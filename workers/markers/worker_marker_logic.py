@@ -42,7 +42,7 @@ except ImportError:
     NUMPY_AVAILABLE = False
     
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 
 # --- Global Scope Variables (as per Section 4.4) ---
@@ -58,18 +58,12 @@ def calculate_frequency_range(marker_data_list):
     current_function_name = inspect.currentframe().f_code.co_name
     
     # [A brief, one-sentence description of the function's purpose.]
-    if app_constants.LOCAL_DEBUG_ENABLE: 
-        debug_log(
-            message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to divine the full spectral range from {len(marker_data_list)} markers.",
-**_get_log_args()
-            
-
-
-        )
+    if app_constants.global_settings['debug_enabled']:
+        debug_logger(            message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to divine the full spectral range from {len(marker_data_list)} markers.",**_get_log_args()                )
 
     if not marker_data_list:
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message="🟢️️️🟡 The marker list is an empty void! Returning null range.",
 **_get_log_args()
                 
@@ -79,7 +73,7 @@ def calculate_frequency_range(marker_data_list):
         return None, None
 
     if not NUMPY_AVAILABLE:
-        debug_log(message="❌ Error: NumPy is required but not available. Cannot perform calculation.")
+        debug_logger(message="❌ Error: NumPy is required but not available. Cannot perform calculation.")
         return None, None
         
     try:
@@ -95,16 +89,16 @@ def calculate_frequency_range(marker_data_list):
             min_freq = np.min(freqs)
             max_freq = np.max(freqs)
 
-            debug_log(message=f"✅ Calculated range: {min_freq} MHz to {max_freq} MHz.")
+            debug_logger(message=f"✅ Calculated range: {min_freq} MHz to {max_freq} MHz.")
             return min_freq, max_freq
         
-        debug_log(message="🟡 No valid frequencies found in marker data.")
+        debug_logger(message="🟡 No valid frequencies found in marker data.")
         return None, None
 
     except Exception as e:
-        debug_log(message=f"❌ Error in {current_function_name}: {e}")
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        debug_logger(message=f"❌ Error in {current_function_name}: {e}")
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️🔴 Arrr, the code be capsized! Calculation failed: {e}",
 **_get_log_args()
                 

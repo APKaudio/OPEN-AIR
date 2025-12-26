@@ -33,7 +33,7 @@ from tkinter import ttk
 import inspect
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
@@ -56,8 +56,8 @@ class GuiButtonTogglerCreatorMixin:
         # Creates a set of custom buttons that behave like radio buttons ("bucket of buttons").
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to assemble a bucket of buttons for '{label}'.",
               **_get_log_args()
             )
@@ -74,7 +74,7 @@ class GuiButtonTogglerCreatorMixin:
             options_data = config.get('options', {})
             # Ensure options_data is a dictionary
             if isinstance(options_data, list):
-                debug_log(message=f"⚠️ WARNING: 'options' for '{label}' in config is a list, expected a dictionary. Falling back to empty dict.", **_get_log_args())
+                debug_logger(message=f"⚠️ WARNING: 'options' for '{label}' in config is a list, expected a dictionary. Falling back to empty dict.", **_get_log_args())
                 options_data = {} # Fallback to empty dict to prevent crash
             
             buttons = {}
@@ -154,17 +154,17 @@ class GuiButtonTogglerCreatorMixin:
                     self.subscriber_router.subscribe_to_topic(topic, self.state_mirror_engine.sync_incoming_mqtt_to_gui)
 
 
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ SUCCESS! The button toggler '{label}' is fully operational!",
                     **_get_log_args()
                 )
             return group_frame
 
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            debug_logger(message=f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"💥 KABOOM! The button toggler '{label}' has suffered a catastrophic failure! Error: {e}",
                     **_get_log_args()
                 )

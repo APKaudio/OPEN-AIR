@@ -27,7 +27,7 @@ import sys
 import orjson
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 
@@ -52,7 +52,7 @@ class DebugTabGUIFrame(ttk.Frame):
             kwargs.pop('config')
         super().__init__(parent, *args, **kwargs)
 
-        debug_log(
+        debug_logger(
             message="🖥️🟢 Initializing the dedicated Debug Tab GUI. Time for deep inspection!",
             file=current_file,
             version=self.current_version,
@@ -62,4 +62,4 @@ class DebugTabGUIFrame(ttk.Frame):
 
         )
         
-        debug_log(message="✅ Debug Tab GUI initialized successfully!")
+        debug_logger(message="✅ Debug Tab GUI initialized successfully!")

@@ -29,7 +29,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 
@@ -58,7 +58,7 @@ class MonitorTopGUIFrame(ttk.Frame):
         Initializes the GUI frame with a blank plot.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_logger(
             message=f"🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand!",
 **_get_log_args()
             
@@ -100,11 +100,11 @@ class MonitorTopGUIFrame(ttk.Frame):
             
             self.plot = {'figure': figure, 'ax': ax, 'canvas': canvas, 'widget': canvas_widget}
 
-            debug_log(message="✅ Celebration of success!",**_get_log_args())
+            debug_logger(message="✅ Celebration of success!",**_get_log_args())
 
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name}: {e}")
-            debug_log(
+            debug_logger(message=f"❌ Error in {current_function_name}: {e}")
+            debug_logger(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
               **_get_log_args()
                 

@@ -26,7 +26,7 @@ import os
 import inspect
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.mqtt.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
@@ -49,8 +49,8 @@ class ScanViewGUIFrame(ttk.Frame):
         current_function_name = inspect.currentframe().f_code.co_name
         
         # Log entry
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🖥️🟢 Initializing {self.__class__.__name__}. Preparing to scan the ether!",
               **_get_log_args()
             )
@@ -75,19 +75,19 @@ class ScanViewGUIFrame(ttk.Frame):
 
             self._create_plot_widgets()
             
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ Celebration of success! {self.__class__.__name__} initialized.",**_get_log_args()
 
                 )
 
         except Exception as e:
-            debug_log(
+            debug_logger(
                 message=f"❌ Error in {current_function_name}: {e}",
              **_get_log_args()
             )
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"❌🔴 Arrr, the code be capsized! Error in {current_function_name}: {e}",
 **_get_log_args()
                 )
@@ -137,12 +137,12 @@ class ScanViewGUIFrame(ttk.Frame):
 
             self.canvas.draw()
             
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message="📊 Plot widgets created and rendered successfully.",
 **_get_log_args()
                 )
 
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name}: {e}")
+            debug_logger(message=f"❌ Error in {current_function_name}: {e}")
             raise e # Re-raise to be caught by __init__

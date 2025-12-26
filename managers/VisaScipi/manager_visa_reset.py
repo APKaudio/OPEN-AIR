@@ -25,7 +25,7 @@ from workers.mqtt.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 
 # --- Utility and Worker Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 # from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .manager_visa_proxy import VisaProxy # Use VisaProxy
@@ -41,7 +41,7 @@ class VisaResetManager:
         current_function_name = inspect.currentframe().f_code.co_name
         self.current_class_name = self.__class__.__name__
 
-        debug_log(
+        debug_logger(
             message=f"💳 🟢️️️🟢 Initiating the {self.current_class_name}. The enforcer of resets is online!",
             **_get_log_args()
             
@@ -61,11 +61,11 @@ class VisaResetManager:
             self.TOPIC_RESET = f"{self.BASE_TOPIC}/Reset_device/trigger"
 
             self._setup_mqtt_subscriptions()
-            debug_log(message=f"💳 ✅ {self.current_class_name} initialized and listening.", **_get_log_args())
+            debug_logger(message=f"💳 ✅ {self.current_class_name} initialized and listening.", **_get_log_args())
 
         except Exception as e:
-            debug_log(message=f"💳 ❌ Error in {self.current_class_name}.{current_function_name}: {e}")
-            debug_log(
+            debug_logger(message=f"💳 ❌ Error in {self.current_class_name}.{current_function_name}: {e}")
+            debug_logger(
                 message=f"💳 🟢️️️🔴 Catastrophic failure during {self.current_class_name} initialization! The error be: {e}",
                 **_get_log_args()
                 
@@ -76,7 +76,7 @@ class VisaResetManager:
     def _setup_mqtt_subscriptions(self):
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_logger(
             message=f"💳 ▶️ {current_function_name} to subscribe to reset/reboot topics.",
             **_get_log_args()
             
@@ -85,11 +85,11 @@ class VisaResetManager:
         )
         try:
             self.subscriber_router.subscribe_to_topic(topic_filter=self.TOPIC_RESET, callback_func=self._on_reset_request)
-            debug_log(message="💳 ✅ The reset manager did subscribe to its topics.", **_get_log_args())
+            debug_logger(message="💳 ✅ The reset manager did subscribe to its topics.", **_get_log_args())
 
         except Exception as e:
-            debug_log(message=f"💳 ❌ Error in {current_function_name}: {e}")
-            debug_log(
+            debug_logger(message=f"💳 ❌ Error in {current_function_name}: {e}")
+            debug_logger(
                 message=f"💳 🟢️️️🔴 The subscription circuits are fried! The error be: {e}",
                 **_get_log_args()
                 
@@ -99,7 +99,7 @@ class VisaResetManager:
 
     def _on_reset_request(self, topic, payload):
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_logger(
             message=f"💳 ▶️ {current_function_name} due to message on topic: {topic}",
             **_get_log_args()
             
@@ -110,12 +110,12 @@ class VisaResetManager:
             # FIXED: Check if the payload value is explicitly 'true'
             data = orjson.loads(payload)
             if str(data.get("value")).lower() == 'true':
-                debug_log(message=f"💳 🔵 Command received: Soft Reset. Dispatching '{self.CMD_RESET_DEVICE}'.", **_get_log_args())
+                debug_logger(message=f"💳 🔵 Command received: Soft Reset. Dispatching '{self.CMD_RESET_DEVICE}'.", **_get_log_args())
                 self.visa_proxy.write_safe(command=self.CMD_RESET_DEVICE)
                 
         except (orjson.JSONDecodeError, AttributeError) as e:
-            debug_log(message=f"💳 ❌ Error processing reset request payload: {payload}. Error: {e}")
-            debug_log(
+            debug_logger(message=f"💳 ❌ Error processing reset request payload: {payload}. Error: {e}")
+            debug_logger(
                 message=f"💳 🟢️️️🔴 A garbled message! The reset contraption is confused! The error be: {e}",
                 **_get_log_args()
                 

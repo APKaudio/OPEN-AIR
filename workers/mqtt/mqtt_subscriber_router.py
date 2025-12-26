@@ -5,7 +5,7 @@
 # Key Function: _on_message(client, userdata, msg) -> Decodes the byte payload and fires the callback.
 
 import paho.mqtt.client as mqtt
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 
 class MqttSubscriberRouter:
@@ -18,7 +18,7 @@ class MqttSubscriberRouter:
         Actual subscription happens when the client connects/reconnects.
         """
         self._subscribers[topic_filter] = callback_func
-        debug_log(message=f"Topic '{topic_filter}' added to pending subscriptions.", **_get_log_args())
+        debug_logger(message=f"Topic '{topic_filter}' added to pending subscriptions.", **_get_log_args())
 
     def _on_message(self, client, userdata, msg):
         """
@@ -29,13 +29,13 @@ class MqttSubscriberRouter:
         
         
         # Log that a message was received at the router level
-        debug_log(message=f"MQTT Message Received: Topic='{msg.topic}', Payload='{msg.payload}'", **_get_log_args())
+        debug_logger(message=f"MQTT Message Received: Topic='{msg.topic}', Payload='{msg.payload}'", **_get_log_args())
 
         topic = msg.topic
         try:
             payload = msg.payload.decode()
         except UnicodeDecodeError:
-            debug_log(message=f"Could not decode payload for topic {topic}", **_get_log_args())
+            debug_logger(message=f"Could not decode payload for topic {topic}", **_get_log_args())
             return
             
         for topic_filter, callback_func in list(self._subscribers.items()): # Iterate over a copy
@@ -43,7 +43,7 @@ class MqttSubscriberRouter:
                 try:
                     callback_func(topic, payload)
                 except Exception as e:
-                    debug_log(message=f"Error in callback for topic {topic}: {e}", **_get_log_args())
+                    debug_logger(message=f"Error in callback for topic {topic}: {e}", **_get_log_args())
 
     def get_on_message_callback(self):
         """
@@ -58,4 +58,4 @@ class MqttSubscriberRouter:
         """
         for topic_filter in list(self._subscribers.keys()): # Iterate over a copy
             client.subscribe(topic_filter)
-            debug_log(message=f"Resubscribed to {topic_filter}", **_get_log_args())
+            debug_logger(message=f"Resubscribed to {topic_filter}", **_get_log_args())

@@ -1,0 +1,202 @@
+1766727420.819232 💬 gui display/ on tab change ▶️ _on_tab_change detected. 🧩 {'version': 'Unknown_Ver'}
+1766727420.819392 💬 ⚡ Lazy Loading engaged for tab: Amplitude
+1766727420.819427 💬 gui display/ build from directory ▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/2_Amplitude' 🧩 {'version': 'Unknown_Ver'}
+1766727420.819453 💬 layout parser/parse directory Parsing directory: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/2_Amplitude' 🧩 {'version': 'Unknown_Ver'}
+1766727420.819550 💬 layout parser/parse directory Parsed layout for '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/2_Amplitude': Type='recursive_build', Data={'child_containers': [], 'gui_files': [PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/2_Amplitude/gui_yak_amplitude.py')]} 🧩 {'version': 'Unknown_Ver'}
+1766727420.819587 💬 module loader/load and instantiate gui 🔬🟢 Entering 'load_and_instantiate_gui'. Preparing to transmogrify a GUI from path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/2_Amplitude/gui_yak_amplitude.py'! 🧩 {'version': 'Unknown_Ver'}
+1766727420.819632 💬 module loader/ load module 🔬🟢 Preparing to awaken a module! Loading from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/2_Amplitude/gui_yak_amplitude.py' with name 'gui_yak_amplitude'. 🧩 {'version': 'Unknown_Ver'}
+1766727420.819941 💬 module loader/ load module 🔬✅ Module 'gui_yak_amplitude' from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/2_Amplitude/gui_yak_amplitude.py' has sprung to life! The experiment progresses! 🧩 {'version': 'Unknown_Ver'}
+1766727420.819981 💬 module loader/instantiate gui class 🔬🟢 Preparing to conjure a GUI class from module 'gui_yak_amplitude' for parent .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame3! 🧩 {'version': 'Unknown_Ver'}
+1766727420.820032 💬 module loader/instantiate gui class 🔬✅ A suitable vessel found! GUI class: 'GenericInstrumentGui'. Designating as default. 🧩 {'version': 'Unknown_Ver'}
+1766727420.820099 💬 gui yak amplitude/  init   🖥️🟢 SUMMONING: Preparing to build the GUI for 'yak_amplitude' 🧩 {'version': 'Unknown_Ver'}
+1766727420.820300 💬 dynamic gui builder/DynamicGuiBuilder.  init   🖥️🟢 Igniting the DynamicGuiBuilder v20251223.235500.9 🧩 {'version': '20251223.235500.9'}
+1766727420.820710 💬 dynamic gui builder/ rebuild gui 🖥️🔁 Tearing down the old world to build a new one! 🧩 {'version': '20251223.235500.9'}
+1766727420.986791 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'Ref_Level_dBm'. 🧩 {'version': '20251213.120000.44'}
+1766727420.987024 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'Ref_Level_dBm' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727420.987090 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'Attenuation_dB'. 🧩 {'version': '20251213.120000.44'}
+1766727420.987165 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'Attenuation_dB' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727420.987201 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'Preamp_On'. 🧩 {'version': '20251213.120000.44'}
+1766727420.987305 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'Preamp_On' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727421.024812 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'Ref_Level_dBm'. 🧩 {'version': '20251213.120000.44'}
+1766727421.025112 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'Ref_Level_dBm' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727421.025184 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'Attenuation_dB'. 🧩 {'version': '20251213.120000.44'}
+1766727421.025249 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'Attenuation_dB' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727421.025281 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'Preamp_On'. 🧩 {'version': '20251213.120000.44'}
+1766727421.025329 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'Preamp_On' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727421.059985 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'ref_level'. 🧩 {'version': '20251213.120000.44'}
+1766727421.060236 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'ref_level' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727421.085894 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'attenuation'. 🧩 {'version': '20251213.120000.44'}
+1766727421.086638 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'attenuation' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727421.113238 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'preamp_state'. 🧩 {'version': '20251213.120000.44'}
+1766727421.113939 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'preamp_state' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727421.153368 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'Ref_Level_dBm'. 🧩 {'version': '20251213.120000.44'}
+1766727421.153977 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'Ref_Level_dBm' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727421.179259 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'Power_Attenuation'. 🧩 {'version': '20251213.120000.44'}
+1766727421.179820 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'Power_Attenuation' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727421.193742 💬 dynamic gui create gui actuator/ create gui actuator 🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_Input_Auto_Attenuation_ON'. 🧩 {'version': '20251213.120000.44'}
+1766727421.194220 💬 dynamic gui create gui actuator/ create gui actuator ✅ SUCCESS! The actuator 'Set_Input_Auto_Attenuation_ON' is ready for action! 🧩 {'version': '20251213.120000.44'}
+1766727421.194473 💬 dynamic gui create gui actuator/ create gui actuator 🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_Input_Auto_Attenuation_OFF'. 🧩 {'version': '20251213.120000.44'}
+1766727421.194658 💬 dynamic gui create gui actuator/ create gui actuator ✅ SUCCESS! The actuator 'Set_Input_Auto_Attenuation_OFF' is ready for action! 🧩 {'version': '20251213.120000.44'}
+1766727421.206226 💬 dynamic gui create gui actuator/ create gui actuator 🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_Power_Gain_ON'. 🧩 {'version': '20251213.120000.44'}
+1766727421.206528 💬 dynamic gui create gui actuator/ create gui actuator ✅ SUCCESS! The actuator 'Set_Power_Gain_ON' is ready for action! 🧩 {'version': '20251213.120000.44'}
+1766727421.206609 💬 dynamic gui create gui actuator/ create gui actuator 🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_Power_Gain_OFF'. 🧩 {'version': '20251213.120000.44'}
+1766727421.206701 💬 dynamic gui create gui actuator/ create gui actuator ✅ SUCCESS! The actuator 'Set_Power_Gain_OFF' is ready for action! 🧩 {'version': '20251213.120000.44'}
+1766727421.220713 💬 dynamic gui create gui actuator/ create gui actuator 🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_High_Sensitive_Power_ON_N9340B'. 🧩 {'version': '20251213.120000.44'}
+1766727421.220903 💬 dynamic gui create gui actuator/ create gui actuator ✅ SUCCESS! The actuator 'Set_High_Sensitive_Power_ON_N9340B' is ready for action! 🧩 {'version': '20251213.120000.44'}
+1766727421.220951 💬 dynamic gui create gui actuator/ create gui actuator 🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_High_Sensitive_Power_ON_N9342CN'. 🧩 {'version': '20251213.120000.44'}
+1766727421.221025 💬 dynamic gui create gui actuator/ create gui actuator ✅ SUCCESS! The actuator 'Set_High_Sensitive_Power_ON_N9342CN' is ready for action! 🧩 {'version': '20251213.120000.44'}
+1766727421.221059 💬 dynamic gui create gui actuator/ create gui actuator 🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_High_Sensitive_Power_OFF_N9340B'. 🧩 {'version': '20251213.120000.44'}
+1766727421.221129 💬 dynamic gui create gui actuator/ create gui actuator ✅ SUCCESS! The actuator 'Set_High_Sensitive_Power_OFF_N9340B' is ready for action! 🧩 {'version': '20251213.120000.44'}
+1766727421.221161 💬 dynamic gui create gui actuator/ create gui actuator 🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_High_Sensitive_Power_OFF_N9342CN'. 🧩 {'version': '20251213.120000.44'}
+1766727421.221225 💬 dynamic gui create gui actuator/ create gui actuator ✅ SUCCESS! The actuator 'Set_High_Sensitive_Power_OFF_N9342CN' is ready for action! 🧩 {'version': '20251213.120000.44'}
+1766727421.221296 💬 dynamic gui builder/ create widgets in batches ✅ Batch processing complete! All widgets built. 🧩 {'version': '20251223.235500.9'}
+1766727421.224414 💬 module loader/instantiate gui class 🔬✅ Class 'GenericInstrumentGui' materialized for parent '.!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame3'. The creation ritual is complete! 🧩 {'version': 'Unknown_Ver'}
+1766727421.789650 💬 ✅ Lazy Loading complete for tab: Amplitude
+1766727421.789798 💬 gui display/ on tab change Calling _on_tab_selected for GenericInstrumentGui. 🧩 {'version': 'Unknown_Ver'}
+1766727421.795813 💬 gui yak amplitude/ on tab selected 🖥️🔵 Tab 'yak_amplitude' activated! Stand back, I'm checking the data flow! 🧩 {'version': 'Unknown_Ver'}
+1766727421.795879 💬 gui display/ on tab change ⏹️_on_tab_change complete for 'Amplitude'. 🧩 {'version': 'Unknown_Ver'}
+1766727421.993027 💬 gui display/ on tab change ▶️ _on_tab_change detected. 🧩 {'version': 'Unknown_Ver'}
+1766727421.993130 💬 ⚡ Lazy Loading engaged for tab: Trace
+1766727421.993156 💬 gui display/ build from directory ▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/3_Trace' 🧩 {'version': 'Unknown_Ver'}
+1766727421.993177 💬 layout parser/parse directory Parsing directory: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/3_Trace' 🧩 {'version': 'Unknown_Ver'}
+1766727421.993255 💬 layout parser/parse directory Parsed layout for '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/3_Trace': Type='recursive_build', Data={'child_containers': [], 'gui_files': [PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/3_Trace/gui_yak_trace.py')]} 🧩 {'version': 'Unknown_Ver'}
+1766727421.993278 💬 module loader/load and instantiate gui 🔬🟢 Entering 'load_and_instantiate_gui'. Preparing to transmogrify a GUI from path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/3_Trace/gui_yak_trace.py'! 🧩 {'version': 'Unknown_Ver'}
+1766727421.993314 💬 module loader/ load module 🔬🟢 Preparing to awaken a module! Loading from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/3_Trace/gui_yak_trace.py' with name 'gui_yak_trace'. 🧩 {'version': 'Unknown_Ver'}
+1766727421.993570 💬 module loader/ load module 🔬✅ Module 'gui_yak_trace' from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/3_Trace/gui_yak_trace.py' has sprung to life! The experiment progresses! 🧩 {'version': 'Unknown_Ver'}
+1766727421.993608 💬 module loader/instantiate gui class 🔬🟢 Preparing to conjure a GUI class from module 'gui_yak_trace' for parent .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame4! 🧩 {'version': 'Unknown_Ver'}
+1766727421.993642 💬 module loader/instantiate gui class 🔬✅ A suitable vessel found! GUI class: 'GenericInstrumentGui'. Designating as default. 🧩 {'version': 'Unknown_Ver'}
+1766727421.993691 💬 gui yak trace/  init   🖥️🟢 SUMMONING: Preparing to build the GUI for 'yak_trace' 🧩 {'version': 'Unknown_Ver'}
+1766727421.993820 💬 dynamic gui builder/DynamicGuiBuilder.  init   🖥️🟢 Igniting the DynamicGuiBuilder v20251223.235500.9 🧩 {'version': '20251223.235500.9'}
+1766727421.994221 💬 dynamic gui builder/ rebuild gui 🖥️🔁 Tearing down the old world to build a new one! 🧩 {'version': '20251223.235500.9'}
+1766727422.127768 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'StartFreq'. 🧩 {'version': '20251213.120000.44'}
+1766727422.127992 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'StartFreq' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.128057 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'StopFreq'. 🧩 {'version': '20251213.120000.44'}
+1766727422.128152 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'StopFreq' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.128191 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceMode1'. 🧩 {'version': '20251213.120000.44'}
+1766727422.128246 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'TraceMode1' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.128278 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceMode2'. 🧩 {'version': '20251213.120000.44'}
+1766727422.128322 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'TraceMode2' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.128348 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceMode3'. 🧩 {'version': '20251213.120000.44'}
+1766727422.128412 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'TraceMode3' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.128442 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceData1'. 🧩 {'version': '20251213.120000.44'}
+1766727422.128490 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'TraceData1' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.128515 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceData2'. 🧩 {'version': '20251213.120000.44'}
+1766727422.128557 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'TraceData2' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.128580 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceData3'. 🧩 {'version': '20251213.120000.44'}
+1766727422.128631 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'TraceData3' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.149781 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'StartFreq'. 🧩 {'version': '20251213.120000.44'}
+1766727422.150018 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'StartFreq' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.150083 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'StopFreq'. 🧩 {'version': '20251213.120000.44'}
+1766727422.150725 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'StopFreq' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.150888 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceMode1'. 🧩 {'version': '20251213.120000.44'}
+1766727422.151144 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'TraceMode1' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.151264 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceMode2'. 🧩 {'version': '20251213.120000.44'}
+1766727422.151434 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'TraceMode2' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.151534 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceMode3'. 🧩 {'version': '20251213.120000.44'}
+1766727422.151699 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'TraceMode3' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.151799 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceData1'. 🧩 {'version': '20251213.120000.44'}
+1766727422.151999 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'TraceData1' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.152102 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceData2'. 🧩 {'version': '20251213.120000.44'}
+1766727422.152253 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'TraceData2' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.152355 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceData3'. 🧩 {'version': '20251213.120000.44'}
+1766727422.152511 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'TraceData3' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.190866 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'. 🧩 {'version': '20251213.120000.44'}
+1766727422.191449 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_number' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.204642 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'. 🧩 {'version': '20251213.120000.44'}
+1766727422.204890 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_data' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.263672 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'. 🧩 {'version': '20251213.120000.44'}
+1766727422.263951 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_number' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.278298 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'. 🧩 {'version': '20251213.120000.44'}
+1766727422.278500 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_data' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.304510 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'. 🧩 {'version': '20251213.120000.44'}
+1766727422.305283 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_number' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.319641 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'. 🧩 {'version': '20251213.120000.44'}
+1766727422.319854 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_data' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.349722 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'. 🧩 {'version': '20251213.120000.44'}
+1766727422.349973 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_number' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.361997 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'. 🧩 {'version': '20251213.120000.44'}
+1766727422.362418 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_data' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.388613 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'. 🧩 {'version': '20251213.120000.44'}
+1766727422.388840 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_number' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.404046 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'. 🧩 {'version': '20251213.120000.44'}
+1766727422.404299 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_data' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.431207 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'. 🧩 {'version': '20251213.120000.44'}
+1766727422.431474 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_number' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.445220 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'. 🧩 {'version': '20251213.120000.44'}
+1766727422.445725 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_data' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.469940 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'. 🧩 {'version': '20251213.120000.44'}
+1766727422.470466 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_number' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.484373 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'. 🧩 {'version': '20251213.120000.44'}
+1766727422.484643 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_data' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.510914 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'. 🧩 {'version': '20251213.120000.44'}
+1766727422.511609 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_number' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.523110 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'. 🧩 {'version': '20251213.120000.44'}
+1766727422.523332 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'trace_data' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727422.523447 💬 dynamic gui builder/ create widgets in batches ✅ Batch processing complete! All widgets built. 🧩 {'version': '20251223.235500.9'}
+1766727422.526893 💬 module loader/instantiate gui class 🔬✅ Class 'GenericInstrumentGui' materialized for parent '.!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame4'. The creation ritual is complete! 🧩 {'version': 'Unknown_Ver'}
+1766727423.450919 💬 gui display/ on tab change ▶️ _on_tab_change detected. 🧩 {'version': 'Unknown_Ver'}
+1766727423.451033 💬 ⚡ Lazy Loading engaged for tab: Memory
+1766727423.451066 💬 gui display/ build from directory ▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/8_Memory' 🧩 {'version': 'Unknown_Ver'}
+1766727423.451088 💬 layout parser/parse directory Parsing directory: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/8_Memory' 🧩 {'version': 'Unknown_Ver'}
+1766727423.451185 💬 layout parser/parse directory Parsed layout for '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/8_Memory': Type='recursive_build', Data={'child_containers': [], 'gui_files': [PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/8_Memory/gui_memory.py')]} 🧩 {'version': 'Unknown_Ver'}
+1766727423.451213 💬 module loader/load and instantiate gui 🔬🟢 Entering 'load_and_instantiate_gui'. Preparing to transmogrify a GUI from path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/8_Memory/gui_memory.py'! 🧩 {'version': 'Unknown_Ver'}
+1766727423.451239 💬 module loader/ load module 🔬🟢 Preparing to awaken a module! Loading from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/8_Memory/gui_memory.py' with name 'gui_memory'. 🧩 {'version': 'Unknown_Ver'}
+1766727423.451509 💬 module loader/ load module 🔬✅ Module 'gui_memory' from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/8_Memory/gui_memory.py' has sprung to life! The experiment progresses! 🧩 {'version': 'Unknown_Ver'}
+1766727423.451545 💬 module loader/instantiate gui class 🔬🟢 Preparing to conjure a GUI class from module 'gui_memory' for parent .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame6! 🧩 {'version': 'Unknown_Ver'}
+1766727423.451581 💬 module loader/instantiate gui class 🔬✅ A suitable vessel found! GUI class: 'GenericInstrumentGui'. Designating as default. 🧩 {'version': 'Unknown_Ver'}
+1766727423.451638 💬 gui memory/  init   🖥️🟢 SUMMONING: Preparing to build the GUI for 'memory' 🧩 {'version': 'Unknown_Ver'}
+1766727423.451795 💬 dynamic gui builder/DynamicGuiBuilder.  init   🖥️🟢 Igniting the DynamicGuiBuilder v20251223.235500.9 🧩 {'version': '20251223.235500.9'}
+1766727423.452290 💬 dynamic gui builder/ rebuild gui 🖥️🔁 Tearing down the old world to build a new one! 🧩 {'version': '20251223.235500.9'}
+1766727423.583827 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'preset_path'. 🧩 {'version': '20251213.120000.44'}
+1766727423.584230 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'preset_path' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727423.594400 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'preset_catalog_list'. 🧩 {'version': '20251213.120000.44'}
+1766727423.594632 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'preset_catalog_list' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727423.630736 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'preset_fileName'. 🧩 {'version': '20251213.120000.44'}
+1766727423.631999 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'preset_fileName' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727423.632314 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'preset_path'. 🧩 {'version': '20251213.120000.44'}
+1766727423.632416 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'preset_path' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727423.657717 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'preset_number'. 🧩 {'version': '20251213.120000.44'}
+1766727423.658015 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'preset_number' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727423.658085 💬 dynamic gui create gui actuator/ create gui actuator 🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Load Preset'. 🧩 {'version': '20251213.120000.44'}
+1766727423.658204 💬 dynamic gui create gui actuator/ create gui actuator ✅ SUCCESS! The actuator 'Load Preset' is ready for action! 🧩 {'version': '20251213.120000.44'}
+1766727423.658279 💬 dynamic gui builder/ create widgets in batches ✅ Batch processing complete! All widgets built. 🧩 {'version': '20251223.235500.9'}
+1766727423.660904 💬 module loader/instantiate gui class 🔬✅ Class 'GenericInstrumentGui' materialized for parent '.!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame6'. The creation ritual is complete! 🧩 {'version': 'Unknown_Ver'}
+1766727423.874598 💬 ✅ Lazy Loading complete for tab: Memory
+1766727423.874757 💬 gui display/ on tab change Calling _on_tab_selected for GenericInstrumentGui. 🧩 {'version': 'Unknown_Ver'}
+1766727423.874794 💬 gui memory/ on tab selected 🖥️🔵 Tab 'memory' activated! Stand back, I'm checking the data flow! 🧩 {'version': 'Unknown_Ver'}
+1766727423.874815 💬 gui display/ on tab change ⏹️_on_tab_change complete for 'Memory'. 🧩 {'version': 'Unknown_Ver'}
+1766727423.874873 💬 ✅ Lazy Loading complete for tab: Trace
+1766727423.874902 💬 gui display/ on tab change Calling _on_tab_selected for GenericInstrumentGui. 🧩 {'version': 'Unknown_Ver'}
+1766727423.874922 💬 gui yak trace/ on tab selected 🖥️🔵 Tab 'yak_trace' activated! Stand back, I'm checking the data flow! 🧩 {'version': 'Unknown_Ver'}
+1766727423.874939 💬 gui display/ on tab change ⏹️_on_tab_change complete for 'Trace'. 🧩 {'version': 'Unknown_Ver'}
+1766727424.776986 💬 gui display/ on tab change ▶️ _on_tab_change detected. 🧩 {'version': 'Unknown_Ver'}
+1766727424.777085 💬 ⚡ Lazy Loading engaged for tab: System
+1766727424.777110 💬 gui display/ build from directory ▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/9_System' 🧩 {'version': 'Unknown_Ver'}
+1766727424.777131 💬 layout parser/parse directory Parsing directory: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/9_System' 🧩 {'version': 'Unknown_Ver'}
+1766727424.777223 💬 layout parser/parse directory Parsed layout for '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/9_System': Type='recursive_build', Data={'child_containers': [], 'gui_files': [PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/9_System/gui_yak_system.py')]} 🧩 {'version': 'Unknown_Ver'}
+1766727424.777246 💬 module loader/load and instantiate gui 🔬🟢 Entering 'load_and_instantiate_gui'. Preparing to transmogrify a GUI from path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/9_System/gui_yak_system.py'! 🧩 {'version': 'Unknown_Ver'}
+1766727424.777267 💬 module loader/ load module 🔬🟢 Preparing to awaken a module! Loading from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/9_System/gui_yak_system.py' with name 'gui_yak_system'. 🧩 {'version': 'Unknown_Ver'}
+1766727424.777515 💬 module loader/ load module 🔬✅ Module 'gui_yak_system' from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/9_System/gui_yak_system.py' has sprung to life! The experiment progresses! 🧩 {'version': 'Unknown_Ver'}
+1766727424.777544 💬 module loader/instantiate gui class 🔬🟢 Preparing to conjure a GUI class from module 'gui_yak_system' for parent .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame7! 🧩 {'version': 'Unknown_Ver'}
+1766727424.777575 💬 module loader/instantiate gui class 🔬✅ A suitable vessel found! GUI class: 'GenericInstrumentGui'. Designating as default. 🧩 {'version': 'Unknown_Ver'}
+1766727424.777638 💬 gui yak system/  init   🖥️🟢 SUMMONING: Preparing to build the GUI for 'yak_system' 🧩 {'version': 'Unknown_Ver'}
+1766727424.777796 💬 dynamic gui builder/DynamicGuiBuilder.  init   🖥️🟢 Igniting the DynamicGuiBuilder v20251223.235500.9 🧩 {'version': '20251223.235500.9'}
+1766727424.778134 💬 dynamic gui builder/ rebuild gui 🖥️🔁 Tearing down the old world to build a new one! 🧩 {'version': '20251223.235500.9'}
+1766727424.911539 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'ERROR'. 🧩 {'version': '20251213.120000.44'}
+1766727424.911757 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'ERROR' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727424.935981 💬 dynamic gui create value box/ create value box 🔬⚡️ Entering '_create_value_box' to brew a value box for 'identification_string'. 🧩 {'version': '20251213.120000.44'}
+1766727424.936468 💬 dynamic gui create value box/ create value box ✅ SUCCESS! The value box 'identification_string' has been perfectly crafted! 🧩 {'version': '20251213.120000.44'}
+1766727424.951055 💬 dynamic gui create gui actuator/ create gui actuator 🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Do_Update_Display'. 🧩 {'version': '20251213.120000.44'}
+1766727424.951639 💬 dynamic gui create gui actuator/ create gui actuator ✅ SUCCESS! The actuator 'Do_Update_Display' is ready for action! 🧩 {'version': '20251213.120000.44'}
+1766727424.962614 💬 dynamic gui create gui actuator/ create gui actuator 🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Do_Clear_Device'. 🧩 {'version': '20251213.120000.44'}
+1766727424.962952 💬 dynamic gui create gui actuator/ create gui actuator ✅ SUCCESS! The actuator 'Do_Clear_Device' is ready for action! 🧩 {'version': '20251213.120000.44'}
+1766727424.963074 💬 dynamic gui create gui actuator/ create gui actuator 🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Do_Reset'. 🧩 {'version': '20251213.120000.44'}
+1766727424.963238 💬 dynamic gui create gui actuator/ create gui actuator ✅ SUCCESS! The actuator 'Do_Reset' is ready for action! 🧩 {'version': '20251213.120000.44'}
+1766727424.963420 💬 dynamic gui create gui actuator/ create gui actuator 🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Do_Power_Cycle'. 🧩 {'version': '20251213.120000.44'}
+1766727424.963730 💬 dynamic gui create gui actuator/ create gui actuator ✅ SUCCESS! The actuator 'Do_Power_Cycle' is ready for action! 🧩 {'version': '20251213.120000.44'}
+1766727424.963893 💬 dynamic gui builder/ create widgets in batches ✅ Batch processing complete! All widgets built. 🧩 {'version': '20251223.235500.9'}
+1766727424.966939 💬 module loader/instantiate gui class 🔬✅ Class 'GenericInstrumentGui' materialized for parent '.!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame7'. The creation ritual is complete! 🧩 {'version': 'Unknown_Ver'}
+1766727425.162986 💬 ✅ Lazy Loading complete for tab: System
+1766727425.163130 💬 gui display/ on tab change Calling _on_tab_selected for GenericInstrumentGui. 🧩 {'version': 'Unknown_Ver'}
+1766727425.163165 💬 gui yak system/ on tab selected 🖥️🔵 Tab 'yak_system' activated! Stand back, I'm checking the data flow! 🧩 {'version': 'Unknown_Ver'}
+1766727425.163187 💬 gui display/ on tab change ⏹️_on_tab_change complete for 'System'. 🧩 {'version': 'Unknown_Ver'}

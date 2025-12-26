@@ -5,7 +5,7 @@ from tkinter import ttk
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 import os
 
@@ -13,8 +13,8 @@ class IncDecButtonsCreatorMixin:
         def _create_inc_dec_buttons(self, parent_frame, label, config, path):
             """Creates increment/decrement buttons."""
             current_function_name = "_create_inc_dec_buttons"
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🔬⚡️ Entering '{current_function_name}' to forge increment/decrement buttons for '{label}'.",
     **_get_log_args()
                     
@@ -64,8 +64,8 @@ class IncDecButtonsCreatorMixin:
                 callback = lambda *args: self.state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
                 current_value.trace_add("write", callback)
     
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ SUCCESS! The increment/decrement buttons for '{label}' are operational and MQTT-synced!",
     **_get_log_args()
                 )

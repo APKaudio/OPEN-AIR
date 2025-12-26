@@ -3,7 +3,7 @@
 import os
 import inspect
 
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 
 # --- MQTT and Proxy Imports ---
@@ -17,7 +17,7 @@ from managers.yak.manager_yak_rx import YakRxManager # Import YakRxManager
 
 def launch_managers(app, splash): # Removed scpi_dispatcher
     current_function_name = inspect.currentframe().f_code.co_name
-    debug_log(message=f"🟢️️️🟢 Entering '{current_function_name}'. Preparing to launch a fleet of managers!", **_get_log_args())
+    debug_logger(message=f"🟢️️️🟢 Entering '{current_function_name}'. Preparing to launch a fleet of managers!", **_get_log_args())
     splash.set_status("Initializing managers...")
 
     try:
@@ -51,7 +51,7 @@ def launch_managers(app, splash): # Removed scpi_dispatcher
             yak_translator=yak_translator
         )
 
-        debug_log(message="✅ All core managers have been successfully launched!", **_get_log_args())
+        debug_logger(message="✅ All core managers have been successfully launched!", **_get_log_args())
         splash.set_status("Managers initialized.")
         
         # Consolidate all managers into one dictionary
@@ -68,6 +68,6 @@ def launch_managers(app, splash): # Removed scpi_dispatcher
         return all_managers
 
     except Exception as e:
-        debug_log(message=f"❌ Critical error during manager launch: {e}", **_get_log_args())
+        debug_logger(message=f"❌ Critical error during manager launch: {e}", **_get_log_args())
         splash.set_status(f"Manager initialization failed: {e}", error=True)
         return None

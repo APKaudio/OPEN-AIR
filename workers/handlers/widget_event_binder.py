@@ -4,7 +4,7 @@
 # Key Function: bind_variable_trace(tk_var, callback) -> When tk_var changes, call the callback.
 
 import tkinter as tk
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 
 def bind_variable_trace(tk_var: tk.Variable, callback):
@@ -15,6 +15,6 @@ def bind_variable_trace(tk_var: tk.Variable, callback):
     try:
         # The callback will receive three arguments from the trace, which we ignore with a lambda.
         tk_var.trace_add("write", lambda *args: callback())
-        debug_log(message=f"Trace added for variable {tk_var}", **_get_log_args())
+        debug_logger(message=f"Trace added for variable {tk_var}", **_get_log_args())
     except Exception as e:
-        debug_log(message=f"Error binding trace to variable {tk_var}: {e}", **_get_log_args())
+        debug_logger(message=f"Error binding trace to variable {tk_var}: {e}", **_get_log_args())

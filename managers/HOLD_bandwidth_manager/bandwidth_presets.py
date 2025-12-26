@@ -23,7 +23,7 @@ import os
 ## from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .bandwidth_state import BandwidthState
 from .bandwidth_yak_communicator import BandwidthYakCommunicator
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
 
@@ -96,8 +96,8 @@ class BandwidthPresets:
                 yak_trigger = self.yak_communicator.YAK_RBW_TRIGGER if is_rbw else self.yak_communicator.YAK_VBW_TRIGGER
                 self.yak_communicator.publish_to_yak_and_trigger(value=final_value_hz, input_topic=yak_input, trigger_topic=yak_trigger)
             else:
-                debug_log(message=f"❌ Error: Preset data missing for option {option_number}.", **_get_log_args())
+                debug_logger(message=f"❌ Error: Preset data missing for option {option_number}.", **_get_log_args())
                 ## self.mqtt_controller.publish_message(topic=topic, subtopic="", value=False, retain=False)
                 self.yak_communicator.update_all_from_device()
         except Exception as e:
-            debug_log(message=f"❌ Error applying preset: {e}", **_get_log_args())
+            debug_logger(message=f"❌ Error applying preset: {e}", **_get_log_args())

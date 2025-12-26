@@ -22,7 +22,7 @@ from workers.mqtt.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 # import orjson # Not needed in deprecated stub
 
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 # from managers.yak_manager.yak_repository_parser import get_command_node, lookup_scpi_command, lookup_inputs, lookup_outputs # Not needed
 # from managers.yak_manager.yak_command_builder import fill_scpi_placeholders # Not needed
@@ -36,7 +36,7 @@ def handle_yak_trigger(*args, **kwargs):
     DEPRECATED: This function is no longer active. Its functionality has been migrated to YakTranslator.
     """
     current_function_name = inspect.currentframe().f_code.co_name
-    debug_log(
+    debug_logger(
         message=f"❌❌❌ WARNING: handle_yak_trigger is being called. Use YakTranslator._on_yak_trigger_message instead!",
         **_get_log_args()
     )

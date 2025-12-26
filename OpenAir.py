@@ -17,7 +17,7 @@ before_main.initialize_flags() # Call early to set flags
 from workers.splash.splash_screen import SplashScreen
 from workers.Worker_Launcher import WorkerLauncher
 import display.gui_display
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 
 import workers.setup.path_initializer as path_initializer
 import workers.logger.logger_config as logger_config
@@ -33,13 +33,13 @@ def _reveal_main_window(root, splash):
     root.deiconify() # Ensure main window is visible
     splash.hide()    # Dismiss the splash screen
 
-def action_open_display(root, splash, mqtt_connection_manager, subscriber_router, state_mirror_engine, visa_proxy):
+def action_open_display(root, splash, mqtt_connection_manager, subscriber_router, state_mirror_engine):
     """
     Builds and displays the main application window, ensuring the splash
     screen remains responsive by updating the event loop between heavy steps.
     """
     current_function_name = inspect.currentframe().f_code.co_name
-    debug_log(message=f"DEBUG: entering {current_function_name}", **_get_log_args())
+    debug_logger(message=f"DEBUG: entering {current_function_name}", **_get_log_args())
 
     try:
         # Each step is followed by root.update() to process events and keep the splash screen alive.
@@ -90,7 +90,7 @@ def action_open_display(root, splash, mqtt_connection_manager, subscriber_router
 
     except Exception as e:
 
-        debug_log(message=f"❌ CRITICAL ERROR in {current_function_name}: {e}", **_get_log_args())
+        debug_logger(message=f"❌ CRITICAL ERROR in {current_function_name}: {e}", **_get_log_args())
 
         import traceback
 
@@ -127,9 +127,9 @@ def main():
 
     # Perform dependency check after initial setup
     def conditional_console_print(message):
-        if app_constants.global_settings["debug_to_terminal"]:
+        if app_constants.global_settings["debug_enabled"]:
             print(message)
-    before_main.run_interactive_pre_check(conditional_console_print, debug_log)
+    before_main.run_interactive_pre_check(conditional_console_print, debug_logger)
 
     # --- GUI setup starts here, after core initialization is complete ---
     root = tk.Tk()
@@ -138,7 +138,7 @@ def main():
     # root.withdraw() # Removed for diagnostic
     
    
-    splash = SplashScreen(root, app_constants.CURRENT_VERSION, app_constants.global_settings['debug_to_terminal'], temp_print, debug_log)
+    splash = SplashScreen(root, app_constants.CURRENT_VERSION, app_constants.global_settings['debug_enabled'], temp_print, debug_logger)
     root.splash_window = splash.splash_window # Strong reference
     splash.set_status("Initialization complete. Loading UI...")
     root.update() 
@@ -147,7 +147,7 @@ def main():
     managers = launch_managers(app=None, splash=splash) # Pass app=None for now, will be updated.
     
     if managers is None:
-        debug_log(message="❌ Manager launch failed. Exiting application.", **_get_log_args())
+        debug_logger(message="❌ Manager launch failed. Exiting application.", **_get_log_args())
         sys.exit(1)
 
     # Now that the splash screen is visible, proceed with building the main display.

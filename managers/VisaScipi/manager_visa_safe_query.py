@@ -1,13 +1,13 @@
 # managers/VisaScipi/visa_reader.py
 import orjson
 import time
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 
 
 def query_safe(proxy, command, correlation_id="N/A"):
     # Safely queries the instrument with a SCPI command and returns the response.
-    debug_log(message=f"💳 ℹ️ Proxy Log: 💳💳⬆️⬆️ Send Visa Command: Querying command: {command}", **_get_log_args())
+    debug_logger(message=f"💳 ℹ️ Proxy Log: 💳💳⬆️⬆️ Send Visa Command: Querying command: {command}", **_get_log_args())
     
     if not proxy.inst:
         error_msg = "Instrument not connected. Cannot query command."
@@ -23,8 +23,8 @@ def query_safe(proxy, command, correlation_id="N/A"):
     
     try:
         response = proxy.inst.query(command).strip()
-        debug_log(message=f"💳 ℹ️ Proxy Log: ✅ Sent query: {command}", **_get_log_args())
-        debug_log(message=f"💳 ℹ️ Proxy Log: 💳💳⬇️⬇️ RX Visa Response: Received response: {response}", **_get_log_args())
+        debug_logger(message=f"💳 ℹ️ Proxy Log: ✅ Sent query: {command}", **_get_log_args())
+        debug_logger(message=f"💳 ℹ️ Proxy Log: 💳💳⬇️⬇️ RX Visa Response: Received response: {response}", **_get_log_args())
         
         topic = "OPEN-AIR/Proxy/Rx_Outbox"
         payload = orjson.dumps({

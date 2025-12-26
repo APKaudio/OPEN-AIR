@@ -34,7 +34,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 import pathlib
 
@@ -61,7 +61,7 @@ class PresetPusherGui(ttk.Frame):
         
         # --- Dynamic GUI Builder ---
         current_function_name = "__init__"
-        debug_log(
+        debug_logger(
             message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to initialize the PresetPusherGui.",
 **_get_log_args()
         )
@@ -77,16 +77,16 @@ class PresetPusherGui(ttk.Frame):
                 json_path=JSON_CONFIG_FILE,
                 config=config
             )
-            debug_log(
+            debug_logger(
                 message="✅ The PresetPusherGui did initialize its dynamic GUI builder.",
               **_get_log_args()
             )
         except Exception as e:
-            debug_log(
+            debug_logger(
                 message=f"❌ Error in {current_function_name}: {e}",
               **_get_log_args()
             )
-            debug_log(
+            debug_logger(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
               **_get_log_args()
             )

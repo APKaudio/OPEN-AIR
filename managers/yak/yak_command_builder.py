@@ -21,7 +21,7 @@
 
 import os
 import inspect
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
 from workers
@@ -35,8 +35,8 @@ def fill_scpi_placeholders(scpi_command_template: str, scpi_inputs: dict):
     Takes an SCPI command template and replaces placeholders with values from inputs.
     """
     current_function_name = inspect.currentframe().f_code.co_name
-    if app_constants.LOCAL_DEBUG_ENABLE: 
-        debug_log(message=f"🔍🔵 Entering {current_function_name} to fill SCPI placeholders.",
+    if app_constants.global_settings['debug_enabled']:
+        debug_logger(message=f"🔍🔵 Entering {current_function_name} to fill SCPI placeholders.",
                   **_get_log_args()
                   
 
@@ -62,11 +62,11 @@ def fill_scpi_placeholders(scpi_command_template: str, scpi_inputs: dict):
             
             if placeholder in filled_command:
                 filled_command = filled_command.replace(placeholder, value_to_substitute)
-                if app_constants.LOCAL_DEBUG_ENABLE: 
-                                debug_log(message=f"🔁 Replaced placeholder '{placeholder}' with value '{value_to_substitute}'.",
+                if app_constants.global_settings['debug_enabled']:
+                                debug_logger(message=f"🔁 Replaced placeholder '{placeholder}' with value '{value_to_substitute}'.",
                                               **_get_log_args()
                                               
                 
                 )
-    debug_log(message=f"✅ Filled SCPI Command: {filled_command}", **_get_log_args())
+    debug_logger(message=f"✅ Filled SCPI Command: {filled_command}", **_get_log_args())
     return filled_command

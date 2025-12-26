@@ -33,7 +33,7 @@ from tkinter import ttk
 import inspect
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
@@ -57,8 +57,8 @@ class ValueBoxCreatorMixin:
         # Creates an editable text box (_Value).
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to brew a value box for '{label}'.",
               **_get_log_args()
             )
@@ -96,17 +96,17 @@ class ValueBoxCreatorMixin:
                     self.subscriber_router.subscribe_to_topic(topic, self.state_mirror_engine.sync_incoming_mqtt_to_gui)
 
 
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ SUCCESS! The value box '{label}' has been perfectly crafted!",
                     **_get_log_args()
                 )
             return sub_frame
 
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            debug_logger(message=f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"💥 KABOOM! The value box for '{label}' has spectacularly failed! Error: {e}",
                     **_get_log_args()
                 )

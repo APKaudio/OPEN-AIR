@@ -201,10 +201,10 @@ if __name__ == '__main__':
     root.withdraw()
     print("Starting Standalone Test...")
     
-    def mock_debug_log(message, **kwargs):
+    def mock_debug_logger(message, **kwargs):
         print(f"[DEBUG] {message}")
 
-    splash = SplashScreen(root, "TestVer", True, lambda: None, mock_debug_log)
+    splash = SplashScreen(root, "TestVer", True, lambda: None, mock_debug_logger)
     
     # Close after 10 seconds for testing
     root.after(10000, splash.hide)

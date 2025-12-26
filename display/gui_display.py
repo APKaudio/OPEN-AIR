@@ -32,7 +32,7 @@ from workers.display.module_loader import ModuleLoader
 from workers.display.layout_parser import LayoutParser
 
 # Import logger and styling utilities
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 
@@ -55,11 +55,9 @@ class Application(ttk.Frame):
         # This prevents re-scanning the disk every time a tab is accessed.
         self._layout_cache = {}
 
-        if self.app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log( 
-                message="🖥️🚦 The grand orchestrator is waking up! Let'S get this GUI built!", 
-                **_get_log_args()
-            )
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger( 
+                message="🖥️🚦 The grand orchestrator is waking up! Let'S get this GUI built!",                 **_get_log_args()            )
         
         # --- Initialize MQTT and Logic Layers (injected) ---
         self.mqtt_connection_manager = mqtt_connection_manager
@@ -75,8 +73,7 @@ class Application(ttk.Frame):
         # Initialize LayoutParser
         self.layout_parser = LayoutParser(
             current_version=app_constants.CURRENT_VERSION, 
-            LOCAL_DEBUG_ENABLE=self.app_constants.LOCAL_DEBUG_ENABLE, 
-            debug_log_func=debug_log
+            debug_log_func=debug_logger
         )
         
         # Pass the state engine and subscriber router to the module loader
@@ -92,8 +89,8 @@ class Application(ttk.Frame):
         self.last_selected_tab_name = None
 
         try:
-            if self.app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log( 
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger( 
                     message=f"🔍🔵 Applied theme: {DEFAULT_THEME}. The aesthetic enchantments are complete!",
                     **_get_log_args()
                 )
@@ -101,8 +98,8 @@ class Application(ttk.Frame):
             # Start the GUI build process
             self._build_from_directory(path=pathlib.Path(__file__).parent, parent_widget=self)
             
-            if self.app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log( 
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger( 
                     message="🔍🔵 The architectural marvel is complete! Finished building GUI from directory structure.",
                     **_get_log_args()
                 )
@@ -115,16 +112,16 @@ class Application(ttk.Frame):
             # using print as fallback if logging fails
             error_msg = f"❌ Critical Error during application initialization: {e}"
             print(error_msg) 
-            if self.app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"{error_msg}\nFull Traceback:\n{traceback.format_exc()}",
                     **_get_log_args()
                 )
 
     def shutdown(self):
         """Gracefully shuts down the application."""
-        if self.app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(message="Initiating application shutdown...", **_get_log_args())
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message="Initiating application shutdown...", **_get_log_args())
         
         self.mqtt_connection_manager.disconnect()
         if self.visa_proxy:
@@ -132,8 +129,8 @@ class Application(ttk.Frame):
 
     def _trigger_initial_tab_selection(self):
         """Triggers the _on_tab_change event for the initially selected tab of each notebook."""
-        if self.app_constants.LOCAL_DEBUG_ENABLE:
-             debug_log(message="🔍🔵 Triggering initial tab selection for all notebooks.", **_get_log_args())        
+        if app_constants.global_settings['debug_enabled']:
+             debug_logger(message="🔍🔵 Triggering initial tab selection for all notebooks.", **_get_log_args())        
         
         notebooks_to_process = list(self._notebooks.items())
         
@@ -144,19 +141,19 @@ class Application(ttk.Frame):
                 self._on_tab_change(dummy_event) 
                          
             except Exception as e:
-                if self.app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"❌🔴 Critical error during initial tab selection for {notebook_path}: {e}",
                         **_get_log_args()
                     )               
         
-        if self.app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(message="✅ All initial tab selections triggered.", **_get_log_args())
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message="✅ All initial tab selections triggered.", **_get_log_args())
 
     def _apply_styles(self, theme_name: str):
         """Applies the specified theme to the entire application."""
-        if self.app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(message=f"🔍🔵 Applying styles for theme: {theme_name}.", **_get_log_args())        
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message=f"🔍🔵 Applying styles for theme: {theme_name}.", **_get_log_args())        
         
         colors = THEMES.get(theme_name, THEMES["dark"])
         style = ttk.Style(self)
@@ -237,8 +234,8 @@ class Application(ttk.Frame):
         # 1. Check RAM Cache
         if path_str in self._layout_cache:
             # Optional: Log cache hit only in verbose debug
-            # if self.app_constants.LOCAL_DEBUG_ENABLE: 
-            #    debug_log(message=f"⚡ Cache Hit: {path.name}", **_get_log_args())
+            # if app_constants.global_settings['debug_enabled']: 
+            #    debug_logger(message=f"⚡ Cache Hit: {path.name}", **_get_log_args())
             return self._layout_cache[path_str]
 
         # 2. Miss: Parse and Store
@@ -251,8 +248,8 @@ class Application(ttk.Frame):
         Recursively builds the GUI using Cached Layouts.
         """
         # ⚡ OPTIMIZATION: Guarded Log Call
-        if self.app_constants.LOCAL_DEBUG_ENABLE:
-             debug_log( 
+        if app_constants.global_settings['debug_enabled']:
+             debug_logger( 
                 message=f"▶️ _build_from_directory for path: '{path}'",
                 **_get_log_args()
             )
@@ -263,8 +260,8 @@ class Application(ttk.Frame):
         layout_data = layout_info['data']
 
         if layout_type == 'error':
-            if self.app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"❌🔴 Layout parsing failed for {path}: {layout_data.get('error_message')}",
                     **_get_log_args()
                 )
@@ -287,8 +284,8 @@ class Application(ttk.Frame):
                     # --- 🗺️ Objective 1: Temporal Crawler ---
                     # Before building a pane, check if it contains any valid GUI files.
                     if not self.layout_parser._scan_for_flux_capacitors(sub_dir_path):
-                        if self.app_constants.LOCAL_DEBUG_ENABLE:
-                            debug_log(message=f"⏩ Pruning empty branch: Skipping panel '{sub_dir_path.name}' as it contains no GUI files.")
+                        if app_constants.global_settings['debug_enabled']:
+                            debug_logger(message=f"⏩ Pruning empty branch: Skipping panel '{sub_dir_path.name}' as it contains no GUI files.")
                         continue # Prune this branch
 
                     weight = panel_info['weight']
@@ -379,16 +376,16 @@ class Application(ttk.Frame):
                 self.root.update()
 
         except Exception as e:
-            if self.app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"❌🔴 Catastrophic structural failure in '_build_from_directory' for {path}: {e}",
                     **_get_log_args()
                 )
 
     def print_to_console(self, message: str):
         """Placeholder method to print messages to a GUI console."""
-        if self.app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🖥️💬 Observer's Log: {message}",
                 **_get_log_args()
             )
@@ -396,16 +393,16 @@ class Application(ttk.Frame):
     def _on_tab_change(self, event):
         """Logs a debug message, triggers lazy loading, and handles tab-specific actions."""
         # ⚡ OPTIMIZATION: Guarded Logging - Major Performance Gain
-        if self.app_constants.LOCAL_DEBUG_ENABLE:
-             debug_log(message=f"▶️ _on_tab_change detected.", **_get_log_args())
+        if app_constants.global_settings['debug_enabled']:
+             debug_logger(message=f"▶️ _on_tab_change detected.", **_get_log_args())
         
         try:
             notebook = event.widget
             selected_tab_id = notebook.select()
 
             if not selected_tab_id:
-                if self.app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(message="No tab selected in notebook, skipping _on_tab_change logic.", **_get_log_args())
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message="No tab selected in notebook, skipping _on_tab_change logic.", **_get_log_args())
                 return
             
             selected_tab_frame = notebook.nametowidget(selected_tab_id)
@@ -415,14 +412,14 @@ class Application(ttk.Frame):
             if not getattr(selected_tab_frame, "is_populated", False):
                 build_path = getattr(selected_tab_frame, "build_path", None)
                 if build_path:
-                    if self.app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(f"⚡ Lazy Loading engaged for tab: {newly_selected_tab_name}")
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(f"⚡ Lazy Loading engaged for tab: {newly_selected_tab_name}")
                     
                     self._build_from_directory(path=build_path, parent_widget=selected_tab_frame)
                     
                     selected_tab_frame.is_populated = True
-                    if self.app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(f"✅ Lazy Loading complete for tab: {newly_selected_tab_name}")
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(f"✅ Lazy Loading complete for tab: {newly_selected_tab_name}")
 
             # --- Standard Tab Change Logic ---
             self.last_selected_tab_name = newly_selected_tab_name
@@ -430,13 +427,13 @@ class Application(ttk.Frame):
             if selected_tab_frame.winfo_children():
                 content_widget = selected_tab_frame.winfo_children()[0]
                 if hasattr(content_widget, '_on_tab_selected') and callable(getattr(content_widget, '_on_tab_selected')):
-                    if self.app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"Calling _on_tab_selected for {content_widget.__class__.__name__}.", **_get_log_args())
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(message=f"Calling _on_tab_selected for {content_widget.__class__.__name__}.", **_get_log_args())
                     content_widget._on_tab_selected(event)
             
-            if self.app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(message=f"⏹️_on_tab_change complete for '{newly_selected_tab_name}'.", **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"⏹️_on_tab_change complete for '{newly_selected_tab_name}'.", **_get_log_args())
 
         except Exception as e:
-            if self.app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(message=f"❌ Error in _on_tab_change: {e}", **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"❌ Error in _on_tab_change: {e}", **_get_log_args())

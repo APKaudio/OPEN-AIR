@@ -28,7 +28,7 @@ import uuid # For correlation IDs
 from workers.mqtt.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 from workers.mqtt.mqtt_connection_manager import MqttConnectionManager
 from workers.mqtt.mqtt_subscriber_router import MqttSubscriberRouter
@@ -53,7 +53,7 @@ class YakTranslator:
         self._load_yak_repository()
         self._setup_mqtt_subscriptions()
         
-        debug_log(message="✅ YakTranslator initialized and ready to translate!", **_get_log_args())
+        debug_logger(message="✅ YakTranslator initialized and ready to translate!", **_get_log_args())
 
     def _load_yak_repository(self):
         """
@@ -69,15 +69,15 @@ class YakTranslator:
             try:
                 with open(repo_path, 'r') as f:
                     self.yak_repository = orjson.loads(f.read())
-                debug_log(message=f"✅ YAK repository loaded from {repo_path}", **_get_log_args())
+                debug_logger(message=f"✅ YAK repository loaded from {repo_path}", **_get_log_args())
             except orjson.JSONDecodeError as e:
-                debug_log(message=f"❌ Error decoding JSON from YAK repository file {repo_path}: {e}. Initializing empty repository.", **_get_log_args())
+                debug_logger(message=f"❌ Error decoding JSON from YAK repository file {repo_path}: {e}. Initializing empty repository.", **_get_log_args())
                 self.yak_repository = {}
             except Exception as e:
-                debug_log(message=f"❌ Error loading YAK repository from {repo_path}: {e}. Initializing empty repository.", **_get_log_args())
+                debug_logger(message=f"❌ Error loading YAK repository from {repo_path}: {e}. Initializing empty repository.", **_get_log_args())
                 self.yak_repository = {}
         else:
-            debug_log(message=f"🟡 YAK repository file not found or empty at {repo_path}. Initializing empty repository.", **_get_log_args())
+            debug_logger(message=f"🟡 YAK repository file not found or empty at {repo_path}. Initializing empty repository.", **_get_log_args())
             self.yak_repository = {}
 
     def _setup_mqtt_subscriptions(self):
@@ -88,7 +88,7 @@ class YakTranslator:
         # For now, let's assume a generic trigger topic, similar to old YaketyYakManager
         trigger_topic_filter = "OPEN-AIR/yak/commands/#" # Example: listen for commands that need translation
         self.subscriber_router.subscribe_to_topic(trigger_topic_filter, self._on_yak_trigger_message)
-        debug_log(message=f"✅ Subscribed to YAK trigger topic: '{trigger_topic_filter}'", **_get_log_args())
+        debug_logger(message=f"✅ Subscribed to YAK trigger topic: '{trigger_topic_filter}'", **_get_log_args())
         
         # Also need to subscribe to the repo update topic if YakTranslator also handles repo updates (from YaketyYakManager)
         # Assuming repo updates are handled by a separate mechanism or the YakTranslator will just load from file
@@ -101,7 +101,7 @@ class YakTranslator:
         Parses the topic, looks up the command in the repository, builds it, and publishes to VisaProxy.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(message=f"📥 YAK Trigger received on Topic: '{topic}', Payload: '{payload}'", **_get_log_args())
+        debug_logger(message=f"📥 YAK Trigger received on Topic: '{topic}', Payload: '{payload}'", **_get_log_args())
 
         try:
             # The payload will likely contain parameters for substitution in the SCPI command.
@@ -119,7 +119,7 @@ class YakTranslator:
             command_declaration = self._get_command_declaration(yak_command_path)
             
             if not command_declaration:
-                debug_log(message=f"❌ No YAK declaration found for command path: {yak_command_path}", **_get_log_args(), level="ERROR")
+                debug_logger(message=f"❌ No YAK declaration found for command path: {yak_command_path}", **_get_log_args(), level="ERROR")
                 return
 
             # Assume payload contains parameters for substitution
@@ -129,14 +129,14 @@ class YakTranslator:
             # Build the SCPI command
             scpi_template = command_declaration.get("scpi_template")
             if not scpi_template:
-                debug_log(message=f"❌ No 'scpi_template' found in YAK declaration for {yak_command_path}", **_get_log_args(), level="ERROR")
+                debug_logger(message=f"❌ No 'scpi_template' found in YAK declaration for {yak_command_path}", **_get_log_args(), level="ERROR")
                 return
 
             # Perform substitutions (using a simplified version of yak_command_builder logic)
             final_scpi_command = self._fill_scpi_placeholders(scpi_template, payload_data)
             
             if not final_scpi_command:
-                debug_log(message=f"❌ Failed to build SCPI command from template: {scpi_template} and payload: {payload_data}", **_get_log_args(), level="ERROR")
+                debug_logger(message=f"❌ Failed to build SCPI command from template: {scpi_template} and payload: {payload_data}", **_get_log_args(), level="ERROR")
                 return
 
             # Determine if it's a query or write based on declaration
@@ -158,12 +158,12 @@ class YakTranslator:
                 "correlation_id": correlation_id
             }
             self.mqtt_util.get_client_instance().publish(topic="OPEN-AIR/Proxy/Tx_Inbox", payload=orjson.dumps(proxy_payload), qos=0, retain=False)
-            debug_log(message=f"⬆️ Published SCPI command to Proxy Tx_Inbox: '{final_scpi_command}' (Query: {is_query}, CorrID: {correlation_id})", **_get_log_args())
+            debug_logger(message=f"⬆️ Published SCPI command to Proxy Tx_Inbox: '{final_scpi_command}' (Query: {is_query}, CorrID: {correlation_id})", **_get_log_args())
 
         except orjson.JSONDecodeError:
-            debug_log(message=f"❌ Invalid JSON payload for YAK trigger on topic '{topic}': {payload}", **_get_log_args(), level="ERROR")
+            debug_logger(message=f"❌ Invalid JSON payload for YAK trigger on topic '{topic}': {payload}", **_get_log_args(), level="ERROR")
         except Exception as e:
-            debug_log(message=f"❌ Error processing YAK trigger for topic '{topic}': {e}", **_get_log_args(), level="CRITICAL")
+            debug_logger(message=f"❌ Error processing YAK trigger for topic '{topic}': {e}", **_get_log_args(), level="CRITICAL")
 
     def _get_command_declaration(self, path_parts: list):
         """
@@ -187,10 +187,10 @@ class YakTranslator:
             formatted_command = scpi_template.format(**params)
             return formatted_command
         except KeyError as e:
-            debug_log(message=f"❌ Missing parameter for SCPI template '{scpi_template}': {e}", **_get_log_args(), level="ERROR")
+            debug_logger(message=f"❌ Missing parameter for SCPI template '{scpi_template}': {e}", **_get_log_args(), level="ERROR")
             return None
         except Exception as e:
-            debug_log(message=f"❌ Error filling SCPI placeholders for template '{scpi_template}': {e}", **_get_log_args(), level="ERROR")
+            debug_logger(message=f"❌ Error filling SCPI placeholders for template '{scpi_template}': {e}", **_get_log_args(), level="ERROR")
             return None
 
     def retrieve_command_context(self, correlation_id: str):
@@ -199,8 +199,8 @@ class YakTranslator:
         """
         if correlation_id in self.command_context_store:
             context = self.command_context_store.pop(correlation_id) # Retrieve and remove
-            debug_log(message=f"✅ Retrieved command context for CorrID: {correlation_id}", **_get_log_args())
+            debug_logger(message=f"✅ Retrieved command context for CorrID: {correlation_id}", **_get_log_args())
             return context
         else:
-            debug_log(message=f"❌ No command context found for CorrID: {correlation_id}", **_get_log_args(), level="WARNING")
+            debug_logger(message=f"❌ No command context found for CorrID: {correlation_id}", **_get_log_args(), level="WARNING")
             return None

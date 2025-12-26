@@ -21,7 +21,7 @@
 
 import os
 import inspect
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
 
@@ -47,8 +47,8 @@ class YakTxManager:
         
         # Check if the command string contains a '?' to identify it as a query
         if '?' in cleaned_command:
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🐐🐐🐐🚀 Engaging the '{command_type}' API! Dispatching query command now!",
                     **_get_log_args()
 
@@ -56,8 +56,8 @@ class YakTxManager:
                 )
             return self.dispatcher.query_safe(cleaned_command)
         else:
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🐐🐐🐐🚀 Engaging the '{command_type}' API! Dispatching write command now!",
                     **_get_log_args()
 

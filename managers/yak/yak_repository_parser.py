@@ -23,7 +23,7 @@ import os
 import inspect
 import orjson
 
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
 
@@ -33,8 +33,8 @@ def get_command_node(repo, command_path_parts, function_name):
     Traverses the repository to find the base node for a command and logs each step.
     Returns the command's base dictionary or None if not found.
     """
-    if app_constants.LOCAL_DEBUG_ENABLE: 
-        debug_log(message=f"🔍🔵 Entering {function_name} to get command node for path: {command_path_parts}.",
+    if app_constants.global_settings['debug_enabled']:
+        debug_logger(message=f"🔍🔵 Entering {function_name} to get command node for path: {command_path_parts}.",
                   **_get_log_args()
                   
 
@@ -43,8 +43,8 @@ def get_command_node(repo, command_path_parts, function_name):
     current_node = repo
     
     for part in command_path_parts:
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(message=f"🔍 Trying to get part: '{part}' from current_node.",
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message=f"🔍 Trying to get part: '{part}' from current_node.",
                       **_get_log_args()
                       
 
@@ -53,11 +53,11 @@ def get_command_node(repo, command_path_parts, function_name):
         current_node = current_node.get(part)
         
         if not current_node:
-            debug_log(message=f"❌ Error: Command path not found at intermediate step.", **_get_log_args())
+            debug_logger(message=f"❌ Error: Command path not found at intermediate step.", **_get_log_args())
             return None
         
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(message=f"🔍 Succeeded. Current node keys are now: {list(current_node.keys())}",
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message=f"🔍 Succeeded. Current node keys are now: {list(current_node.keys())}",
                       **_get_log_args()
                       
 
@@ -78,19 +78,19 @@ def lookup_scpi_command(command_node, model_key, command_path):
     scpi_path = command_path + [f"scpi_details/{model_key}/SCPI_value"]
     
     if scpi_value:
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(message=f"✅ SCPI Command found at path: {'/'.join(scpi_path)}",
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message=f"✅ SCPI Command found at path: {'/'.join(scpi_path)}",
                       **_get_log_args() 
 
 )
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(message=f"✅ SCPI Command: {scpi_value}",
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message=f"✅ SCPI Command: {scpi_value}",
                       **_get_log_args() 
 
 )
         return scpi_value
     else:
-        debug_log(message=f"🟡 SCPI Command not found for model '{model_key}' at path: {'/'.join(scpi_path)}", **_get_log_args())
+        debug_logger(message=f"🟡 SCPI Command not found for model '{model_key}' at path: {'/'.join(scpi_path)}", **_get_log_args())
         return None
 
 def lookup_inputs(command_node, command_path):
@@ -105,19 +105,19 @@ def lookup_inputs(command_node, command_path):
     if scpi_inputs:
         inputs_count = len(scpi_inputs)
         input_details = " ".join([f"({key} = {details.get('value', 'N/A')})" for key, details in scpi_inputs.items()])
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(message=f"✅ Inputs found at path: {'/'.join(scpi_inputs_path)}",
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message=f"✅ Inputs found at path: {'/'.join(scpi_inputs_path)}",
                       **_get_log_args() 
 
 )
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(message=f"➡️ scpi_inputs = {inputs_count} {input_details}",
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message=f"➡️ scpi_inputs = {inputs_count} {input_details}",
                       **_get_log_args() 
 
 )
         return scpi_inputs
     else:
-        debug_log(message="🟡 No inputs found.", **_get_log_args())
+        debug_logger(message="🟡 No inputs found.", **_get_log_args())
         return None
 
 
@@ -133,17 +133,17 @@ def lookup_outputs(command_node, command_path):
     if scpi_outputs:
         outputs_count = len(scpi_outputs)
         output_details = " ".join([f"({key} = {details.get('value', 'N/A')})" for key, details in scpi_outputs.items()])
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(message=f"✅ Outputs found at path: {'/'.join(scpi_outputs_path)}",
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message=f"✅ Outputs found at path: {'/'.join(scpi_outputs_path)}",
                       **_get_log_args() 
 
 )
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(message=f"⬅️ scpi_outputs = {outputs_count} {output_details}",
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message=f"⬅️ scpi_outputs = {outputs_count} {output_details}",
                       **_get_log_args() 
 
 )
         return scpi_outputs
     else:
-        debug_log(message="🟡 No outputs found.", **_get_log_args())
+        debug_logger(message="🟡 No outputs found.", **_get_log_args())
         return None

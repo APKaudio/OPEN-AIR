@@ -33,7 +33,7 @@ from tkinter import ttk
 import inspect
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
@@ -60,8 +60,8 @@ class GuiActuatorCreatorMixin:
         # Creates a button that acts as a simple actuator.
         current_function_name = inspect.currentframe().f_code.co_name
         
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to construct an actuator for '{label}'.",
               **_get_log_args()
             )
@@ -80,11 +80,10 @@ class GuiActuatorCreatorMixin:
             button.pack(side=tk.LEFT, padx=DEFAULT_PAD_X)
 
             def on_press(event):
-                # FIXED: The actuator now correctly publishes to the "actions" topic.
-                action_path = path.replace("repository", "actions") + "/trigger"
-
-                if app_constants.LOCAL_DEBUG_ENABLE: 
-                    debug_log(
+                action_path = f"{path}/trigger"
+                
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"GUI ACTION: Activating actuator '{label}' to path '{action_path}'",
                         file=current_file,
                         version=current_version,
@@ -93,11 +92,10 @@ class GuiActuatorCreatorMixin:
                 self._transmit_command(widget_name=action_path, value=True)
 
             def on_release(event):
-                # FIXED: The actuator now correctly publishes to the "actions" topic.
-                action_path = path.replace("repository", "actions") + "/trigger"
+                action_path = f"{path}/trigger"
 
-                if app_constants.LOCAL_DEBUG_ENABLE: 
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"GUI ACTION: Deactivating actuator '{label}' to path '{action_path}'",
                         file=current_file,
                         version=current_version,
@@ -110,9 +108,23 @@ class GuiActuatorCreatorMixin:
 
             if path:
                 self.topic_widgets[path] = button
+                
+                # --- New MQTT Wiring ---
+                if self.state_mirror_engine and self.subscriber_router:
+                    widget_id = path
+                    
+                    # 1. This widget is stateless and directly transmits commands,
+                    #    so no StringVar to register.
 
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+                    # 2. No variable trace for outgoing messages, as it's a direct command.
+
+                    # 3. Subscribe to topic for incoming messages (to activate/deactivate button)
+                    #    The topic for status is usually 'path/active' or 'path/label_active'
+                    status_topic = f"{get_topic('OPEN-AIR', self.tab_name, widget_id)}/active"
+                    self.subscriber_router.subscribe_to_topic(status_topic, self._on_actuator_state_update)
+
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ SUCCESS! The actuator '{label}' is ready for action!",
                     **_get_log_args()
                 )
@@ -120,11 +132,35 @@ class GuiActuatorCreatorMixin:
 
         except Exception as e:
             
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"💥 KABOOM! The actuator '{label}' has short-circuited! Error: {e}",
                     file=current_file,
                     version=current_version,
                     function=current_function_name
                 )
             return None
+
+    def _on_actuator_state_update(self, topic, payload):
+        import orjson
+        try:
+            payload_data = orjson.loads(payload)
+            is_active = payload_data.get('val')
+            
+            widget_id = topic.rsplit(TOPIC_DELIMITER, 1)[0]
+            
+            button = self.topic_widgets.get(widget_id)
+            if button:
+                if is_active:
+                    button.config(style='Custom.Selected.TButton')
+                else:
+                    button.config(style='Custom.TButton')
+                
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"GUI ACTUATOR: Actuator '{widget_id}' state updated to {is_active}", **_get_log_args())
+            else:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"GUI ACTUATOR: Button widget not found for topic: {topic}", **_get_log_args())
+        except (orjson.JSONDecodeError, AttributeError) as e:
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"❌ Error processing actuator MQTT update for {topic}: {e}. Payload: {payload}", **_get_log_args())

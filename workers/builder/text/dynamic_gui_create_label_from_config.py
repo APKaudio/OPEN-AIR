@@ -19,7 +19,7 @@ import os
 import inspect
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
@@ -39,8 +39,8 @@ class LabelFromConfigCreatorMixin:
         # A wrapper for _create_label to match the factory function signature.
         # It calls the _create_label method (provided by LabelCreatorMixin).
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to create label from config for '{label}'.",
               **_get_log_args()
                 
@@ -55,8 +55,8 @@ class LabelFromConfigCreatorMixin:
                 units=config.get("units"),
                 path=path
             )
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🟢️️️🟢 📤 '{current_function_name}'. Label from config '{label}' created.",
 **_get_log_args()
                     
@@ -65,9 +65,9 @@ class LabelFromConfigCreatorMixin:
                 )
             return result
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            debug_logger(message=f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🟢️️️🔴 Arrr, the code be capsized! Label from config creation has failed! The error be: {e}",
 **_get_log_args()
                     

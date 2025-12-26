@@ -34,7 +34,7 @@ import inspect
 from decimal import Decimal, InvalidOperation # Add InvalidOperation
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
@@ -55,8 +55,8 @@ class GuiDropdownOptionCreatorMixin:
         # Creates a dropdown menu for multiple choice options.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to devise a dropdown selector for '{label}'.",
               **_get_log_args()
                 
@@ -74,7 +74,7 @@ class GuiDropdownOptionCreatorMixin:
             options_map = config.get('options', {})
             # Ensure options_map is a dictionary
             if isinstance(options_map, list):
-                debug_log(message=f"⚠️ WARNING: 'options' for '{label}' in config is a list, expected a dictionary. Falling back to empty dict.", **_get_log_args())
+                debug_logger(message=f"⚠️ WARNING: 'options' for '{label}' in config is a list, expected a dictionary. Falling back to empty dict.", **_get_log_args())
                 options_map = {} # Fallback to empty dict to prevent crash
             
             # Use all options from options_map, as 'active' status is not consistently used
@@ -134,8 +134,8 @@ class GuiDropdownOptionCreatorMixin:
                         found_label = opt.get('label_active', key)
                         break
                 displayed_text_var.set(found_label)
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"⚡ fluxing... Dropdown '{label}' visually updated to '{found_label}' (value: {new_value}) from MQTT.",
                         **_get_log_args()
                     )
@@ -155,8 +155,8 @@ class GuiDropdownOptionCreatorMixin:
                             selected_value_var.set(selected_value)
 
                         # The 'AES70' and 'handler' from config imply the 'path' is the target for the value.
-                        if app_constants.LOCAL_DEBUG_ENABLE: 
-                            debug_log(
+                        if app_constants.global_settings['debug_enabled']:
+                            debug_logger(
                                 message=f"GUI ACTION: Publishing to '{path}' with value '{selected_value}'",
                                 **_get_log_args()
                             )
@@ -164,7 +164,7 @@ class GuiDropdownOptionCreatorMixin:
                         self._current_selected_key_for_path = selected_key # Update for consistency
 
                 except ValueError:
-                    debug_log(message="❌ Invalid selection in dropdown.")
+                    debug_logger(message="❌ Invalid selection in dropdown.")
 
             # No longer hardcode style, rely on _apply_styles from DynamicGuiBuilder
             # Create a Combobox that uses the displayed_text_var for its text.
@@ -176,17 +176,17 @@ class GuiDropdownOptionCreatorMixin:
             if path and self.state_mirror_engine:
                 # Register the StringVar with the StateMirrorEngine for MQTT updates
                 self.state_mirror_engine.register_widget(path, selected_value_var, self.tab_name)
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (StringVar: {selected_value_var.get()}).",
                         **_get_log_args()
                     )
             return sub_frame
 
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            debug_logger(message=f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"💥 KABOOM! The dropdown for '{label}' has fallen into the abyss! Error: {e}",
                     **_get_log_args()
                 )

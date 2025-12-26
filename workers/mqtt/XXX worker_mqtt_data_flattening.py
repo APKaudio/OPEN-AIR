@@ -22,7 +22,7 @@ import inspect
 import orjson
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 
 # --- Global Scope Variables ---
@@ -45,8 +45,8 @@ class MqttDataFlattenerUtility:
         """
         Clears the internal data buffer.
         """
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message="🟢️️️🔍 The data buffer has been wiped clean. A fresh start for our experiments!",
                 **_get_log_args()
                 
@@ -75,8 +75,8 @@ class MqttDataFlattenerUtility:
             if self.data_buffer:
                 return self._flush_buffer()
             else:
-                if app_constants.LOCAL_DEBUG_ENABLE: 
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message="🟢️️️🟡 Flush command received, but buffer is empty. Nothing to do.",
                         **_get_log_args()
                         
@@ -88,12 +88,12 @@ class MqttDataFlattenerUtility:
             
             # --- Corrected logic for 'Active' status check ---
             if topic.endswith('/Active') and isinstance(data, dict) and data.get('value') == 'false':
-                debug_log(message=f"🟡 Skipping transaction for '{topic}' because 'Active' is false.", **_get_log_args())
+                debug_logger(message=f"🟡 Skipping transaction for '{topic}' because 'Active' is false.", **_get_log_args())
                 self.clear_buffer()
                 return []
             
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🟢️️️🔵 Received data for '{topic}'. Storing in buffer. Payload: {payload}",
                     **_get_log_args()
                     
@@ -118,9 +118,9 @@ class MqttDataFlattenerUtility:
             return []
             
         except orjson.JSONDecodeError as e:
-            debug_log(message=f"❌ Error decoding JSON payload for topic '{topic}': {e}", **_get_log_args())
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            debug_logger(message=f"❌ Error decoding JSON payload for topic '{topic}': {e}", **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🟢️️️🔴 The JSON be a-sailing to its doom! The error be: {e}",
                     **_get_log_args()
                     
@@ -128,9 +128,9 @@ class MqttDataFlattenerUtility:
             self.clear_buffer()
             return []
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name}: {e}", **_get_log_args())
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            debug_logger(message=f"❌ Error in {current_function_name}: {e}", **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🟢️️️🔴 Arrr, the code be capsized! The error be: {e}",
                     **_get_log_args()
                     
@@ -144,8 +144,8 @@ class MqttDataFlattenerUtility:
         """
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message="🟢️️️🟢 Processing buffer and commencing pivoting and flattening!",
               **_get_log_args()
                 
@@ -175,12 +175,12 @@ class MqttDataFlattenerUtility:
             self.data_buffer[new_topic] = new_data
             self.last_unique_identifier = new_identifier
         
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message="🟢️️️✅ Behold! I have transmogrified the data! The final payload is below.",
               **_get_log_args()
                 
             )
         
-        debug_log(message=orjson.dumps(flattened_data, indent=2), **_get_log_args())
+        debug_logger(message=orjson.dumps(flattened_data, indent=2), **_get_log_args())
         return [flattened_data]

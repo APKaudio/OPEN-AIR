@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 import os
 from workers.setup.path_initializer import GLOBAL_PROJECT_ROOT
@@ -15,8 +15,8 @@ class ImageDisplayCreatorMixin:
     def _create_image_display(self, parent_frame, label, config, path):
         """Creates an image display widget."""
         current_function_name = "_create_image_display"
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to render an image for '{label}'.",
                 **_get_log_args()
             )
@@ -43,21 +43,21 @@ class ImageDisplayCreatorMixin:
                 os.makedirs(os.path.dirname(image_path_absolute), exist_ok=True)
                 placeholder_image = Image.new('RGB', (100, 100), color = 'black')
                 placeholder_image.save(image_path_absolute)
-                debug_log(message=f"☑️ INFO: Created placeholder image at {image_path_absolute}")
+                debug_logger(message=f"☑️ INFO: Created placeholder image at {image_path_absolute}")
             except Exception as e:
-                debug_log(message=f"🔴 ERROR creating placeholder image: {e}")
+                debug_logger(message=f"🔴 ERROR creating placeholder image: {e}")
 
         except Exception as e:
             image_label = ttk.Label(frame, text=f"Error loading image:\n{e}", wraplength=150)
             tk_image = None
-            debug_log(message=f"🔴 ERROR loading image: {e}")
+            debug_logger(message=f"🔴 ERROR loading image: {e}")
 
         image_label.pack(side=tk.LEFT)
 
         self.topic_widgets[path] = {"widget": image_label}
         
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"✅ SUCCESS! The image for '{label}' has been rendered!",
                 **_get_log_args()
             )

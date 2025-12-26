@@ -24,7 +24,7 @@ import orjson
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
@@ -53,8 +53,8 @@ class MqttSubscriberMixin:
     def _on_receive_command_message(self, topic, payload):
         # The main callback function that processes incoming MQTT messages.
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🖥️🔵 Entering _on_receive_command_message() for topic: '{topic}' with payload: '{payload}'.",
               **_get_log_args()
                 
@@ -72,8 +72,8 @@ class MqttSubscriberMixin:
                         if isinstance(full_config, dict):
                             self.config_data = full_config
                             # Note: _rebuild_gui is NOT called here by design, as local JSON is authoritative.
-                            if app_constants.LOCAL_DEBUG_ENABLE:
-                                debug_log(
+                            if app_constants.global_settings['debug_enabled']:
+                                debug_logger(
                                     message=f"🖥️🔵 Full config received for base topic '{self.base_topic}'. Config data updated, but GUI not auto-rebuilt (local JSON is authoritative).",
                                     file=current_file,
                                     version=current_version,
@@ -94,8 +94,8 @@ class MqttSubscriberMixin:
                 if self.gui_built:
                     self.after(0, self._update_widget_value, relative_topic, payload)
 
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🖥️🔵 Exiting _on_receive_command_message() for topic: '{topic}'.",
 **_get_log_args()
                     
@@ -103,9 +103,9 @@ class MqttSubscriberMixin:
 
                 )
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name}: {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            debug_logger(message=f"❌ Error in {current_function_name}: {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"❌🔴 Arrr, the code be capsized in _on_receive_command_message! The error be: {e}",
 **_get_log_args()
                     
@@ -120,8 +120,8 @@ def log_to_gui(builder_instance, message):
     """
     current_function_name = inspect.currentframe().f_code.co_name
     
-    if app_constants.LOCAL_DEBUG_ENABLE:
-        debug_log(
+    if app_constants.global_settings['debug_enabled']:
+        debug_logger(
             message=f"🔍🔵 Entering '{current_function_name}'. Inspecting log entry of length {len(message)}. Preparing to write to GUI.",
 **_get_log_args()
             
@@ -137,8 +137,8 @@ def log_to_gui(builder_instance, message):
             builder_instance.log_text.see(tk.END)
             
         
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔍🔵 Exiting '{current_function_name}'. Log message written to GUI.",
 **_get_log_args()
                 
@@ -148,8 +148,8 @@ def log_to_gui(builder_instance, message):
             
     except Exception as e:
        
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"❌🔴 Arrr, the code be capsized! The logging to GUI has failed! The error be: {e}",
 **_get_log_args()
                 

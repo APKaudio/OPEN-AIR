@@ -36,7 +36,7 @@ import pathlib
 from collections import defaultdict
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.utils.worker_project_paths import MARKERS_JSON_PATH, MARKERS_CSV_PATH # NEW: Import paths
@@ -72,8 +72,8 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
     MODIFIED: Uses the new nested structure with an 'IDENTITY' blob.
     """
     current_function_name = inspect.currentframe().f_code.co_name
-    if app_constants.LOCAL_DEBUG_ENABLE: 
-        debug_log(
+    if app_constants.global_settings['debug_enabled']:
+        debug_logger(
             message=f"🟢️️️🟢 Initiating device-centric CSV to JSON conversion and MQTT publish. Applying new nested structure.",
 **_get_log_args()
             
@@ -82,7 +82,7 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         )
 
     if not MARKERS_CSV_PATH.is_file():
-        debug_log(message=f"❌ {MARKERS_CSV_PATH} not found. Aborting operation.")
+        debug_logger(message=f"❌ {MARKERS_CSV_PATH} not found. Aborting operation.")
         return
 
     # --- Step 1: Read CSV and generate the flat JSON structure ---
@@ -143,11 +143,11 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
                 }
                 # --- END NEW STRUCTURE IMPLEMENTATION ---
 
-        debug_log(message="✅ Successfully read CSV and generated nested JSON structure with summary data.")
+        debug_logger(message="✅ Successfully read CSV and generated nested JSON structure with summary data.")
     except Exception as e:
-        debug_log(message=f"❌ Error processing CSV file: {e}")
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        debug_logger(message=f"❌ Error processing CSV file: {e}")
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"❌🔴 The CSV-to-JSON contraption has malfunctioned! The error be: {e}",
 **_get_log_args()
                 
@@ -162,11 +162,11 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         MARKERS_JSON_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(MARKERS_JSON_PATH, 'w') as f:
             orjson.dump(json_state, f, indent=4)
-        debug_log(message=f"✅ Saved generated structure to {MARKERS_JSON_PATH}.")
+        debug_logger(message=f"✅ Saved generated structure to {MARKERS_JSON_PATH}.")
     except Exception as e:
-        debug_log(message=f"❌ Error saving to {MARKERS_JSON_PATH}: {e}")
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        debug_logger(message=f"❌ Error saving to {MARKERS_JSON_PATH}: {e}")
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"❌🔴 The enchanted scroll refuses to be written! The error be: {e}",
 **_get_log_args()
                 
@@ -180,16 +180,16 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         # First, clear any old data under the base topic by publishing a null, retained message.
         # This will remove all the old topics (Device-001/Name, Device-001/active, etc.)
         mqtt_util.purge_branch(MQTT_BASE_TOPIC)
-        debug_log(message=f"Cleared old data under topic: {MQTT_BASE_TOPIC}/#")
+        debug_logger(message=f"Cleared old data under topic: {MQTT_BASE_TOPIC}/#")
 
         # Now, publish the new, complete structure recursively.
         _publish_recursive(mqtt_util, MQTT_BASE_TOPIC, json_state)
         
-        debug_log(message="✅ Successfully published the full marker set to MQTT.")
+        debug_logger(message="✅ Successfully published the full marker set to MQTT.")
     except Exception as e:
-        debug_log(message=f"❌ Error publishing to MQTT: {e}")
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        debug_logger(message=f"❌ Error publishing to MQTT: {e}")
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"❌🔴 The message pigeons have flown astray! The error be: {e}",
 **_get_log_args()
                 

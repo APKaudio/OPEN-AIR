@@ -24,7 +24,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 import pathlib
 from workers.mqtt.setup.config_reader import Config # Import the Config class
@@ -51,7 +51,7 @@ class MetaDataGui(ttk.Frame):
 
         # --- Dynamic GUI Builder ---
         current_function_name = "__init__"
-        debug_log(
+        debug_logger(
             message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to initialize the MetaDataGui.",
             **_get_log_args()
         )
@@ -69,10 +69,10 @@ class MetaDataGui(ttk.Frame):
             )
             
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name}: {e}",
+            debug_logger(message=f"❌ Error in {current_function_name}: {e}",
                         **_get_log_args()
                         )
-            debug_log(
+            debug_logger(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                 **_get_log_args()
             )

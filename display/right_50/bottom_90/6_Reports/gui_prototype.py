@@ -26,7 +26,7 @@ import sys
 import orjson
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 
@@ -52,7 +52,7 @@ class BaseGUIFrame(ttk.Frame):
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
         
-        debug_log(
+        debug_logger(
             message="🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand!",
 **_get_log_args()
         )
@@ -112,7 +112,7 @@ class BaseGUIFrame(ttk.Frame):
 
         except Exception as e:
             
-            debug_log(
+            debug_logger(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
              **_get_log_args()
                 
@@ -158,7 +158,7 @@ class BaseGUIFrame(ttk.Frame):
         current_function_name = inspect.currentframe().f_code.co_name
         
         # Entry log
-        debug_log(
+        debug_logger(
             message="🖥️🟢 Entering 'log_button_press' from the GUI layer.",
          **_get_log_args()
 
@@ -171,7 +171,7 @@ class BaseGUIFrame(ttk.Frame):
         current_function_name = inspect.currentframe().f_code.co_name
         
         # Entry log
-        debug_log(
+        debug_logger(
             message="🖥️🟢 Entering 'debug_button_press' from the GUI layer.",
             **_get_log_args()
 
@@ -179,18 +179,18 @@ class BaseGUIFrame(ttk.Frame):
 
         try:
             # --- Function logic goes here ---
-            debug_log(
+            debug_logger(
                 message="🔍🔵 The right button was clicked! Time for a deeper inspection!",
              **_get_log_args()
                 
 
 
             )
-            debug_log(message=f"✅ Debug entry recorded successfully in {self.current_file}!")
+            debug_logger(message=f"✅ Debug entry recorded successfully in {self.current_file}!")
 
         except Exception as e:
             
-            debug_log(
+            debug_logger(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
              **_get_log_args()
                 

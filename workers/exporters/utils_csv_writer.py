@@ -38,7 +38,7 @@ from workers.mqtt.setup.config_reader import Config # Import the Config class
 
 app_constants = Config.get_instance() # Get the singleton instance      
 # Updated imports for new logging functions
-from workers.logger.logger import  debug_log
+from workers.logger.logger import  debug_logger
 
 def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mode=False, 
 ):
@@ -64,8 +64,8 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
     """
 
     current_function = inspect.currentframe().f_code.co_name
-    if app_constants.LOCAL_DEBUG_ENABLE: 
-        debug_log(message=f"Attempting to write scan data to CSV: {file_path}, append_mode={append_mode}. Let's save this data!",
+    if app_constants.global_settings['debug_enabled']:
+        debug_logger(message=f"Attempting to write scan data to CSV: {file_path}, append_mode={append_mode}. Let's save this data!",
                     file=__file__,
                     version=current_version,
                     function=current_function)
@@ -75,8 +75,8 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
     if output_dir and not os.path.exists(output_dir):
         try:
             os.makedirs(output_dir)
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(message=f"✅🔨 directory: {output_dir}. Path cleared!",
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"✅🔨 directory: {output_dir}. Path cleared!",
                             file=__file__,
                             version=current_version,
                             function=current_function)
@@ -84,8 +84,8 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
             error_msg = f"❌ Error creating directory '{output_dir}': {e}. This is a disaster!"
             # WRAPPED WITH after() to prevent cross-thread access
             app_instance_ref.after(0, lambda: console_print_func(error_msg))
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(error_msg,
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(error_msg,
                             file=__file__,
                             version=current_version,
                             function=current_function)
@@ -108,8 +108,8 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
             
             if write_header:
                 csv_writer.writerow(header)
-                if app_constants.LOCAL_DEBUG_ENABLE: 
-                    debug_log(message=f"Wrote header to CSV file: {file_path}. Header added!",
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"Wrote header to CSV file: {file_path}. Header added!",
                                 file=__file__,
                                 version=current_version,
                                 function=current_function)
@@ -119,8 +119,8 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
                 csv_writer.writerow([f"{freq_MHz:.3f}", f"{level_dBm:.3f}"])
         # WRAPPED WITH after() to prevent cross-thread access
         app_instance_ref.after(0, lambda: console_print_func(f"✅ Scan data written to CSV: {file_path}. Data saved!"))
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(message=f"Scan data written to CSV: {file_path}. Mission accomplished!",
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message=f"Scan data written to CSV: {file_path}. Mission accomplished!",
                         file=__file__,
                         version=current_version,
                         function=current_function)
@@ -128,8 +128,8 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
         error_msg = f"❌ I/O Error writing to CSV file {file_path}: {e}. This is a disaster!"
         # WRAPPED WITH after() to prevent cross-thread access
         app_instance_ref.after(0, lambda: console_print_func(error_msg))
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(error_msg,
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(error_msg,
                         file=__file__,
                         version=current_version,
                         function=current_function)
@@ -138,8 +138,8 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
         error_msg = f"❌ An unexpected error occurred while writing to CSV file {file_path}: {e}. What a mess!"
         # WRAPPED WITH after() to prevent cross-thread access
         app_instance_ref.after(0, lambda: console_print_func(error_msg))
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(error_msg,
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(error_msg,
                         file=__file__,
                         version=current_version,
                         function=current_function)

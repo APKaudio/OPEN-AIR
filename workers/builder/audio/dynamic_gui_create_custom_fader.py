@@ -9,7 +9,7 @@ import math
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 import os
@@ -18,8 +18,8 @@ class CustomFaderCreatorMixin:
     def _create_custom_fader(self, parent_frame, label, config, path):
         """Creates a custom fader widget."""
         current_function_name = "_create_custom_fader"
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to sculpt a custom fader for '{label}'.",
                 **_get_log_args()
             )
@@ -54,8 +54,8 @@ class CustomFaderCreatorMixin:
                 current_fader_val = fader_value_var.get()
                 self._draw_fader(canvas, canvas.winfo_width(), canvas.winfo_height(), 
                                  current_fader_val, min_val, max_val, secondary_color, accent_color)
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"⚡ fluxing... Custom Fader '{label}' updated visually to {current_fader_val} from MQTT.",
                         **_get_log_args()
                     )
@@ -67,8 +67,8 @@ class CustomFaderCreatorMixin:
 
             # Interaction
             def on_drag(event):
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"➡️ Custom Fader '{label}' on_drag event triggered (y={event.y}).",
                         **_get_log_args()
                     )
@@ -92,20 +92,20 @@ class CustomFaderCreatorMixin:
             # Register the StringVar with the StateMirrorEngine for MQTT updates
             if path and self.state_mirror_engine:
                 self.state_mirror_engine.register_widget(path, fader_value_var, self.tab_name)
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {fader_value_var.get()}).",
                         **_get_log_args()
                     )
 
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ SUCCESS! The custom fader for '{label}' has been meticulously carved!",
                     **_get_log_args()
                 )
             return frame
         except Exception as e:
-            debug_log(message=f"💥 KABOOM! The custom fader for '{label}' melted! Error: {e}")
+            debug_logger(message=f"💥 KABOOM! The custom fader for '{label}' melted! Error: {e}")
             return None
 
 

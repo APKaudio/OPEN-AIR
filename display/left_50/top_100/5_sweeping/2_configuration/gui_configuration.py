@@ -22,7 +22,7 @@ import pathlib
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.mqtt.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
@@ -60,8 +60,8 @@ class PresetPusherGui(ttk.Frame):
         # --- Dynamic GUI Builder ---
         current_function_name = "__init__"
         
-        if app_constants.LOCAL_DEBUG_ENABLE:
-             debug_log(
+        if app_constants.global_settings['debug_enabled']:
+             debug_logger(
                 message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to initialize the PresetPusherGui.",
               **_get_log_args()
                             )
@@ -87,8 +87,8 @@ class PresetPusherGui(ttk.Frame):
             
         except Exception as e:
             
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
 **_get_log_args()
                     
@@ -103,8 +103,8 @@ class PresetPusherGui(ttk.Frame):
         """
         current_function_name = "_on_tab_selected"
         
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🖥️🔵 Tab '{self.__class__.__name__}' activated! Stand back, I'm checking the data flow!",**_get_log_args() )
         
         # Add logic here if specific refresh actions are needed on tab focus

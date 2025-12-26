@@ -35,7 +35,7 @@ import pathlib
 from tkinter import filedialog
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from workers.styling.style import THEMES, DEFAULT_THEME
@@ -63,8 +63,8 @@ class MarkerPeakHunterGUI(ttk.Frame):
         """
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.global_settings['debug_to_terminal']: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🖥️🟢 Initializing the {self.__class__.__name__}.",
               **_get_log_args()
             )
@@ -123,12 +123,12 @@ class MarkerPeakHunterGUI(ttk.Frame):
             status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
         except Exception as e:
-            debug_log(
+            debug_logger(
                 message=f"❌ Error in {current_function_name}: {e}",
              **_get_log_args()
             )
-            if app_constants.global_settings['debug_to_terminal']: 
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                    **_get_log_args()
                 )
@@ -165,8 +165,8 @@ class MarkerPeakHunterGUI(ttk.Frame):
         Opens a file dialog and exports the current data from the table to a CSV file.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.global_settings['debug_to_terminal']: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🖥️🔵 Preparing to export table data to CSV.",
              **_get_log_args()
             )
@@ -192,9 +192,9 @@ class MarkerPeakHunterGUI(ttk.Frame):
             
 
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name}: {e}")
-            if app_constants.global_settings['debug_to_terminal']: 
-                debug_log(
+            debug_logger(message=f"❌ Error in {current_function_name}: {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                 **_get_log_args()
 

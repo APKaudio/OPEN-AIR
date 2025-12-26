@@ -37,7 +37,7 @@ import datetime
 import math
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
@@ -66,8 +66,8 @@ class ActivePeakPublisher:
         # Initializes the publisher and sets up subscriptions.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️🟢 Initializing the Active Peak Publisher. Ready to pivot the data!",
               **_get_log_args()
                 
@@ -81,15 +81,15 @@ class ActivePeakPublisher:
         self.marker_data_buffer = {}
 
         self._setup_subscriptions()
-        debug_log(message="✅ Active Peak Publisher is online and listening for marker data.", **_get_log_args())
+        debug_logger(message="✅ Active Peak Publisher is online and listening for marker data.", **_get_log_args())
 
     def _setup_subscriptions(self):
         # Subscribes to the wildcards for all marker peak and frequency values.
         self.mqtt_util.add_subscriber(TOPIC_MARKER_PEAK_WILDCARD, self._on_marker_message)
         self.mqtt_util.add_subscriber(TOPIC_MARKER_FREQ_WILDCARD, self._on_marker_message)
         
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔍 Subscribed to both peak and frequency wildcards.",
                 **_get_log_args()
                 
@@ -124,8 +124,8 @@ class ActivePeakPublisher:
             # a) Invalid JSON structure (JSONDecodeError)
             # b) Missing 'value' key (TypeError/AttributeError from get("value") )
             # c) Unparsable number string (ValueError)
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🟢️️️🟡 Silent Skip: Unparsable payload '{payload}'.",
                     **_get_log_args()
                     
@@ -146,8 +146,8 @@ class ActivePeakPublisher:
             self.marker_data_buffer[marker_id]['peak'] = numeric_value
             data_type = "Peak"
 
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️🔵 Buffered {data_type} for {marker_id}: {numeric_value}. Checking for pair...",
                 **_get_log_args()
                 
@@ -241,20 +241,20 @@ class ActivePeakPublisher:
                 retain=True
             )
 
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"🐐💾 Reposted {marker_id} data to hierarchical topic.",
                     **_get_log_args()
                     
 
 
                 )
-            debug_log(message=f"✅ Reposted {marker_id} ({round(freq_mhz, 3)} MHz) to {full_topic}", **_get_log_args()())
+            debug_logger(message=f"✅ Reposted {marker_id} ({round(freq_mhz, 3)} MHz) to {full_topic}", **_get_log_args()())
 
         except Exception as e:
-            debug_log(message=f"❌ Error during hierarchical republishing for {marker_id}: {e}", **_get_log_args())
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            debug_logger(message=f"❌ Error during hierarchical republishing for {marker_id}: {e}", **_get_log_args())
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"❌🔴 Arrr, the code be capsized in republishing! The error be: {e}",
                     **_get_log_args()
                     

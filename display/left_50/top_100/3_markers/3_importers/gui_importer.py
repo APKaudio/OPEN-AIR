@@ -32,7 +32,7 @@ except ImportError:
     PANDAS_AVAILABLE = False
 
 # --- Module Imports ---
-from workers.logger.logger import  debug_log
+from workers.logger.logger import  debug_logger
 from workers.importers.worker_marker_file_import_handling import (
     maker_file_check_for_markers_file
 )
@@ -76,7 +76,7 @@ class MarkerImporterTab(ttk.Frame):
         self.current_file = current_file
         self.current_version = current_version
 
-        debug_log(
+        debug_logger(
             message="🟢️️️🟢 Initializing MarkerImporterTab. The GUI is now lean and mean! 🎉",
           **_get_log_args()
             
@@ -86,7 +86,7 @@ class MarkerImporterTab(ttk.Frame):
         self._create_widgets()
 
         if not PANDAS_AVAILABLE:
-            debug_log(
+            debug_logger(
                 message="❌ Critical dependency 'pandas' or 'numpy' not found. Marker Importer will have limited functionality.",
 **_get_log_args()
                 
@@ -100,7 +100,7 @@ class MarkerImporterTab(ttk.Frame):
         self.tree_headers, self.tree_data = maker_file_check_for_markers_file()
         self._update_treeview()
 
-        debug_log(
+        debug_logger(
             message="🟢️️️🟢 MarkerImporterTab has been fully instantiated. Now creating widgets!",
           **_get_log_args()
             
@@ -251,7 +251,7 @@ class MarkerImporterTab(ttk.Frame):
         self.marker_tree.delete(*self.marker_tree.get_children())
         standardized_headers = self.tree_headers if self.tree_headers else ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ_MHZ", "PEAK"]
         self.marker_tree["columns"] = standardized_headers
-        debug_log(
+        debug_logger(
             message=f"🔁🔵 Now adding {len(self.tree_data)} rows to the Treeview. Headers: {standardized_headers}",
            **_get_log_args()
             

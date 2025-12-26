@@ -7,7 +7,7 @@
 
 from .manager_logic_mqtt_publisher import VisaGuiPublisher
 from .manager_visa_proxy import VisaProxy
-from .manager_visa_search import VisaDeviceSearcher
+from .manager_visa_search_results import VisaDeviceSearcher
 from .manager_logic_connect_instrument import VisaConnector
 from .manager_logic_disconnect_instrument import VisaDisconnector
 from .manager_logic_mqtt_listen import VisaMqttListener

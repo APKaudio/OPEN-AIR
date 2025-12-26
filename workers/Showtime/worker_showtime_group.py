@@ -16,7 +16,7 @@
 
 import inspect
 from collections import defaultdict
-from workers.logger.logger import  debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
@@ -25,8 +25,8 @@ app_constants = Config.get_instance() # Get the singleton instance
 
 def process_and_sort_markers(showtime_tab_instance):
     current_function = inspect.currentframe().f_code.co_name
-    if app_constants.LOCAL_DEBUG_ENABLE: 
-        debug_log(
+    if app_constants.global_settings['debug_enabled']:
+        debug_logger(
             message="🟢️️️🔵 Processing and sorting marker data by Zone, Group, and Device.",
             **_get_log_args()
             
@@ -45,8 +45,8 @@ def process_and_sort_markers(showtime_tab_instance):
         for group, devices in groups.items():
             devices.sort(key=lambda x: x.get('NAME', ''))
     
-    if app_constants.LOCAL_DEBUG_ENABLE: 
-        debug_log(
+    if app_constants.global_settings['debug_enabled']:
+        debug_logger(
             message="✅ Markers grouped and sorted successfully.",
             **_get_log_args()
             

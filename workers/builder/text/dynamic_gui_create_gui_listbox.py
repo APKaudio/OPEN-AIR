@@ -31,9 +31,12 @@ import tkinter as tk
 from tkinter import ttk
 import os
 import inspect
-from decimal import Decimal, InvalidOperation # Add InvalidOperation
+from decimal import Decimal, InvalidOperation
+from workers.mqtt.mqtt_subscriber_router import MqttSubscriberRouter # Import MqttSubscriberRouter
+from workers.utils.topic_utils import get_topic # Import get_topic
+
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
@@ -51,17 +54,17 @@ class GuiListboxCreatorMixin:
     A mixin class that provides the functionality for creating a
     Listbox widget.
     """
-    def _create_gui_listbox(self, parent_frame, label, config, path):
+    def _create_gui_listbox(self, parent_frame, label, config, path, subscriber_router):
         # Creates a listbox menu for multiple choice options.
         current_function_name = inspect.currentframe().f_code.co_name
-
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        self.subscriber_router = subscriber_router
+        self.label = label # Store label for use in instance methods
+        self.path = path # Store path for use in instance methods
+        
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to materialize a listbox for '{label}'.",
               **_get_log_args()
-                
-
-
             )
 
         try:
@@ -80,55 +83,55 @@ class GuiListboxCreatorMixin:
             scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
             listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-            options_map = config.get('options', {})
-            selected_option_var = tk.StringVar(sub_frame)
+            self.options_map = config.get('options', {}) # Stored as instance variable
+            self.listbox = listbox # Stored as instance variable
+            self.selected_option_var = tk.StringVar(sub_frame) # Stored as instance variable
+            self.listbox_path = path # Store the base path for subscriptions
+
+            # Store widget instance for debugging/reference
+            self._listbox_widget_instance = listbox 
             
-            def rebuild_options_for_listbox(lb, cfg, current_selection_var):
-                # Rebuilds the option list for the listbox based on a new configuration.
-                lb.delete(0, tk.END)
-                options_map_local = cfg.get('options', {})
-                
-                active_options = {k: v for k, v in options_map_local.items() if str(v.get('active', 'false')).lower() in ['true', 'yes']}
-                
-                def sort_key(item):
-                    value = item[1].get('value')
-                    return str(value)
+            # --- MQTT Subscription for dynamic updates ---
+            if self.subscriber_router:
+                wildcard_option_topic = f"{path}/options/#"
+                self.subscriber_router.subscribe_to_topic(
+                    topic_filter=wildcard_option_topic, 
+                    callback_func=self._on_option_mqtt_update_instance # Use instance method as callback
+                )
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"🔬 Subscribed listbox '{label}' to MQTT topic: {wildcard_option_topic}", **_get_log_args())
 
-                sorted_options = sorted(active_options.items(), key=sort_key)
-
-                current_selection_label = ""
-                for key, opt in sorted_options:
-                    lb.insert(tk.END, opt.get('label_active', key))
-                    if str(opt.get('selected', 'no')).lower() in ['yes', 'true']:
-                        current_selection_label = opt.get('label_active', key)
-
-                if current_selection_label:
-                    if current_selection_label in lb.get(0, tk.END):
-                        idx = lb.get(0, tk.END).index(current_selection_label)
-                        lb.select_set(idx)
-                        lb.see(idx)
-                        current_selection_var.set(current_selection_label) # Update the StringVar
-
-            rebuild_options_for_listbox(listbox, config, selected_option_var)
-            self._last_selected_option_listbox = selected_option_var.get() # Initialize from var
+            # Initial display build
+            self._rebuild_listbox_display_instance()
 
             def update_listbox_from_var(*args):
-                new_selection_label = selected_option_var.get()
+                new_selection_label = self.selected_option_var.get()
                 if new_selection_label:
-                    if new_selection_label in listbox.get(0, tk.END):
-                        idx = listbox.get(0, tk.END).index(new_selection_label)
-                        listbox.select_clear(0, tk.END) # Clear previous selections
-                        listbox.select_set(idx)
-                        listbox.see(idx)
-                        if app_constants.LOCAL_DEBUG_ENABLE:
-                            debug_log(
-                                message=f"⚡ fluxing... Listbox '{label}' updated visually to '{new_selection_label}' from MQTT.",
+                    # Update internal options_map for 'selected' status based on StringVar
+                    found_key = None
+                    for key, opt in self.options_map.items():
+                        if opt.get('label_active') == new_selection_label:
+                            found_key = key
+                            self.options_map[key]['selected'] = 'true'
+                        else:
+                            self.options_map[key]['selected'] = 'false'
+                    
+                    if new_selection_label in self.listbox.get(0, tk.END):
+                        idx = self.listbox.get(0, tk.END).index(new_selection_label)
+                        self.listbox.select_clear(0, tk.END) # Clear previous selections
+                        self.listbox.select_set(idx)
+                        self.listbox.see(idx)
+                        if app_constants.global_settings['debug_enabled']:
+                            debug_logger(
+                                message=f"⚡ fluxing... Listbox '{label}' updated visually to '{new_selection_label}' from StringVar.",
                                 **_get_log_args()
                             )
                 elif new_selection_label == "": # Handle case where selection is cleared
-                    listbox.select_clear(0, tk.END)
+                    for key, opt in self.options_map.items():
+                        self.options_map[key]['selected'] = 'false'
+                    self.listbox.select_clear(0, tk.END)
 
-            selected_option_var.trace_add("write", update_listbox_from_var)
+            self.selected_option_var.trace_add("write", update_listbox_from_var)
 
             def on_select(event):
                 widget = event.widget
@@ -140,48 +143,121 @@ class GuiListboxCreatorMixin:
                 selected_label = widget.get(selected_index)
                 
                 try:
-                    selected_key = next((key for key, opt in options_map.items() if opt.get('label_active', key) == selected_label), None)
+                    selected_key = next((key for key, opt in self.options_map.items() if opt.get('label_active', key) == selected_label), None)
                     
                     if selected_key:
                         # Iterate over all options to enforce single selection
-                        for key, opt in options_map.items():
+                        for key, opt in self.options_map.items():
                             is_selected = (key == selected_key)
                             topic_path = f"{path}/options/{key}/selected"
                             self._transmit_command(widget_name=topic_path, value=str(is_selected).lower())
                         
-                        selected_option_var.set(selected_label) # Update the GUI
+                        self.selected_option_var.set(selected_label) # Update the GUI
 
-                        if app_constants.LOCAL_DEBUG_ENABLE: 
-                            debug_log(
+                        if app_constants.global_settings['debug_enabled']:
+                            debug_logger(
                                 message=f"GUI ACTION: Publishing selection for '{selected_key}' to path '{path}'.",
                                 **_get_log_args()
                             )
                 except (ValueError, StopIteration):
-                    debug_log(message="❌ Invalid selection in listbox.")
+                    debug_logger(message="❌ Invalid selection in listbox.")
 
             listbox.bind("<<ListboxSelect>>", on_select)
 
             if path and self.state_mirror_engine:
                 # Register the StringVar with the StateMirrorEngine for MQTT updates
-                self.state_mirror_engine.register_widget(path, selected_option_var, self.tab_name)
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
-                        message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (StringVar: {selected_option_var.get()}).",
+                self.state_mirror_engine.register_widget(path, self.selected_option_var, self.tab_name)
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
+                        message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (StringVar: {self.selected_option_var.get()}).",
                         **_get_log_args()
                     )
 
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ SUCCESS! The listbox '{label}' has been successfully generated!",
 **_get_log_args()
                 )
             return sub_frame
 
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            debug_logger(message=f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"💥 KABOOM! The listbox for '{label}' has vanished into a different dimension! Error: {e}",
                     **_get_log_args()
                 )
             return None
+
+    def _rebuild_listbox_display_instance(self):
+        lb = self.listbox
+        cfg = {"options": self.options_map} # Create a dummy config for rebuild function
+        current_selection_label = self.selected_option_var.get()
+
+        lb.delete(0, tk.END)
+        active_options = {k: v for k, v in self.options_map.items() if str(v.get('active', 'false')).lower() in ['true', 'yes']}
+        
+        def sort_key(item):
+            value = item[1].get('value')
+            return str(value)
+
+        sorted_options = sorted(active_options.items(), key=sort_key)
+
+        for key, opt in sorted_options:
+            lb.insert(tk.END, opt.get('label_active', key))
+            # Check against the *current* selection variable, not the initial one
+            if opt.get('label_active', key) == current_selection_label:
+                idx = lb.get(0, tk.END).index(current_selection_label)
+                lb.select_set(idx)
+                lb.see(idx)
+        
+        # If there was a selection previously and it's no longer active, clear the StringVar
+        if current_selection_label and not any(opt.get('label_active', key) == current_selection_label and str(opt.get('active', 'false')).lower() in ['true', 'yes'] for opt in self.options_map.values()):
+            self.selected_option_var.set("")
+        
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message=f"⚡ Listbox '{self.label}' display rebuilt.", **_get_log_args())
+
+    def _on_option_mqtt_update_instance(self, topic, payload):
+        import orjson # Imported here to avoid circular dependency or top-level import issues
+        try:
+            payload_data = orjson.loads(payload)
+            value = payload_data.get('val') # 'val' contains the actual data
+            
+            # Extract option key from topic: e.g., OPEN-AIR/Device/.../options/KEY/active
+            parts = topic.split('/')
+            # Find the index of "options"
+            try:
+                options_idx = parts.index("options")
+                option_key = parts[options_idx + 1] # This is the XXX part
+                property_name = parts[-1] # This is 'active', 'label_active', 'selected'
+            except ValueError:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"⚠️ Unexpected topic format for listbox update: {topic}", **_get_log_args())
+                return
+
+            if option_key not in self.options_map:
+                self.options_map[option_key] = {}
+            
+            if property_name == "active":
+                # Convert MQTT val (boolean True/False) to string 'true'/'false' for storage
+                self.options_map[option_key]['active'] = str(value).lower()
+            elif property_name == "label_active":
+                self.options_map[option_key]['label_active'] = value
+            elif property_name == "label_inactive":
+                self.options_map[option_key]['label_inactive'] = value
+            elif property_name == "selected":
+                # This handles the case where the MQTT message explicitly sets selection
+                # The payload val is boolean, convert to 'true'/'false' for internal config consistency
+                self.options_map[option_key]['selected'] = str(value).lower()
+                if value is True:
+                    # If this option is selected, ensure the StringVar reflects its label
+                    current_label = self.options_map[option_key].get('label_active')
+                    if current_label and self.selected_option_var.get() != current_label:
+                        self.selected_option_var.set(current_label) # Update selected var
+                    
+            self._rebuild_listbox_display_instance() # Redraw the listbox
+
+        except (orjson.JSONDecodeError, AttributeError) as e:
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"❌ Error processing listbox MQTT update for {topic}: {e}. Payload: {payload}", **_get_log_args())

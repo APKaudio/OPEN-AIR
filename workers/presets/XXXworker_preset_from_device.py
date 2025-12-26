@@ -37,7 +37,7 @@ import time
 
 # --- Module Imports ---
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 
 # --- Global Scope Variables (as per your instructions) ---
@@ -72,8 +72,8 @@ class PresetFromDeviceWorker:
         self.last_preset_list = None
         self.preset_list_event = threading.Event()
 
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️🟢 Initializing preset worker and subscribing to root topic.",
               **_get_log_args()
                 
@@ -92,7 +92,7 @@ class PresetFromDeviceWorker:
         if topic == NAB_OUTPUT_TOPIC:
             self.last_preset_list = payload
             self.preset_list_event.set()
-            debug_log(message="✅ A new preset catalog has been received! Time to parse the data.")
+            debug_logger(message="✅ A new preset catalog has been received! Time to parse the data.")
             
             valid_presets = self.parse_presets_from_device(self.last_preset_list)
             if valid_presets:
@@ -105,8 +105,8 @@ class PresetFromDeviceWorker:
         The result is handled by the _on_mqtt_message callback.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️🟢 Triggering device to send preset catalog.",
               **_get_log_args()
                 
@@ -122,11 +122,11 @@ class PresetFromDeviceWorker:
             # Set the trigger to false immediately afterwards, before waiting
             self.mqtt_util.publish_message(topic=NAB_TRIGGER_TOPIC, subtopic="", value=False, retain=False)
 
-            debug_log(message="✅ TRIGGER sent. Awaiting preset catalog response...")
+            debug_logger(message="✅ TRIGGER sent. Awaiting preset catalog response...")
             return True
 
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name}: {e}")
+            debug_logger(message=f"❌ Error in {current_function_name}: {e}")
             self.mqtt_util.publish_message(topic=NAB_TRIGGER_TOPIC, subtopic="", value=False, retain=False)
             return False
 
@@ -136,8 +136,8 @@ class PresetFromDeviceWorker:
         of valid filenames ending in '.STA'.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️🟢 Parsing raw preset string for valid '.STA' files.",
               **_get_log_args()
                 
@@ -151,7 +151,7 @@ class PresetFromDeviceWorker:
         # The first three values are not filenames, so we skip them.
         parts = raw_preset_string.strip().split(',')
         if len(parts) <= 3:
-            debug_log(message="❌ Invalid preset string format. Too few parts.")
+            debug_logger(message="❌ Invalid preset string format. Too few parts.")
             return []
 
         # We start at index 3 and increment by 4 to get each filename
@@ -161,7 +161,7 @@ class PresetFromDeviceWorker:
             if filename.upper().endswith(".STA"):
                 valid_presets.append(filename)
                 
-        debug_log(message=f"✅ Found {len(valid_presets)} valid presets.")
+        debug_logger(message=f"✅ Found {len(valid_presets)} valid presets.")
         return valid_presets
 
     def publish_presets_to_repository(self, preset_list: list):
@@ -170,8 +170,8 @@ class PresetFromDeviceWorker:
         dictionary as a single JSON payload to one topic per preset.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️🟢 Publishing {len(preset_list)} presets as monolithic JSON blobs to repository.",
               **_get_log_args()
                 
@@ -218,7 +218,7 @@ class PresetFromDeviceWorker:
             
             num_published = i + 1
 
-        debug_log(message=f"✅ Successfully published {num_published} presets as monolithic nodes to the repository.")
+        debug_logger(message=f"✅ Successfully published {num_published} presets as monolithic nodes to the repository.")
 
 
     def present_presets_from_device(self, preset_filename: str):
@@ -226,8 +226,8 @@ class PresetFromDeviceWorker:
         Sets the specified preset filename and triggers the device to store it.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️🟢 Pushing preset filename '{preset_filename}' to device and triggering save.",
               **_get_log_args()
                 
@@ -245,11 +245,11 @@ class PresetFromDeviceWorker:
             # 3. Trigger the action to set the preset to 'false' afterwards
             self.mqtt_util.publish_message(topic=SET_TRIGGER_TOPIC, subtopic="", value=False, retain=False)
             
-            debug_log(message="✅ Preset filename sent and save triggered.")
+            debug_logger(message="✅ Preset filename sent and save triggered.")
             return True
 
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name}: {e}")
+            debug_logger(message=f"❌ Error in {current_function_name}: {e}")
             return False
 
 if __name__ == "__main__":

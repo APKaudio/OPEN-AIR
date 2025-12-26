@@ -30,7 +30,7 @@ import csv
 import inspect
 import os
 
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
@@ -64,8 +64,8 @@ class CsvExportUtility:
         """
         current_function_name = inspect.currentframe().f_code.co_name
         
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to save data to CSV at '{file_path}'.",
               **_get_log_args()
                 
@@ -73,7 +73,7 @@ class CsvExportUtility:
         
         try:
             if not data:
-                debug_log(message="❌ No data to export.")
+                debug_logger(message="❌ No data to export.")
                 return
 
             # Grab the headers from the first dictionary's keys
@@ -84,12 +84,12 @@ class CsvExportUtility:
                 writer.writeheader()
                 writer.writerows(data)
                 
-            debug_log(message=f"✅ Data successfully exported to {file_path}")
+            debug_logger(message=f"✅ Data successfully exported to {file_path}")
             
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name}: {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
+            debug_logger(message=f"❌ Error in {current_function_name}: {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
 **_get_log_args()
                     

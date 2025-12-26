@@ -6,7 +6,7 @@ import math
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 import os
 
@@ -14,8 +14,8 @@ class VUMeterCreatorMixin:
     def _create_vu_meter(self, parent_frame, label, config, path):
         """Creates a VU meter widget."""
         current_function_name = "_create_vu_meter"
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to calibrate a VU meter for '{label}'.",
 **_get_log_args()
                 
@@ -68,11 +68,11 @@ class VUMeterCreatorMixin:
                     canvas.coords(indicator, x_pos - 2.5, 0, x_pos + 2.5, height)
 
                 except (ValueError, TypeError, orjson.JSONDecodeError) as e: # Added JSONDecodeError
-                    if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"🔴 ERROR in _update_vu for topic {topic}: {e}", file=os.path.basename(__file__), function=current_function_name)
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(message=f"🔴 ERROR in _update_vu for topic {topic}: {e}", file=os.path.basename(__file__), function=current_function_name)
 
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ SUCCESS! The VU meter '{label}' is now registering on the Richter scale!",
                     file=os.path.basename(__file__),
                     version=app_constants.CURRENT_VERSION,
@@ -85,9 +85,9 @@ class VUMeterCreatorMixin:
             
             return frame
         except Exception as e:
-            debug_log(message=f"💥 KABOOM! The VU meter for '{label}' has overloaded! Error: {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            debug_logger(message=f"💥 KABOOM! The VU meter for '{label}' has overloaded! Error: {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"💥 KABOOM! The VU meter for '{label}' has overloaded! Error: {e}",
                     file=os.path.basename(__file__),
                     version=app_constants.CURRENT_VERSION,

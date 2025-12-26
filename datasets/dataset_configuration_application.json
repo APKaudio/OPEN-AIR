@@ -80,7 +80,7 @@
                         "OFF": { "label": "OFF", "selected": false }
                     }
                 },
-                "debug_to_terminal": {
+                "debug_enabled": {
                     "label": "Debug to Terminal",
                     "type": "_GuiButtonToggle",
                     "AES70": "OcaBooleanActuator",

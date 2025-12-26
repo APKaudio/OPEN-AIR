@@ -73,8 +73,8 @@ LOCAL_DEBUG_ENABLE = False
 def list_visa_resources():
     # Lists all available VISA resources using PyVISA.
     current_function_name = inspect.currentframe().f_code.co_name
-    if app_constants.LOCAL_DEBUG_ENABLE: 
-        debug_log(
+    if app_constants.global_settings['debug_enabled']:
+        debug_logger(
             message="🖥️🟢 Entering list_visa_resources. Initiating full system resource scan.",
 **_get_log_args()
             
@@ -97,25 +97,25 @@ def list_visa_resources():
             # If .library is not available, assume the pure-Python backend is loaded.
             backend_info = "PyVISA-py (pure Python backend)"
 
-        debug_log(message="Scanning all available VISA resources (USB, TCPIP, GPIB, ASRL/Serial)...",
+        debug_logger(message="Scanning all available VISA resources (USB, TCPIP, GPIB, ASRL/Serial)...",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
-        debug_log(message=f"Using VISA Backend: {backend_info}",
+        debug_logger(message=f"Using VISA Backend: {backend_info}",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
         
-        debug_log(message="-" * 40,
+        debug_logger(message="-" * 40,
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
         
         # --- Dependency Status Report ---
-        debug_log(message="Dependency Status Report:",
+        debug_logger(message="Dependency Status Report:",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
@@ -123,18 +123,18 @@ def list_visa_resources():
         
         # 1. USB Dependency Check
         if USB_SUPPORT:
-            debug_log(message="✅ USB Dependency (pyusb) is installed.",
+            debug_logger(message="✅ USB Dependency (pyusb) is installed.",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
         else:
-            debug_log(message="❌ USB Dependency (pyusb) is MISSING. USB device discovery may fail.",
+            debug_logger(message="❌ USB Dependency (pyusb) is MISSING. USB device discovery may fail.",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
-            debug_log(message="   Action: Run 'pip install pyusb' and ensure 'libusb' is installed on your OS.",
+            debug_logger(message="   Action: Run 'pip install pyusb' and ensure 'libusb' is installed on your OS.",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
@@ -142,18 +142,18 @@ def list_visa_resources():
             
         # 2. TCP/IP Interface Discovery Check
         if NETWORK_ALL_INTERFACES_SUPPORT:
-            debug_log(message="✅ Network Dependency (psutil) is installed (enables all interface scanning).",
+            debug_logger(message="✅ Network Dependency (psutil) is installed (enables all interface scanning).",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
         else:
-            debug_log(message="🟡 Network Dependency (psutil) is MISSING. Discovery limited to default interface.",
+            debug_logger(message="🟡 Network Dependency (psutil) is MISSING. Discovery limited to default interface.",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
-            debug_log(message="   Action: Run 'pip install psutil'.",
+            debug_logger(message="   Action: Run 'pip install psutil'.",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
@@ -161,24 +161,24 @@ def list_visa_resources():
 
         # 3. HiSLIP (mDNS/ZeroConf) Dependency Check
         if NETWORK_HISLIP_SUPPORT:
-            debug_log(message="✅ HiSLIP Dependency (zeroconf) is installed.",
+            debug_logger(message="✅ HiSLIP Dependency (zeroconf) is installed.",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
         else:
-            debug_log(message="🟡 HiSLIP Dependency (zeroconf) is MISSING. HiSLIP resource discovery is disabled.",
+            debug_logger(message="🟡 HiSLIP Dependency (zeroconf) is MISSING. HiSLIP resource discovery is disabled.",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
-            debug_log(message="   Action: Run 'pip install zeroconf'.",
+            debug_logger(message="   Action: Run 'pip install zeroconf'.",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
             
-        debug_log(message="-" * 40,
+        debug_logger(message="-" * 40,
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
@@ -188,7 +188,7 @@ def list_visa_resources():
         resources = rm.list_resources()
 
         if resources:
-            debug_log(message=f"✅ Found {len(resources)} VISA Resource(s):",
+            debug_logger(message=f"✅ Found {len(resources)} VISA Resource(s):",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
@@ -196,29 +196,29 @@ def list_visa_resources():
             for i, resource in enumerate(resources, 1):
                 # Attempt to determine resource type from the resource string
                 resource_type = resource.split("::")[0]
-                debug_log(message=f"  {i}. {resource} ({resource_type})",
+                debug_logger(message=f"  {i}. {resource} ({resource_type})",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
         else:
-            debug_log(message="🟡 No VISA resources found on the system.",
+            debug_logger(message="🟡 No VISA resources found on the system.",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
-            debug_log(message="Note: If devices are connected, check device power and physical connection.",
+            debug_logger(message="Note: If devices are connected, check device power and physical connection.",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
         
-        debug_log(message="-" * 40,
+        debug_logger(message="-" * 40,
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
-        debug_log(message="✅ Scan complete.",
+        debug_logger(message="✅ Scan complete.",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
@@ -226,29 +226,29 @@ def list_visa_resources():
         return resources
 
     except pyvisa.errors.LibraryError as e:
-        debug_log(message=f"❌ Error: PyVISA backend library failed to load with '{backend_to_use}'.",
+        debug_logger(message=f"❌ Error: PyVISA backend library failed to load with '{backend_to_use}'.",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
-        debug_log(message="  Ensure 'pyvisa-py' is installed and its dependencies (like 'pyusb') are met.",
+        debug_logger(message="  Ensure 'pyvisa-py' is installed and its dependencies (like 'pyusb') are met.",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
-        debug_log(message=f"  Details: {e}",
+        debug_logger(message=f"  Details: {e}",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
     except Exception as e:
-        debug_log(message=f"❌ UNEXPECTED ERROR during VISA scan: {type(e).__name__}: {e}",
+        debug_logger(message=f"❌ UNEXPECTED ERROR during VISA scan: {type(e).__name__}: {e}",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,
                     )
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🖥️🔴 VISA scan failed: {e}",
 **_get_log_args()
                 

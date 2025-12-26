@@ -21,7 +21,7 @@ from tkinter import ttk
 import inspect
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log
+from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
 
@@ -44,8 +44,8 @@ class LabelCreatorMixin:
     """
     def _create_label(self, parent_frame, label, value, units=None, path=None):
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to concoct a new label: '{label}'.",
               **_get_log_args()
             )
@@ -78,17 +78,17 @@ class LabelCreatorMixin:
                     topic = get_topic("OPEN-AIR", self.tab_name, widget_id)
                     self.subscriber_router.subscribe_to_topic(topic, self.state_mirror_engine.sync_incoming_mqtt_to_gui)
 
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"✅ SUCCESS! The label '{label}' has been successfully synthesized!",
                     **_get_log_args()
                 )
             return sub_frame
 
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
+            debug_logger(message=f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
                     message=f"💥 KABOOM! The label creation for '{label}' has exploded! Error: {e}",
                     **_get_log_args()
                 )
