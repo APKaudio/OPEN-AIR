@@ -49,6 +49,10 @@ class VisaMqttListener:
     def _on_search_request(self, topic, payload):
         debug_logger(message=f"💳 Trigger received for Search Request on topic: {topic}. Payload: {payload}", **_get_log_args())
         try:
+            if not payload:
+                debug_logger(message=f"💳 🟡 Received empty payload for Search Request on topic: {topic}. Ignoring (likely retained message deletion).", **_get_log_args())
+                return
+            
             payload_data = orjson.loads(payload)
             if payload_data.get('val') is True:
                 debug_logger(message=f"💳 Processing Search for devices initiated from GUI. Payload Data: {orjson.dumps(payload_data)}", **_get_log_args())
@@ -62,6 +66,10 @@ class VisaMqttListener:
     def _on_device_select(self, topic, payload):
         debug_logger(message=f"💳 Trigger received for Device Select on topic: {topic}. Payload: {payload}", **_get_log_args())
         try:
+            if not payload:
+                debug_logger(message=f"💳 🟡 Received empty payload for Device Select on topic: {topic}. Ignoring (likely retained message deletion).", **_get_log_args())
+                return
+            
             payload_data = orjson.loads(payload)
             if payload_data.get('value') is True:
                 debug_logger(message=f"💳 Processing Device Select, value is 'true'. Payload Data: {orjson.dumps(payload_data)}", **_get_log_args())
@@ -80,6 +88,10 @@ class VisaMqttListener:
     def _on_gui_connect_request(self, topic, payload):
         debug_logger(message=f"💳 Trigger received for GUI Connect Request on topic: {topic}. Payload: {payload}", **_get_log_args())
         try:
+            if not payload:
+                debug_logger(message=f"💳 🟡 Received empty payload for GUI Connect Request on topic: {topic}. Ignoring (likely retained message deletion).", **_get_log_args())
+                return
+            
             payload_data = orjson.loads(payload)
             if payload_data.get('value') is True:
                 debug_logger(message=f"💳 Processing GUI Connect Request, value is 'true'. Payload Data: {orjson.dumps(payload_data)}", **_get_log_args())
@@ -100,6 +112,10 @@ class VisaMqttListener:
     def _on_gui_disconnect_request(self, topic, payload):
         debug_logger(message=f"💳 Trigger received for GUI Disconnect Request on topic: {topic}. Payload: {payload}", **_get_log_args())
         try:
+            if not payload:
+                debug_logger(message=f"💳 🟡 Received empty payload for GUI Disconnect Request on topic: {topic}. Ignoring (likely retained message deletion).", **_get_log_args())
+                return
+            
             payload_data = orjson.loads(payload)
             if payload_data.get('value') is True:
                 debug_logger(message=f"💳 Processing GUI Disconnect Request, value is 'true'. Payload Data: {orjson.dumps(payload_data)}", **_get_log_args())
@@ -118,6 +134,10 @@ class VisaMqttListener:
     def _on_connect_request(self, topic, payload):
         debug_logger(message=f"💳 Trigger received for Direct Connect Request on topic: {topic}. Payload: {payload}", **_get_log_args())
         try:
+            if not payload:
+                debug_logger(message=f"💳 🟡 Received empty payload for Direct Connect Request on topic: {topic}. Ignoring (likely retained message deletion).", **_get_log_args())
+                return
+            
             payload_data = orjson.loads(payload)
             resource_name = payload_data.get('resource')
             if resource_name:

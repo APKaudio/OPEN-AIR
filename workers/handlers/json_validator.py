@@ -7,6 +7,8 @@ import orjson
 from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 
+current_version = "20251226.000000.1"
+
 def validate_and_sanitize_json(data: dict) -> dict:
     """
     Ensures the data is a valid JSON structure before publishing.

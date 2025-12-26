@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251127.000000.1
+# Version 20251226.000000.1
 
 import os
 import inspect
@@ -35,6 +35,8 @@ current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
 JSON_CONFIG_FILE = current_file_path.with_suffix('.json')
+
+current_version = "20251226.000000.1"
 
 
 class MetaDataGui(ttk.Frame):

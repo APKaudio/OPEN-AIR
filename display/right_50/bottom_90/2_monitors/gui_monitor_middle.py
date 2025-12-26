@@ -34,7 +34,7 @@ from workers.utils.log_utils import _get_log_args
 from workers.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20251222
+CURRENT_DATE = 20251226
 CURRENT_TIME = 4400
 REVISION_NUMBER = 1
 
@@ -44,7 +44,6 @@ current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME * REVISION_NUMBER)
-current_function_name = ""
 
 
 class MonitorTopGUIFrame(ttk.Frame):

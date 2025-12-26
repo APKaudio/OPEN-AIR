@@ -39,7 +39,7 @@ from workers.utils.log_utils import _get_log_args
 import pathlib
 
 # --- Global Scope Variables ---
-current_version = "20251127.000000.1"
+current_version = "20251226.000000.1"
 current_version_hash = (20251127 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
 current_path = pathlib.Path(__file__).resolve()

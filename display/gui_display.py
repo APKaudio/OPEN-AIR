@@ -13,7 +13,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251224.001000.4 (OPTIMIZED)
+# Version 20251226.000000.1
 
 from workers.mqtt.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance

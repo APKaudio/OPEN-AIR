@@ -1,4 +1,14 @@
+
 {
+  "Yak_Memory": {
+    "type": "OcaBlock",
+    "description": "Yak Memory",
+    "fields": {
+
+
+
+
+
   "Nab": {
     "type": "OcaBlock",
     "description": "Memory Catalog Monitoring",
@@ -96,4 +106,4 @@
       }
     }
   }
-}
+}}}

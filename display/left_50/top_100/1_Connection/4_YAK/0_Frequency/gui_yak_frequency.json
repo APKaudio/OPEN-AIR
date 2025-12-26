@@ -1,4 +1,9 @@
+
 {
+  "Yak_Frequency": {
+    "type": "OcaBlock",
+    "description": "Yak Frequency",
+    "fields": {
   "NAB_Settings": {
     "type": "OcaBlock",
     "description": "NAB Frequency Monitoring",
@@ -135,3 +140,4 @@
     }
   }
 }
+  }}

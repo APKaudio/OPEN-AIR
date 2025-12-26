@@ -13,7 +13,7 @@ app_constants = Config.get_instance() # Get the singleton instance
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parents[5]
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
-Current_Date = 20251213
+Current_Date = 20251226
 Current_Time = 120000
 Current_iteration = 44
 

@@ -33,7 +33,7 @@ from workers.styling.style import THEMES, DEFAULT_THEME
 
 
 # --- Global Scope Variables (Protocol 4.4) ---
-current_version = "20251127.000000.1"
+current_version = "20251226.000000.1"
 current_version_hash = (20251127 * 0 * 1)
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parents[4] 

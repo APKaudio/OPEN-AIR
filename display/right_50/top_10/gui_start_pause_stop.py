@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251127.000000.1
+current_version = "20251226.000000.1"
 
 import os
 import inspect

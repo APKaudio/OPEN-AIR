@@ -7,6 +7,8 @@ import tkinter as tk
 from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 
+current_version = "20251226.000000.1"
+
 def bind_variable_trace(tk_var: tk.Variable, callback):
     """
     Attaches a 'write' trace to a TKinter variable.

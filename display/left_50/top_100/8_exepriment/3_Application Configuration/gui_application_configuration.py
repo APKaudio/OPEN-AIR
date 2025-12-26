@@ -38,7 +38,7 @@ from workers.utils.log_utils import _get_log_args
 import pathlib
 
 # --- Global Scope Variables ---
-current_version = "20251127.000000.1"
+current_version = "20251226.000000.1"
 current_version_hash = (20251127 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
 current_path = pathlib.Path(__file__).resolve()
@@ -49,12 +49,16 @@ class PresetPusherGui(ttk.Frame):
     """
     A container frame that instantiates the DynamicGuiBuilder for the Frequency configuration.
     """
-    def __init__(self, parent, config, *args, **kwargs):
+    def __init__(self, parent, *args, **kwargs):
         """
         Initializes the Frequency frame and the dynamic GUI builder.
         """
-        self.config_data = config # Store the config for later use
+        config = kwargs.pop('config', {}) # Pop config dict from kwargs
+        self.config_data = config # Store the full config for later use, including MQTT components
         super().__init__(parent, *args, **kwargs)
+        
+        self.state_mirror_engine = self.config_data.get('state_mirror_engine')
+        self.subscriber_router = self.config_data.get('subscriber_router')
         
         # --- Dynamic GUI Builder ---
         current_function_name = "__init__"
@@ -63,16 +67,10 @@ class PresetPusherGui(ttk.Frame):
 **_get_log_args()
         )
         try:
-            config = {
-                ## "base_topic": MQTT_TOPIC_FILTER,
-                "log_to_gui_console": print, 
-                "log_to_gui_treeview": None  # Assuming no treeview for this component
-            }
-
             self.dynamic_gui = DynamicGuiBuilder(
                 parent=self,
                 json_path=JSON_CONFIG_FILE,
-                config=config
+                config=self.config_data # Pass the full config dictionary
             )
             debug_logger(
                 message="✅ The PresetPusherGui did initialize its dynamic GUI builder.",

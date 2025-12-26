@@ -36,9 +36,6 @@ current_file = f"{os.path.basename(__file__)}"
 current_path = pathlib.Path(__file__).resolve()
 JSON_CONFIG_FILE = current_path.with_suffix('.json') 
 
-# Automatically turns 'gui_yak_bandwidth' into 'OPEN-AIR/yak/bandwidth'
-module_name = current_path.stem.replace('gui_', '')
-# Automatically turns 'gui_yak_bandwidth' into 'OPEN-AIR/yak/bandwidth'
 module_name = current_path.stem.replace('gui_', '')
 ## MQTT_TOPIC_FILTER = f"OPEN-AIR/{module_name.replace('_', '/')}"
 

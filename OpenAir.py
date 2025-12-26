@@ -1,9 +1,7 @@
-import sys
-import os
 import inspect
-import importlib
 import tkinter as tk
 import pathlib
+import importlib   
 
 # --- Custom Module Imports (Config MUST be read first) ---
 from workers.mqtt.setup.config_reader import Config # Import the Config class
@@ -26,6 +24,8 @@ import workers.setup.debug_cleaner as debug_cleaner
 from workers.setup.application_initializer import initialize_app
 from workers.utils.log_utils import _get_log_args
 from managers.manager_launcher import launch_managers
+
+current_version = "20251226.000000.1"
 
 def _reveal_main_window(root, splash):
     if app_constants.ENABLE_DEBUG_SCREEN:

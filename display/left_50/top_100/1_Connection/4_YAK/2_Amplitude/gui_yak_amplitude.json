@@ -1,4 +1,11 @@
+
 {
+  "Yak_Amplitude": {
+    "type": "OcaBlock",
+    "description": "Yak Amplitude",
+    "fields": {
+
+
   "nab": {
     "type": "OcaBlock",
     "description": "NAB Amplitude Monitoring",
@@ -288,4 +295,4 @@
       }
     }
   }
-}
+}}}

@@ -1,4 +1,12 @@
+
 {
+  "Yak_Bandwidth": {
+    "type": "OcaBlock",
+    "description": "Yak Bandwidth",
+    "fields": {
+
+
+
   "nab": {
     "type": "OcaBlock",
     "description": "NAB Bandwidth Monitoring",
@@ -223,3 +231,4 @@
     }
   }
 }
+}}

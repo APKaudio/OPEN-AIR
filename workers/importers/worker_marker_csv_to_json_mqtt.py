@@ -1,32 +1,4 @@
 '''
-# workers/worker_marker_csv_to_json_mqtt.py
-#
-# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
-# As the current hour is 20, no change is needed.
-
-Current_Date = 20251129  ##Update on the day the change was made
-Current_Time = 120000  ## update at the time it was edited and compiled
-Current_iteration = 1 ## a running version number - incriments by one each time 
-
-current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
-current_version_hash = (Current_Date * Current_Time * Current_iteration)
-
-
-# This module reads a CSV file, converts it to a structured JSON format,
-# saves the JSON, and publishes the entire structure to an MQTT topic.
-#
-# Author: Anthony Peter Kuzub
-# Blog: www.Like.audio (Contributor to this project)
-#
-# Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no charge to use, modify, or fork this software.
-#
-# Build Log: https://like.audio/category/software/spectrum-scanner/
-# Source Code: https://github.com/APKaudio/
-# Feature Requests can be emailed to i @ like . audio
-#
-#
-# Version 20251005.220127.2
 
 import os
 import inspect
@@ -43,8 +15,8 @@ from workers.utils.worker_project_paths import MARKERS_JSON_PATH, MARKERS_CSV_PA
 
 
 # --- Global Scope Variables ---
-current_version = "20251005.220127.2"
-current_version_hash = (20251005 * 220127 * 2)
+current_version = "20251226.000000.1"
+current_version_hash = (20251226 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
 LOCAL_DEBUG_ENABLE = False
 

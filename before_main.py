@@ -10,7 +10,7 @@ from workers.utils.log_utils import _get_log_args
 app_constants = Config.get_instance() # Get the singleton instance
 
 current_file = f"{os.path.basename(__file__)}"
-current_version = app_constants.CURRENT_VERSION
+current_version = "20251226.000000.1" # Explicitly define at module level
 
 
 def initialize_flags():

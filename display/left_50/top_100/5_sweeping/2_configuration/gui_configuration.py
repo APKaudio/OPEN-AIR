@@ -28,7 +28,7 @@ from workers.mqtt.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 
 # --- Global Scope Variables ---
-Current_Date = 20251222
+Current_Date = 20251226
 Current_Time = 4100
 Current_iteration = 1
 

@@ -34,7 +34,7 @@ from workers.utils.log_utils import _get_log_args
 from workers.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20251222
+CURRENT_DATE = 20251226
 CURRENT_TIME = 4400
 REVISION_NUMBER = 1
 
@@ -44,7 +44,6 @@ current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME * REVISION_NUMBER)
-current_function_name = ""
 
 
 class MonitorTopGUIFrame(ttk.Frame):
@@ -53,11 +52,15 @@ class MonitorTopGUIFrame(ttk.Frame):
     """
     PLOT_ID = "bottom" 
     
-    def __init__(self, parent, config=None, *args, **kwargs):
+    def __init__(self, parent, *args, **kwargs):
         """
         Initializes the GUI frame with a blank plot.
         """
         current_function_name = inspect.currentframe().f_code.co_name
+
+        # Extract config from kwargs first
+        config = kwargs.pop('config', {})
+        
         debug_logger(
             message=f"🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand!",
 **_get_log_args()
@@ -70,6 +73,10 @@ class MonitorTopGUIFrame(ttk.Frame):
             # --- Function logic goes here ---
             super().__init__(parent, *args, **kwargs)
 
+            # Store the MQTT components, extracted from config
+            self.state_mirror_engine = config.get('state_mirror_engine')
+            self.subscriber_router = config.get('subscriber_router')
+
             self._apply_styles(theme_name=DEFAULT_THEME)
 
             # --- Single Plot Frame ---
@@ -78,11 +85,8 @@ class MonitorTopGUIFrame(ttk.Frame):
             plot_frame.grid_columnconfigure(0, weight=1)
             plot_frame.grid_rowconfigure(0, weight=1)
 
-            # FIX: Ensure config is not None before calling .get()
-            safe_config = config if config is not None else {}
-
-            # This section creates the matplotlib figure and canvas.
-            self.theme_colors = safe_config.get("theme_colors", {
+            # Use theme from config if available, otherwise fallback
+            self.theme_colors = config.get("theme_colors", {
                 "bg": "#2b2b2b", "fg": "#dcdcdc", "fg_alt": "#888888", "accent": "#f4902c"
             })
             figure = Figure(figsize=(8, 6), dpi=100, facecolor=self.theme_colors["bg"])
