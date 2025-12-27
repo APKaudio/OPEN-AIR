@@ -94,7 +94,7 @@ class GuiButtonToggleCreatorMixin:
                 widget_id = path
                 
                 # 1. Register widget
-                state_mirror_engine.register_widget(widget_id, state_var, base_mqtt_topic_from_path)
+                state_mirror_engine.register_widget(widget_id, state_var, base_mqtt_topic_from_path, config)
 
                 # 2. Bind variable trace for outgoing messages
                 callback = lambda: state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)

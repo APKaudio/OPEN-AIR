@@ -76,7 +76,7 @@ class FaderCreatorMixin:
 
             if path:
                 # Register the StringVar with the StateMirrorEngine for MQTT updates
-                state_mirror_engine.register_widget(path, fader_value_var, self.tab_name)
+                state_mirror_engine.register_widget(path, fader_value_var, self.tab_name, config)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {fader_value_var.get()}).",

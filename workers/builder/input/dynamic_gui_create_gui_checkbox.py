@@ -109,7 +109,7 @@ class GuiCheckboxCreatorMixin:
 
             # Store the widget and its state variable for external updates.
             if path:
-                state_mirror_engine.register_widget(path, state_var, base_mqtt_topic_from_path)
+                state_mirror_engine.register_widget(path, state_var, base_mqtt_topic_from_path, config)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (BooleanVar: {state_var.get()}).",

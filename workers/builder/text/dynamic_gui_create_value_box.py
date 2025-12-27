@@ -85,7 +85,7 @@ class ValueBoxCreatorMixin:
                     widget_id = path
                     
                     # 1. Register widget
-                    state_mirror_engine.register_widget(widget_id, entry_value, base_mqtt_topic_from_path)
+                    state_mirror_engine.register_widget(widget_id, entry_value, base_mqtt_topic_from_path, config)
 
                     # 2. Bind variable trace for outgoing messages
                     callback = lambda *args: state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id) # Added *args

@@ -106,14 +106,24 @@ class StateMirrorEngine:
         
         if found_widget_info and found_full_topic:
             tk_var = found_widget_info["var"]
-            value = tk_var.get()
-            
+            current_tk_var_value = tk_var.get()
+            widget_config = found_widget_info["config"]
+
             payload_data = {
-                "val": value,
-                "src": "gui", # Indicate source is GUI
+                "val": current_tk_var_value, # This is the live value from the TK variable
                 "ts": time.time(), # Timestamp
                 "instance_id": self.instance_id # Unique ID of this GUI instance
             }
+
+            # Add all fields from widget_config, with special handling for 'value' and 'layout'
+            for key, value in widget_config.items():
+                if key == "layout": # Exclude GUI-specific layout info
+                    continue
+                elif key == "value": # Distinguish static config 'value' from dynamic 'val'
+                    payload_data["static_config_value"] = value
+                else:
+                    payload_data[key] = value
+            
             payload_json = orjson.dumps(payload_data)
             
             if app_constants.global_settings['debug_enabled']:

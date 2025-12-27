@@ -49,7 +49,7 @@ class TextInputCreatorMixin:
             text_var.trace_add("write", _on_text_change) # Use trace_add for consistency
 
             if path:
-                state_mirror_engine.register_widget(path, text_var, base_mqtt_topic_from_path)
+                state_mirror_engine.register_widget(path, text_var, base_mqtt_topic_from_path, config)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (StringVar: {text_var.get()}).",

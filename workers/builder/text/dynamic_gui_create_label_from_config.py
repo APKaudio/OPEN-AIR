@@ -56,7 +56,8 @@ class LabelFromConfigCreatorMixin:
                 path=path,
                 base_mqtt_topic_from_path=base_mqtt_topic_from_path, # Pass through
                 state_mirror_engine=state_mirror_engine, # Pass through
-                subscriber_router=subscriber_router     # Pass through
+                subscriber_router=subscriber_router,     # Pass through
+                config=config                            # Pass through the config
             )
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(

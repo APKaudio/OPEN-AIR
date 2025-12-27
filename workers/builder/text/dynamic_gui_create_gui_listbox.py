@@ -168,7 +168,7 @@ class GuiListboxCreatorMixin:
 
             if path:
                 # Register the StringVar with the StateMirrorEngine for MQTT updates
-                state_mirror_engine.register_widget(path, self.selected_option_var, base_mqtt_topic_from_path)
+                state_mirror_engine.register_widget(path, self.selected_option_var, base_mqtt_topic_from_path, config)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (StringVar: {self.selected_option_var.get()}).",

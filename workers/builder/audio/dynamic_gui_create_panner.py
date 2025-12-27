@@ -91,7 +91,7 @@ class PannerCreatorMixin:
 
             # Register the StringVar with the StateMirrorEngine for MQTT updates
             if path:
-                state_mirror_engine.register_widget(path, panner_value_var, base_mqtt_topic_from_path)
+                state_mirror_engine.register_widget(path, panner_value_var, base_mqtt_topic_from_path, config)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {panner_value_var.get()}).",
