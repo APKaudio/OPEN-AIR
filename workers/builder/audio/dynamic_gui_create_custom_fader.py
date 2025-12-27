@@ -6,7 +6,7 @@
 import tkinter as tk
 from tkinter import ttk
 import math
-from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+from workers.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.logger.logger import  debug_logger
@@ -106,7 +106,7 @@ class CustomFaderCreatorMixin:
                 )
             return frame
         except Exception as e:
-            debug_logger(message=f"💥 KABOOM! The custom fader for '{label}' melted! Error: {e}")
+            debug_logger(message=f"❌ The custom fader for '{label}' melted! Error: {e}")
             return None
 
 

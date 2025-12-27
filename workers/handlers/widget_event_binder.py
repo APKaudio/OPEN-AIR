@@ -19,4 +19,4 @@ def bind_variable_trace(tk_var: tk.Variable, callback):
         tk_var.trace_add("write", lambda *args: callback())
         debug_logger(message=f"Trace added for variable {tk_var}", **_get_log_args())
     except Exception as e:
-        debug_logger(message=f"Error binding trace to variable {tk_var}: {e}", **_get_log_args())
+        debug_logger(message=f"❌ Error binding trace to variable {tk_var}: {e}", **_get_log_args())

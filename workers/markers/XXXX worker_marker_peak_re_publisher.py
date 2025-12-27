@@ -166,7 +166,7 @@ class MarkerPeakPublisher:
                 self.mqtt_util.publish_message(final_peak_topic, "", error_message, retain=True)
                 
                 debug_logger(
-                    message=f"🐐🔴 REPUBLISH ERROR: Peak Value '{peak_value}' for {device_id} failed conversion. Published Error Status.",
+                    message=f"❌ REPUBLISH ERROR: Peak Value '{peak_value}' for {device_id} failed conversion. Published Error Status.",
                     file=current_file, version=current_version, function=current_function_name
                     
 
@@ -183,7 +183,7 @@ class MarkerPeakPublisher:
             
             debug_logger(message=f"❌ Critical Error in Peak Publisher for {first_device_id}: {e}")
             debug_logger(
-                message=f"🐐🔴 CRITICAL FAILURE in Publisher Flow. Error: {e}",
+                message=f"❌ CRITICAL FAILURE in Publisher Flow. Error: {e}",
                 file=current_file, version=current_version, function=current_function_name
                 
 

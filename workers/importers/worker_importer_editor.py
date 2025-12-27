@@ -38,9 +38,7 @@ LOCAL_DEBUG_ENABLE = False
 def on_tree_double_click(importer_tab_instance, event):
     current_function = inspect.currentframe().f_code.co_name
     current_file = os.path.basename(__file__)
-    debug_logger(message=f"[{current_file} - {current_function}] Treeview double-clicked for editing.", file=current_file, version=current_version, function=current_function, 
-
-)
+    debug_logger(message=f"▶️ Treeview double-clicked for editing.", file=current_file, version=current_version, function=current_function)
     if not importer_tab_instance.marker_tree.identify_region(event.x, event.y) == "cell":
         return
     column_id = importer_tab_instance.marker_tree.identify_column(event.x)
@@ -49,9 +47,7 @@ def on_tree_double_click(importer_tab_instance, event):
         return
     col_index = int(column_id[1:]) - 1
     if col_index < 0 or col_index >= len(importer_tab_instance.tree_headers):
-        debug_logger(message=f"[{current_file} - {current_function}] Invalid column index {col_index} for editing.", file=current_file, version=current_version, function=current_function, 
-
-)
+        debug_logger(message=f"⚠️ Invalid column index {col_index} for editing.", file=current_file, version=current_version, function=current_function)
         return
     current_value = importer_tab_instance.marker_tree.item(item_id, 'values')[col_index]
     start_editing_cell(importer_tab_instance, item_id, col_index, initial_value=current_value)
@@ -78,15 +74,10 @@ def start_editing_cell(importer_tab_instance, item, col_index, initial_value="")
         row_idx = importer_tab_instance.marker_tree.index(item)
         if row_idx < len(importer_tab_instance.tree_data) and isinstance(importer_tab_instance.tree_data[row_idx], dict):
             importer_tab_instance.tree_data[row_idx][importer_tab_instance.tree_headers[col_index]] = new_value
-            debug_logger(message=f"Updated cell: Row {row_idx+1}, Column '{importer_tab_instance.tree_headers[col_index]}' to '{new_value}'")
-            debug_logger(message=f"[{current_file} - {current_function}] Updated tree_data[{row_idx}]['{importer_tab_instance.tree_headers[col_index]}'] to '{new_value}'.", file=current_file, version=current_version, function=current_function, 
-
-)
+            debug_logger(message=f"✅ Updated cell: Row {row_idx+1}, Column '{importer_tab_instance.tree_headers[col_index]}' to '{new_value}'")
             save_markers_file_internally(importer_tab_instance)
         else:
-            debug_logger(message=f"[{current_file} - {current_function}] Error: Row index {row_idx} out of bounds or data not a dictionary for self.tree_data.", file=current_file, version=current_version, function=current_function, 
-
-)
+            debug_logger(message=f"❌ Error: Row index {row_idx} out of bounds or data not a dictionary for self.tree_data.", file=current_file, version=current_version, function=current_function)
         if navigate_direction:
             navigate_cells(importer_tab_instance, item, col_index, navigate_direction)
     entry_editor.bind("<Return>", lambda e: on_edit_complete_and_navigate(e, "down"))
@@ -102,9 +93,7 @@ def start_editing_cell(importer_tab_instance, item, col_index, initial_value="")
 def navigate_cells(importer_tab_instance, current_item, current_col_index, direction):
     current_function = inspect.currentframe().f_code.co_name
     current_file = os.path.basename(__file__)
-    debug_logger(message=f"[{current_file} - {current_function}] Navigating cells.", file=current_file, version=current_version, function=current_function, 
-
-)
+    debug_logger(message=f"▶️ Navigating cells.", file=current_file, version=current_version, function=current_function)
     items = importer_tab_instance.marker_tree.get_children()
     num_rows = len(items)
     num_cols = len(importer_tab_instance.tree_headers)
@@ -113,9 +102,7 @@ def navigate_cells(importer_tab_instance, current_item, current_col_index, direc
     next_col_index = -1
     initial_value_for_next_cell = ""
     if current_row_idx == -1:
-        debug_logger(message=f"[{current_file} - {current_function}] Current item not found in tree for navigation.", file=current_file, version=current_version, function=current_function, 
-
-)
+        debug_logger(message=f"🟡 Current item not found in tree for navigation.", file=current_file, version=current_version, function=current_function)
         return
     if direction == "down":
         next_row_idx = current_row_idx + 1
@@ -158,9 +145,7 @@ def navigate_cells(importer_tab_instance, current_item, current_col_index, direc
             if next_row_idx < len(importer_tab_instance.tree_data) and isinstance(importer_tab_instance.tree_data[next_row_idx], dict):
                 importer_tab_instance.tree_data[next_row_idx][importer_tab_instance.tree_headers[next_col_index]] = initial_value_for_next_cell
             else:
-                debug_logger(message=f"[{current_file} - {current_function}] Cannot Ctrl+Enter: No row below.", file=current_file, version=current_version, function=current_function, 
-
-)
+                debug_logger(message=f"🟡 Cannot Ctrl+Enter: No row below.", file=current_file, version=current_version, function=current_function)
                 return
     if next_item is not None and next_col_index != -1:
         if direction != "ctrl_down":
@@ -169,22 +154,16 @@ def navigate_cells(importer_tab_instance, current_item, current_col_index, direc
                 if 0 <= next_col_index < len(next_item_values):
                     initial_value_for_next_cell = next_item_values[next_col_index]
                 else:
-                    debug_logger(message=f"[{current_file} - {current_function}] Next column index {next_col_index} out of bounds for next item values. Setting empty.", file=current_file, version=current_version, function=current_function, 
-
-)
+                    debug_logger(message=f"🟡 Next column index {next_col_index} out of bounds for next item values. Setting empty.", file=current_file, version=current_version, function=current_function)
                     initial_value_for_next_cell = ""
             except Exception as e:
-                debug_logger(message=f"[{current_file} - {current_function}] Error getting initial value for next cell: {e}. Setting empty.", file=current_file, version=current_version, function=current_function, 
-
-)
+                debug_logger(message=f"❌ Error getting initial value for next cell: {e}. Setting empty.", file=current_file, version=current_version, function=current_function)
                 initial_value_for_next_cell = ""
         importer_tab_instance.marker_tree.focus(next_item)
         importer_tab_instance.marker_tree.selection_set(next_item)
         importer_tab_instance.after(10, lambda: start_editing_cell(importer_tab_instance, next_item, next_col_index, initial_value_for_next_cell))
     else:
-        debug_logger(message=f"[{current_file} - {current_function}] No cell to navigate to in direction: {direction}", file=current_file, version=current_version, function=current_function, 
-
-)
+        debug_logger(message=f"🟡 No cell to navigate to in direction: {direction}", file=current_file, version=current_version, function=current_function)
 
 def increment_string_with_trailing_digits(text):
     match = re.search(r'(\d+)$', text)
@@ -199,17 +178,13 @@ def increment_string_with_trailing_digits(text):
 def on_tree_header_click(importer_tab_instance, event):
     current_function = inspect.currentframe().f_code.co_name
     current_file = os.path.basename(__file__)
-    debug_logger(message=f"[{current_file} - {current_function}] Treeview header clicked for sorting.", file=current_file, version=current_version, function=current_function, 
-
-)
+    debug_logger(message=f"▶️ Treeview header clicked for sorting.", file=current_file, version=current_version, function=current_function)
     region = importer_tab_instance.marker_tree.identify_region(event.x, event.y)
     if region == "heading":
         column_id = importer_tab_instance.marker_tree.identify_column(event.x)
         col_index = int(column_id[1:]) - 1
         if col_index < 0 or col_index >= len(importer_tab_instance.tree_headers):
-            debug_logger(message=f"[{current_file} - {current_function}] Invalid column index {col_index} for sorting.", file=current_file, version=current_version, function=current_function, 
-
-)
+            debug_logger(message=f"⚠️ Invalid column index {col_index} for sorting.", file=current_file, version=current_version, function=current_function)
             return
         column_name = importer_tab_instance.tree_headers[col_index]
         if importer_tab_instance.sort_column == column_name:
@@ -222,9 +197,7 @@ def on_tree_header_click(importer_tab_instance, event):
 def sort_treeview(importer_tab_instance, column_name, ascending):
     current_function = inspect.currentframe().f_code.co_name
     current_file = os.path.basename(__file__)
-    debug_logger(message=f"[{current_file} - {current_function}] Sorting treeview by '{column_name}', ascending: {ascending}.", file=current_file, version=current_version, function=current_function, 
-
-)
+    debug_logger(message=f"▶️ Sorting treeview by '{column_name}', ascending: {ascending}.", file=current_file, version=current_version, function=current_function)
     def get_sort_key(item):
         value = item.get(column_name, "")
         try:
@@ -233,7 +206,7 @@ def sort_treeview(importer_tab_instance, column_name, ascending):
             return str(value)
     importer_tab_instance.tree_data.sort(key=get_sort_key, reverse=not ascending)
     populate_marker_tree(importer_tab_instance)
-    debug_logger(message=f"Sorted by '{column_name}' {'Ascending' if ascending else 'Descending'}.")
+    debug_logger(message=f"✅ Sorted by '{column_name}' {'Ascending' if ascending else 'Descending'}.")
 
 def populate_marker_tree(importer_tab_instance):
     """Re-populates the treeview from the internal data model."""
@@ -249,9 +222,7 @@ def populate_marker_tree(importer_tab_instance):
 
 def delete_selected_row(importer_tab_instance, event):
     current_function = inspect.currentframe().f_code.co_name
-    debug_logger(message=f"[{importer_tab_instance.current_file} - {current_function}] Delete key pressed.", file=importer_tab_instance.current_file, version=importer_tab_instance.current_version, function=current_function, 
-
-)
+    debug_logger(message=f"▶️ Delete key pressed.", file=importer_tab_instance.current_file, version=importer_tab_instance.current_version, function=current_function)
     selected_items = importer_tab_instance.marker_tree.selection()
     if not selected_items:
         debug_logger(message="🟡 No row selected to delete.")

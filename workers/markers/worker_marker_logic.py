@@ -29,7 +29,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import os
 import inspect
-from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+from workers.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
 
@@ -99,7 +99,7 @@ def calculate_frequency_range(marker_data_list):
         debug_logger(message=f"❌ Error in {current_function_name}: {e}")
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
-                message=f"🟢️️️🔴 Arrr, the code be capsized! Calculation failed: {e}",
+                message=f"❌ Arrr, the code be capsized! Calculation failed: {e}",
 **_get_log_args()
                 
 

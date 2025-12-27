@@ -132,7 +132,7 @@ class PresetPusherWorker:
             debug_logger(message=f"❌ Error setting Start/Stop frequencies: {e}")
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"🟢️️️🔴 The frequency setter is on the fritz! The error be: {e}",
+                    message=f"❌ The frequency setter is on the fritz! The error be: {e}",
                     file=current_file, version=current_version, function=current_function_name 
 
 

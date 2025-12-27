@@ -77,8 +77,7 @@ def _find_and_plot_peaks(ax, data, start_freq_MHz, end_freq_MHz):
         
         debug_logger(message=f"✅ Found and plotted {len(sorted_peaks)} peaks.")
     except Exception as e:
-        debug_logger(message=f"❌ Error in _find_and_plot_peaks: {e}")
-        debug_logger(message=f"Arrr, the code be capsized in peak finding! The error be: {e}\n{traceback.format_exc()}",
+        debug_logger(message=f"❌ Error in _find_and_plot_peaks: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
 def _setup_zoom_events(ax, canvas, original_xlim):
@@ -113,8 +112,7 @@ def _setup_zoom_events(ax, canvas, original_xlim):
         canvas.mpl_connect('button_press_event', on_double_click)
         debug_logger(message="✅ Zoom events are now live!")
     except Exception as e:
-        debug_logger(message=f"❌ Error in _setup_zoom_events: {e}")
-        debug_logger(message=f"Great Scott! The zoom mechanism has backfired! Error: {e}\n{traceback.format_exc()}",
+        debug_logger(message=f"❌ Error in _setup_zoom_events: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
 def reset_zoom(ax, canvas):
@@ -127,8 +125,7 @@ def reset_zoom(ax, canvas):
             canvas.draw_idle()
         debug_logger(message="✅ Zoom reset.")
     except Exception as e:
-        debug_logger(message=f"❌ Error in reset_zoom: {e}")
-        debug_logger(message=f"It's madness! The zoom refused to reset! Error: {e}\n{traceback.format_exc()}",
+        debug_logger(message=f"❌ Error in reset_zoom: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
 def update_single_plot(scan_view_tab_instance, data, start_freq_MHz, end_freq_MHz, plot_title, line_color='yellow'):
@@ -184,6 +181,5 @@ def update_single_plot(scan_view_tab_instance, data, start_freq_MHz, end_freq_MH
         canvas.draw()
         debug_logger(message="✅ Plot updated.")
     except Exception as e:
-        debug_logger(message=f"❌ Error in update_plot: {e}")
-        debug_logger(message=f"Arrr, the plot be capsized! The error be: {e}\n{traceback.format_exc()}",
+        debug_logger(message=f"❌ Error in update_single_plot: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)

@@ -1,11 +1,8 @@
-
 {
   "Yak_Amplitude": {
     "type": "OcaBlock",
     "description": "Yak Amplitude",
     "fields": {
-
-
   "nab": {
     "type": "OcaBlock",
     "description": "NAB Amplitude Monitoring",
@@ -13,16 +10,14 @@
       "NAB_amplitude_settings": {
         "type": "OcaBlock",
         "description": "Power and Attenuation Readbacks",
-        "message_details": {
+        "fields": {
           "Generic_Model": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":DISPlay:WINDow:TRACe:Y:RLEVel?;:POWer:ATTenuation?;:POWer:GAIN?"
-          }
-        },
-        "fields": {
+          },
           "scpi_outputs": {
             "type": "OcaBlock",
             "description": "Readback Values",
@@ -52,16 +47,14 @@
       "rig_Ref_Level_dBm": {
         "type": "OcaBlock",
         "description": "Set Power Levels",
-        "message_details": {
+        "fields": {
           "Generic_Model": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":DISPlay:WINDow:TRACe:Y:RLEVel <Ref_Level_dBm>;:POWer:RF:ATTenuation <Attenuation_dB>;:POWer:GAIN <Preamp_On>"
-          }
-        },
-        "fields": {
+          },
           "scpi_inputs": {
             "type": "OcaBlock",
             "fields": {
@@ -92,16 +85,14 @@
     "fields": {
       "Get_Reference_Level": {
         "type": "OcaBlock",
-        "message_details": {
+        "fields": {
           "Generic_Model": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":DISPlay:WINDow:TRACe:Y:RLEVel?"
-          }
-        },
-        "fields": {
+          },
           "scpi_outputs": {
             "type": "OcaBlock",
             "fields": {
@@ -115,16 +106,14 @@
       },
       "Get_Attenuation": {
         "type": "OcaBlock",
-        "message_details": {
+        "fields": {
           "Generic_Model": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":POWer:RF:ATTenuation?"
-          }
-        },
-        "fields": {
+          },
           "scpi_outputs": {
             "type": "OcaBlock",
             "fields": {
@@ -138,16 +127,14 @@
       },
       "Get_Preamp_State": {
         "type": "OcaBlock",
-        "message_details": {
+        "fields": {
           "Generic_Model": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":SENSE:POWer:RF:GAIN:STATe?"
-          }
-        },
-        "fields": {
+          },
           "scpi_outputs": {
             "type": "OcaBlock",
             "fields": {
@@ -167,16 +154,14 @@
     "fields": {
       "Set_Reference_Level": {
         "type": "OcaBlock",
-        "message_details": {
+        "fields": {
           "Generic_Model": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":DISPlay:WINDow:TRACe:Y:RLEVel <Ref_Level_dBm>"
-          }
-        },
-        "fields": {
+          },
           "scpi_inputs": {
             "type": "OcaBlock",
             "fields": {
@@ -190,16 +175,14 @@
       },
       "Set_Power_Attenuation": {
         "type": "OcaBlock",
-        "message_details": {
+        "fields": {
           "Generic_Model": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":POWer:ATTenuation <Power_Attenuation>"
-          }
-        },
-        "fields": {
+          },
           "scpi_inputs": {
             "type": "OcaBlock",
             "fields": {
@@ -215,27 +198,23 @@
         "type": "OcaBlock",
         "fields": {
           "Set_Input_Auto_Attenuation_ON": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "label_inactive": "Auto Atten ON",
-            "message_details": {
-              "Generic_Model": {
-                "trigger": false,
-                "value": ":POWer:ATTenuation:AUTO ON"
-              }
+            "Generic_Model": {
+              "trigger": false,
+              "value": ":POWer:ATTenuation:AUTO ON"
             }
           },
           "Set_Input_Auto_Attenuation_OFF": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "label_inactive": "Auto Atten OFF",
-            "message_details": {
-              "Generic_Model": {
-                "trigger": false,
-                "value": ":POWer:ATTenuation:AUTO OFF"
-              }
+            "Generic_Model": {
+              "trigger": false,
+              "value": ":POWer:ATTenuation:AUTO OFF"
             }
           }
         }
@@ -244,27 +223,23 @@
         "type": "OcaBlock",
         "fields": {
           "Set_Power_Gain_ON": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "label_inactive": "Preamp ON",
-            "message_details": {
-              "Generic_Model": {
-                "trigger": false,
-                "value": ":POWer:GAIN ON"
-              }
+            "Generic_Model": {
+              "trigger": false,
+              "value": ":POWer:GAIN ON"
             }
           },
           "Set_Power_Gain_OFF": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "label_inactive": "Preamp OFF",
-            "message_details": {
-              "Generic_Model": {
-                "trigger": false,
-                "value": ":POWer:GAIN OFF"
-              }
+            "Generic_Model": {
+              "trigger": false,
+              "value": ":POWer:GAIN OFF"
             }
           }
         }
@@ -274,51 +249,43 @@
         "description": "Quick sensitivity presets",
         "fields": {
           "Set_High_Sensitive_Power_ON_N9340B": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "label_inactive": "High Sensitivity ON",
-            "message_details": {
-              "N9340B": {
-                "trigger": false,
-                "value": ":DISPlay:WINDow:TRACe:Y:RLEVel -50; :POWer:ATTenuation 0; :POWer:GAIN ON"
-              }
+            "N9340B": {
+              "trigger": false,
+              "value": ":DISPlay:WINDow:TRACe:Y:RLEVel -50; :POWer:ATTenuation 0; :POWer:GAIN ON"
             }
           },
           "Set_High_Sensitive_Power_ON_N9342CN": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "label_inactive": "High Sensitivity ON",
-            "message_details": {
-              "N9342CN": {
-                "trigger": false,
-                "value": ":POWer:HSENsitive ON"
-              }
+            "N9342CN": {
+              "trigger": false,
+              "value": ":POWer:HSENsitive ON"
             }
           },
           "Set_High_Sensitive_Power_OFF_N9340B": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "label_inactive": "High Sensitivity OFF",
-            "message_details": {
-              "N9340B": {
-                "trigger": false,
-                "value": ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF"
-              }
+            "N9340B": {
+              "trigger": false,
+              "value": ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF"
             }
           },
           "Set_High_Sensitive_Power_OFF_N9342CN": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "label_inactive": "High Sensitivity OFF",
-            "message_details": {
-              "N9342CN": {
-                "trigger": false,
-                "value": ":POWer:HSENsitive OFF"
-              }
+            "N9342CN": {
+              "trigger": false,
+              "value": ":POWer:HSENsitive OFF"
             }
           }
         }

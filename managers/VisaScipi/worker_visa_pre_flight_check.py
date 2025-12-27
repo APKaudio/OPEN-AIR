@@ -32,7 +32,7 @@ import inspect
 import datetime
 import pyvisa
 import sys
-from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+from workers.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
 # --- Check Optional Dependencies for PyVISA-py ---

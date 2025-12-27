@@ -2,7 +2,7 @@
 
 import tkinter as tk
 from tkinter import ttk
-from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+from workers.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.logger.logger import  debug_logger
@@ -54,7 +54,7 @@ class ProgressBarCreatorMixin:
                     value_label['text'] = f"{float_value} {units}"
                 except (ValueError, TypeError) as e:
                     if app_constants.global_settings['debug_enabled']:
-                        debug_logger(message=f"🔴 ERROR in _update_progress: {e}", file=os.path.basename(__file__), function=current_function_name)
+                        debug_logger(message=f"❌ ERROR in _update_progress: {e}", file=os.path.basename(__file__), function=current_function_name)
 
             if path:
                 self.topic_widgets[path] = _update_progress # Store the update callable
@@ -72,10 +72,9 @@ class ProgressBarCreatorMixin:
                 )
             return frame
         except Exception as e:
-            debug_logger(message=f"💥 KABOOM! The progress bar '{label}' has failed to materialize! Error: {e}")
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"💥 KABOOM! The progress bar '{label}' has failed to materialize! Error: {e}",
+                    message=f"❌ The progress bar '{label}' has failed to materialize! Error: {e}",
                     file=os.path.basename(__file__),
                     version=app_constants.CURRENT_VERSION,
                     function=current_function_name

@@ -6,7 +6,7 @@
 # 2. Replaced dynamic animation with a pre-rendered GIF ('splash_logo.gif') using Pillow.
 # 3. Text rendering, versioning, and status updates remain unchanged.
 
-from workers.mqtt.setup.config_reader import Config # Import the Config class
+from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 import tkinter as tk
 from tkinter import ttk
@@ -89,7 +89,7 @@ class SplashScreen:
             vis_frame.pack_propagate(False)
 
             if PIL_AVAILABLE:
-                self._safe_log("Initializing GIF Animation...")
+                self._safe_log("🎬 Initializing GIF Animation...")
                 try:
                     self._init_gif_animation(vis_frame)
                 except Exception as e:
@@ -124,12 +124,9 @@ class SplashScreen:
             traceback.print_exc()
 
     def _safe_log(self, message, is_error=False, force_print=False):
-        if is_error or force_print or self.debug_enabled:
-            print(f"[SPLASH_DEBUG] {message}")
-        try:
             if self.debug_enabled and self.debug_log_func:
                 self.debug_log_func(message=message, **_get_log_args())
-        except Exception: pass
+    
 
     def _init_gif_animation(self, parent_frame):
         self.photo_images = []
@@ -158,7 +155,7 @@ class SplashScreen:
             self._safe_log(f"🔴 Failed to load GIF frames: {e}", is_error=True)
 
     def _update_gif_frame(self):
-        self._safe_log(f"Updating GIF frame to index {self.gif_frame_index}")
+        self._safe_log(f"🎞️ Updating GIF frame to index {self.gif_frame_index}")
         if not self.splash_window.winfo_exists():
             return
             

@@ -6,7 +6,7 @@ import inspect
 import os
 import sys
 import pathlib
-from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+from workers.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.logger.logger import  debug_logger # Import the global debug_log
@@ -91,7 +91,7 @@ class WindowManager:
 
         except Exception as e:
             if app_constants.global_settings['debug_enabled']:
-                debug_logger(message=f"🖥️🔴 Error tearing off tab: {e}", **_get_log_args())
+                debug_logger(message=f"❌ Error tearing off tab: {e}", **_get_log_args())
 
     def _on_tear_off_window_close(self, top_level_window):
         """

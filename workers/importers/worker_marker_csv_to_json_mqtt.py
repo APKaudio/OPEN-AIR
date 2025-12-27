@@ -118,14 +118,6 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         debug_logger(message="✅ Successfully read CSV and generated nested JSON structure with summary data.")
     except Exception as e:
         debug_logger(message=f"❌ Error processing CSV file: {e}")
-        if app_constants.global_settings['debug_enabled']:
-            debug_logger(
-                message=f"❌🔴 The CSV-to-JSON contraption has malfunctioned! The error be: {e}",
-**_get_log_args()
-                
-
-
-            )
         return
 
     # --- Step 2: Save the generated structure to MARKERS.json ---
@@ -137,14 +129,6 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         debug_logger(message=f"✅ Saved generated structure to {MARKERS_JSON_PATH}.")
     except Exception as e:
         debug_logger(message=f"❌ Error saving to {MARKERS_JSON_PATH}: {e}")
-        if app_constants.global_settings['debug_enabled']:
-            debug_logger(
-                message=f"❌🔴 The enchanted scroll refuses to be written! The error be: {e}",
-**_get_log_args()
-                
-
-
-            )
         return
 
     # --- Step 3: Publish the entire structure to MQTT ---
@@ -152,7 +136,7 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         # First, clear any old data under the base topic by publishing a null, retained message.
         # This will remove all the old topics (Device-001/Name, Device-001/active, etc.)
         mqtt_util.purge_branch(MQTT_BASE_TOPIC)
-        debug_logger(message=f"Cleared old data under topic: {MQTT_BASE_TOPIC}/#")
+        debug_logger(message=f"🗑️ Cleared old data under topic: {MQTT_BASE_TOPIC}/#")
 
         # Now, publish the new, complete structure recursively.
         _publish_recursive(mqtt_util, MQTT_BASE_TOPIC, json_state)
@@ -160,12 +144,4 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         debug_logger(message="✅ Successfully published the full marker set to MQTT.")
     except Exception as e:
         debug_logger(message=f"❌ Error publishing to MQTT: {e}")
-        if app_constants.global_settings['debug_enabled']:
-            debug_logger(
-                message=f"❌🔴 The message pigeons have flown astray! The error be: {e}",
-**_get_log_args()
-                
-
-
-            )
 '''

@@ -1,13 +1,8 @@
-
 {
   "Yak_Markers": {
     "type": "OcaBlock",
     "description": "Yak Markers",
     "fields": {
-
-
-
-
   "nab": {
     "type": "OcaBlock",
     "description": "NAB Marker Monitoring",
@@ -15,16 +10,14 @@
       "NAB_all_marker_settings": {
         "type": "OcaBlock",
         "description": "Marker Amplitude and Frequency Readbacks",
-        "message_details": {
+        "fields": {
           "Generic_Model": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":CALCulate:MARKer1:Y?;:CALCulate:MARKer2:Y?;:CALCulate:MARKer3:Y?;:CALCulate:MARKer4:Y?;:CALCulate:MARKer5:Y?;:CALCulate:MARKer6:Y?;:CALCulate:MARKer1:X?;:CALCulate:MARKer2:X?;:CALCulate:MARKer3:X?;:CALCulate:MARKer4:X?;:CALCulate:MARKer5:X?;:CALCulate:MARKer6:X?"
-          }
-        },
-        "fields": {
+          },
           "scpi_outputs": {
             "type": "OcaBlock",
             "description": "Marker Values",
@@ -90,16 +83,14 @@
       "Set_Marker_State_ON": {
         "type": "OcaBlock",
         "description": "Enable Marker",
-        "message_details": {
+        "fields": {
           "Generic_Model": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":CALCulate:MARKer<marker_number>:STATe ON"
-          }
-        },
-        "fields": {
+          },
           "scpi_inputs": {
             "type": "OcaBlock",
             "fields": {
@@ -114,16 +105,14 @@
       "Set_Marker_State_OFF": {
         "type": "OcaBlock",
         "description": "Disable Marker",
-        "message_details": {
+        "fields": {
           "Generic_Model": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":CALCulate:MARKer<marker_number>:STATe OFF"
-          }
-        },
-        "fields": {
+          },
           "scpi_inputs": {
             "type": "OcaBlock",
             "fields": {
@@ -138,16 +127,14 @@
       "Set_Marker_X_position": {
         "type": "OcaBlock",
         "description": "Set Marker Frequency",
-        "message_details": {
+        "fields": {
           "Generic_Model": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":CALCulate:MARKer<marker_number>:X <x_value>"
-          }
-        },
-        "fields": {
+          },
           "scpi_inputs": {
             "type": "OcaBlock",
             "fields": {

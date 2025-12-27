@@ -25,7 +25,7 @@ import inspect
 # --- Protocol: Integration Layer ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import  debug_logger
-from workers.mqtt.setup.config_reader import Config # Import the Config class
+from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 from workers.utils.log_utils import _get_log_args 
 
@@ -127,7 +127,10 @@ class GenericInstrumentGui(ttk.Frame):
 
             # --- Presentation Layer ---
             # Instantiate the builder.
-            #print(f"DEBUG: [Hand-off] Passing control to DynamicGuiBuilder for {module_name}")
+            debug_logger(
+                message=f"👋 [Hand-off] Passing control to DynamicGuiBuilder for {module_name}",
+                **_get_log_args()
+            )
             
             self.dynamic_gui = DynamicGuiBuilder(
                 parent=self,

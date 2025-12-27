@@ -40,7 +40,7 @@ import pathlib
 import pandas as pd
 import numpy as np
 from tkinter import filedialog, messagebox
-from workers.mqtt.setup.config_reader import Config # Import the Config class
+from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 
 # --- Module Imports ---
@@ -61,7 +61,7 @@ current_version_hash = (20251009 * 213617 * 2)
 current_file_path = pathlib.Path(__file__).resolve()
 # FIX: The project root is one level up from the 'workers' folder.
 project_root = current_file_path.parent.parent
-current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
+current_file = str(current_file_path.relative_to(project_root)).replace("\", "/")
 LOCAL_DEBUG_ENABLE = False
 
 # --- Constants ---
@@ -127,7 +127,7 @@ def maker_file_check_for_markers_file():
 
 
                 )
-            debug_logger(message=f"🔴 ERROR: Failed to load existing MARKERS.csv. {e}")
+            debug_logger(message=f"❌ Failed to load existing MARKERS.csv. {e}")
     else:
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
@@ -171,7 +171,7 @@ def maker_file_load_markers_file():
 
 
         )
-    debug_logger(message=f"Action: Load CSV Marker Set from {os.path.basename(file_path)}.")
+    debug_logger(message=f"▶️ Action: Load CSV Marker Set from {os.path.basename(file_path)}.")
     
     try:
         # Pass the desired headers to the converter for consistency
@@ -231,7 +231,7 @@ def maker_file_load_markers_file():
 
 
             )
-        debug_logger(message=f"🔴 ERROR: Failed to process CSV file. {e}")
+        debug_logger(message=f"❌ Failed to process CSV file. {e}")
         return [], []
 
 def maker_file_load_ias_html():
@@ -264,7 +264,7 @@ def maker_file_load_ias_html():
 
 
         )
-    debug_logger(message=f"Action: Load IAS HTML from {os.path.basename(file_path)}.")
+    debug_logger(message=f"▶️ Action: Load IAS HTML from {os.path.basename(file_path)}.")
 
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -320,7 +320,7 @@ def maker_file_load_ias_html():
 
 
             )
-        debug_logger(message=f"🔴 ERROR: Failed to convert HTML file. {e}")
+        debug_logger(message=f"❌ Failed to convert HTML file. {e}")
         return [], []
 
 def maker_file_load_wwb_shw():
@@ -353,7 +353,7 @@ def maker_file_load_wwb_shw():
 
 
         )
-    debug_logger(message=f"Action: Load WWB.shw from {os.path.basename(file_path)}.")
+    debug_logger(message=f"▶️ Action: Load WWB.shw from {os.path.basename(file_path)}.")
     
     try:
         headers, data = Marker_convert_WWB_SHW_File_report_to_csv(file_path)
@@ -406,7 +406,7 @@ def maker_file_load_wwb_shw():
 
 
             )
-        debug_logger(message=f"🔴 ERROR: Failed to convert SHW file. {e}")
+        debug_logger(message=f"❌ Failed to convert SHW file. {e}")
         return [], []
 
 def maker_file_load_sb_pdf():
@@ -439,7 +439,7 @@ def maker_file_load_sb_pdf():
 
 
         )
-    debug_logger(message=f"Action: Load SB PDF from {os.path.basename(file_path)}.")
+    debug_logger(message=f"▶️ Action: Load SB PDF from {os.path.basename(file_path)}.")
 
     try:
         headers, data = Marker_convert_SB_PDF_File_report_to_csv(file_path)
@@ -492,7 +492,7 @@ def maker_file_load_sb_pdf():
 
 
             )
-        debug_logger(message=f"🔴 ERROR: Failed to convert PDF file. {e}")
+        debug_logger(message=f"❌ Failed to convert PDF file. {e}")
         return [], []
     
 def maker_file_save_intermediate_file(tree_headers, tree_data):
@@ -521,9 +521,9 @@ def maker_file_save_intermediate_file(tree_headers, tree_data):
             writer.writeheader()
             writer.writerows(tree_data)
             
-        debug_logger(message=f"Intermediate file saved as {target_path}")
+        debug_logger(message=f"💾 Intermediate file saved as {target_path}")
     except Exception as e:
-        debug_logger(message=f"🔴 ERROR: Failed to save intermediate MARKERS.csv file. {e}")
+        debug_logger(message=f"❌ Failed to save intermediate MARKERS.csv file. {e}")
         
 def maker_file_save_open_air_file(tree_headers, tree_data):
     # Saves the current tree data to a file named 'OpenAir.csv' in the DATA directory.
@@ -540,7 +540,7 @@ def maker_file_save_open_air_file(tree_headers, tree_data):
 
 
             )
-        debug_logger(message="Action: Save Markers as Open Air.csv. No data to save.")
+        debug_logger(message="▶️ Action: Save Markers as Open Air.csv. No data to save.")
         return
 
     file_path = filedialog.asksaveasfilename(
@@ -571,7 +571,7 @@ def maker_file_save_open_air_file(tree_headers, tree_data):
 
 
         )
-    debug_logger(message=f"Action: Saving Markers as Open Air.csv to {os.path.basename(file_path)}.")
+    debug_logger(message=f"▶️ Action: Saving Markers as Open Air.csv to {os.path.basename(file_path)}.")
     
     try:
         with open(file_path, 'w', newline='') as csvfile:
@@ -579,7 +579,7 @@ def maker_file_save_open_air_file(tree_headers, tree_data):
             writer.writeheader()
             writer.writerows(tree_data)
         
-        debug_logger(message=f"File saved successfully to {file_path}")
+        debug_logger(message=f"✅ File saved successfully to {file_path}")
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
                 message="✅ File saved successfully.",
@@ -601,4 +601,4 @@ def maker_file_save_open_air_file(tree_headers, tree_data):
 
 
             )
-        debug_logger(message=f"🔴 ERROR: Failed to save file. {e}")
+        debug_logger(message=f"❌ Failed to save file. {e}")

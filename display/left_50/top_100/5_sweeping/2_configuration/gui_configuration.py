@@ -24,7 +24,7 @@ import pathlib
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
-from workers.mqtt.setup.config_reader import Config # Import the Config class
+from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 
 # --- Global Scope Variables ---

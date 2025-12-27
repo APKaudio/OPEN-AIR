@@ -8,7 +8,7 @@
 
 import inspect
 import os
-from workers.mqtt.setup.config_reader import Config
+from workers.setup.config_reader import Config
 
 app_constants = Config.get_instance()
 

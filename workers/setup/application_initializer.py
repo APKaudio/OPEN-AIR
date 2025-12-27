@@ -5,7 +5,7 @@ import sys
 import pathlib
 
 import workers.logger.logger
-from workers.mqtt.setup.config_reader import Config # Import the Config class
+from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 import workers.setup.path_initializer as path_initializer
 import workers.logger.logger_config as logger_config

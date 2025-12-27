@@ -25,7 +25,7 @@ import re
 import time # For timestamping MQTT messages
 import uuid # For correlation IDs
 
-from workers.mqtt.setup.config_reader import Config # Import the Config class
+from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 
 from workers.logger.logger import  debug_logger
@@ -69,7 +69,7 @@ class YakTranslator:
             try:
                 with open(repo_path, 'r') as f:
                     self.yak_repository = orjson.loads(f.read())
-                debug_logger(message=f"✅ YAK repository loaded from {repo_path}", **_get_log_args())
+                debug_logger(message=f"🐂 YAK repository loaded from {repo_path}", **_get_log_args())
             except orjson.JSONDecodeError as e:
                 debug_logger(message=f"❌ Error decoding JSON from YAK repository file {repo_path}: {e}. Initializing empty repository.", **_get_log_args())
                 self.yak_repository = {}
@@ -88,7 +88,7 @@ class YakTranslator:
         # For now, let's assume a generic trigger topic, similar to old YaketyYakManager
         trigger_topic_filter = "OPEN-AIR/yak/commands/#" # Example: listen for commands that need translation
         self.subscriber_router.subscribe_to_topic(trigger_topic_filter, self._on_yak_trigger_message)
-        debug_logger(message=f"✅ Subscribed to YAK trigger topic: '{trigger_topic_filter}'", **_get_log_args())
+        debug_logger(message=f"👂 Subscribed to YAK trigger topic: '{trigger_topic_filter}'", **_get_log_args())
         
         # Also need to subscribe to the repo update topic if YakTranslator also handles repo updates (from YaketyYakManager)
         # Assuming repo updates are handled by a separate mechanism or the YakTranslator will just load from file

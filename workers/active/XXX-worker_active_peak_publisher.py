@@ -126,7 +126,7 @@ class ActivePeakPublisher:
             # c) Unparsable number string (ValueError)
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"🟢️️️🟡 Silent Skip: Unparsable payload '{payload}'.",
+                    message=f"⚠️ Silent Skip: Unparsable payload '{payload}'.",
                     **_get_log_args()
                     
 
@@ -148,7 +148,7 @@ class ActivePeakPublisher:
 
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
-                message=f"🟢️️️🔵 Buffered {data_type} for {marker_id}: {numeric_value}. Checking for pair...",
+                message=f"↔️ Buffered {data_type} for {marker_id}: {numeric_value}. Checking for pair...",
                 **_get_log_args()
                 
 
@@ -255,7 +255,7 @@ class ActivePeakPublisher:
             debug_logger(message=f"❌ Error during hierarchical republishing for {marker_id}: {e}", **_get_log_args())
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"❌🔴 Arrr, the code be capsized in republishing! The error be: {e}",
+                    message=f"❌ Arrr, the code be capsized in republishing! The error be: {e}",
                     **_get_log_args()
                     
 

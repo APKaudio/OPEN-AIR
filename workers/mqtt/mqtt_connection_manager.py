@@ -9,7 +9,7 @@ import paho.mqtt.client as mqtt
 import threading
 from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
-from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+from workers.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
 
@@ -50,7 +50,7 @@ class MqttConnectionManager:
     def connect_to_broker(self, address=None, port=None, on_message_callback=None, subscriber_router=None):
         """Connects the MQTT client to the broker."""
         if self.client and self.client.is_connected():
-            debug_logger(message="MQTT client is already connected.", **_get_log_args())
+            debug_logger(message="🟡 MQTT client is already connected.", **_get_log_args())
             return
 
         self.broker_address = address if address is not None else app_constants.MQTT_BROKER_ADDRESS
@@ -75,7 +75,7 @@ class MqttConnectionManager:
 
             self.client.connect(host=self.broker_address, port=self.broker_port, keepalive=60)
             self.client.loop_start()
-            debug_logger(message="MQTT client connection initiated in a background thread.", **_get_log_args())
+            debug_logger(message="⚙️ MQTT client connection initiated in a background thread.", **_get_log_args())
         except Exception as e:
             debug_logger(message=f"❌ Error connecting to MQTT broker: {e}", **_get_log_args())
 
@@ -84,4 +84,4 @@ class MqttConnectionManager:
         if self.client:
             self.client.loop_stop()
             self.client.disconnect()
-            debug_logger(message="MQTT client disconnected.", **_get_log_args())
+            debug_logger(message="🔌 MQTT client disconnected.", **_get_log_args())

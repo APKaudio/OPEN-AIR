@@ -15,7 +15,7 @@ import tkinter as tk
 from tkinter import ttk
 from workers.utils.log_utils import _get_log_args  
 from workers.logger.logger import  debug_logger
-from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+from workers.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
 
@@ -51,7 +51,7 @@ class LayoutParser:
         Returns a dictionary describing the layout and relevant parsed data.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_logger(message=f"Parsing directory: '{path}'",            **_get_log_args()       )
+        debug_logger(message=f"📂 Parsing directory: '{path}'",            **_get_log_args()       )
 
         try:
             sub_dirs = sorted([d for d in path.iterdir() if d.is_dir()])
@@ -123,7 +123,7 @@ class LayoutParser:
                 layout_data['panel_percentages'] = percentages
             else:
                  debug_logger(
-                    message=f"Found layout_dirs but no clear orientation detected in '{path}'.",
+                    message=f"⚠️ Found layout_dirs but no clear orientation detected in '{path}'.",
                     **_get_log_args()
                 )
 
@@ -160,7 +160,7 @@ class LayoutParser:
             layout_data['gui_files'] = sorted([f for f in path.iterdir() if f.is_file() and f.name.startswith("gui_") and f.suffix == '.py'])
 
         debug_logger(
-            message=f"Parsed layout for '{path}': Type='{layout_type}', Data={layout_data}",
+            message=f"🗺️ Parsed layout for '{path}': Type='{layout_type}', Data={layout_data}",
             **_get_log_args()
         )
         return {'type': layout_type, 'data': layout_data}

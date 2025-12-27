@@ -39,7 +39,7 @@ from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from workers.styling.style import THEMES, DEFAULT_THEME
-from workers.mqtt.setup.config_reader import Config # Import the Config class
+from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 
 # --- Global Scope Variables ---

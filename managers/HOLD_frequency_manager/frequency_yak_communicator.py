@@ -110,7 +110,7 @@ class FrequencyYakCommunicator:
             debug_logger(message=f"❌ Error dispatching YAK command: {e}")
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"🟢️️️🔴 YAK dispatch failed! The error be: {e}",
+                    message=f"❌ YAK dispatch failed! The error be: {e}",
                     **_get_log_args()
                     
 
@@ -190,7 +190,7 @@ class FrequencyYakCommunicator:
             except ValueError:
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
-                        message=f"🟢️️️🟡 Could not convert YAK output '{cleaned_value}' to float for topic {topic}. Skipping update.",
+                        message=f"⚠️ Could not convert YAK output '{cleaned_value}' to float for topic {topic}. Skipping update.",
                         **_get_log_args()
                         
 
@@ -202,7 +202,7 @@ class FrequencyYakCommunicator:
             debug_logger(message=f"❌ Error processing YAK output for {topic}: {e}")
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"🟢️️️🔴 NAB synchronization failed! The error be: {e}",
+                    message=f"❌ NAB synchronization failed! The error be: {e}",
                     **_get_log_args()
                     
 

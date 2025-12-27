@@ -121,7 +121,7 @@ class MqttDataFlattenerUtility:
             debug_logger(message=f"❌ Error decoding JSON payload for topic '{topic}': {e}", **_get_log_args())
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"🟢️️️🔴 The JSON be a-sailing to its doom! The error be: {e}",
+                    message=f"❌ The JSON be a-sailing to its doom! The error be: {e}",
                     **_get_log_args()
                     
                 )
@@ -131,7 +131,7 @@ class MqttDataFlattenerUtility:
             debug_logger(message=f"❌ Error in {current_function_name}: {e}", **_get_log_args())
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"🟢️️️🔴 Arrr, the code be capsized! The error be: {e}",
+                    message=f"❌ Arrr, the code be capsized! The error be: {e}",
                     **_get_log_args()
                     
                 )

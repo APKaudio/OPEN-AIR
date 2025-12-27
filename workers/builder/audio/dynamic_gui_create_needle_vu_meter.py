@@ -6,7 +6,7 @@
 import tkinter as tk
 from tkinter import ttk
 import math
-from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+from workers.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.logger.logger import  debug_logger
@@ -84,10 +84,9 @@ class NeedleVUMeterCreatorMixin:
             return frame
 
         except Exception as e:
-            debug_logger(message=f"💥 KABOOM! The needle VU meter for '{label}' has flatlined! Error: {e}")
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"💥 KABOOM! The needle VU meter for '{label}' has flatlined! Error: {e}",
+                    message=f"❌ The needle VU meter for '{label}' has flatlined! Error: {e}",
                     **_get_log_args()
                 )
             return None

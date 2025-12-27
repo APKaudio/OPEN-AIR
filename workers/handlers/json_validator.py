@@ -20,7 +20,7 @@ def validate_and_sanitize_json(data: dict) -> dict:
         orjson.dumps(data)
         return data
     except TypeError as e:
-        debug_logger(message=f"JSON validation error: {e}. The data may not be fully serializable.", **_get_log_args())
+        debug_logger(message=f"❌ JSON validation error: {e}. The data may not be fully serializable.", **_get_log_args())
         # For now, we will return the data as is and let the publisher handle the error.
         # A more advanced implementation could sanitize the data by removing non-serializable elements.
         return data

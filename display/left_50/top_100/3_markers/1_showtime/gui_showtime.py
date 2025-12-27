@@ -6,7 +6,7 @@ from tkinter import ttk
 import pathlib
 from tkinter import filedialog
 from collections import defaultdict
-from workers.mqtt.setup.config_reader import Config # Import the Config class
+from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 
 # --- Global Scope Variables ---

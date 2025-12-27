@@ -38,7 +38,7 @@ import inspect
 # --- Module Imports ---
 from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
-from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+from workers.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.utils.topic_utils import get_topic
@@ -81,7 +81,7 @@ class GuiActuatorCreatorMixin:
                 
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
-                        message=f"GUI ACTION: Activating actuator '{label}' to path '{action_path}'",
+                        message=f"▶️ GUI ACTION: Activating actuator '{label}' to path '{action_path}'",
                         file=current_file,
                         version=current_version,
                         function=f"{self.__class__.__name__}.{current_function_name}"
@@ -93,7 +93,7 @@ class GuiActuatorCreatorMixin:
 
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
-                        message=f"GUI ACTION: Deactivating actuator '{label}' to path '{action_path}'",
+                        message=f"⏹️ GUI ACTION: Deactivating actuator '{label}' to path '{action_path}'",
                         file=current_file,
                         version=current_version,
                         function=f"{self.__class__.__name__}.{current_function_name}"
@@ -130,7 +130,7 @@ class GuiActuatorCreatorMixin:
             
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"💥 KABOOM! The actuator '{label}' has short-circuited! Error: {e}",
+                    message=f"❌ The actuator '{label}' has short-circuited! Error: {e}",
                     file=current_file,
                     version=current_version,
                     function=current_function_name
@@ -201,10 +201,10 @@ class GuiActuatorCreatorMixin:
                     button.config(style='Custom.TButton')
                 
                 if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"GUI ACTUATOR: Actuator '{key_in_topic_widgets}' state updated to {is_active}", **_get_log_args())
+                    debug_logger(message=f"ℹ️ GUI ACTUATOR: Actuator '{key_in_topic_widgets}' state updated to {is_active}", **_get_log_args())
             else:
                 if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"GUI ACTUATOR: Button widget not found in topic_widgets for key: {key_in_topic_widgets} (from topic: {topic})", **_get_log_args())
+                    debug_logger(message=f"⚠️ GUI ACTUATOR: Button widget not found in topic_widgets for key: {key_in_topic_widgets} (from topic: {topic})", **_get_log_args())
 
         except (orjson.JSONDecodeError, AttributeError) as e:
             if app_constants.global_settings['debug_enabled']:

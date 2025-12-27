@@ -41,7 +41,7 @@ import inspect
 import numpy as np
 import zipfile
 import io
-from workers.mqtt.setup.config_reader import Config # Import the Config class
+from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 
 current_file = os.path.basename(__file__) # Get current file name for debug_log
@@ -79,13 +79,13 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
     current_file = os.path.basename(__file__) # Get current file name for debug_log
 
     if app_constants.global_settings['debug_enabled']:
-        debug_logger(message="Starting HTML report conversion.", 
+        debug_logger(message="▶️ Starting HTML report conversion.", 
                 file=current_file, version=current_version, function=current_function, 
 
 )
 
     soup = BeautifulSoup(html_content, 'html.parser')
-    from workers.mqtt.setup.config_reader import Config # Import the Config class
+    from workers.setup.config_reader import Config # Import the Config class
     app_constants = Config.get_instance() # Get the singleton instance
 
     
@@ -100,7 +100,7 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
         main_content_container = first_zone_p.find_parent('span')
         
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message=f"Found main content container based on first zone paragraph.",  file=current_file, version=current_version, function=current_function, 
+            debug_logger(message=f"🔍 Found main content container based on first zone paragraph.",  file=current_file, version=current_version, function=current_function, 
 
 )
     
@@ -118,14 +118,14 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                         main_content_container = second_tr_td
                     
                     if app_constants.global_settings['debug_enabled']:
-                        debug_logger(message=f"Found main content container based on MainTable structure.",  file=current_file, version=current_version, function=current_function, 
+                        debug_logger(message=f"🔍 Found main content container based on MainTable structure.",  file=current_file, version=current_version, function=current_function, 
 
 )
     
     if not main_content_container:
         
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message="Warning: Could not find the main content container. No data will be extracted.",  file=current_file, version=current_version, function=current_function, 
+            debug_logger(message="⚠️ Could not find the main content container. No data will be extracted.",  file=current_file, version=current_version, function=current_function, 
 
 )
         return headers, data_rows
@@ -141,7 +141,7 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                 current_zone_type = zone_text.replace("Zone:", "").strip()
         
                 if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"Processing Zone: {current_zone_type}",  file=current_file, version=current_version, function=current_function, 
+                    debug_logger(message=f"▶️ Processing Zone: {current_zone_type}",  file=current_file, version=current_version, function=current_function, 
 
 )
         
@@ -152,14 +152,14 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
             current_group_name = device_name_tag.get_text(strip=True) if device_name_tag else ""
         
             if app_constants.global_settings['debug_enabled']:
-                debug_logger(message=f"Processing Group: {current_group_name}",  file=current_file, version=current_version, function=current_function, 
+                debug_logger(message=f"▶️ Processing Group: {current_group_name}",  file=current_file, version=current_version, function=current_function, 
 
 )
 
-            rows_in_table = table.find_all('tr')[1:] # Skip the first row as it contains the <th> (device_name)
+            rows_in_table = table.find_all('tr')[1:] # Skip the first row as it contains the <th> (device_name) 
       
             if app_constants.global_settings['debug_enabled']:
-                debug_logger(message=f"Found {len(rows_in_table)} rows in current table.",  file=current_file, version=current_version, function=current_function, 
+                debug_logger(message=f"🔍 Found {len(rows_in_table)} rows in current table.",  file=current_file, version=current_version, function=current_function, 
 
 )
 
@@ -193,7 +193,7 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                                     elif unit == 'khz':
                                         freq_MHz = value / 1000 # kHz to MHz
                                     if app_constants.global_settings['debug_enabled']:
-                                        debug_logger(message=f"HTML Freq conversion: '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, 
+                                        debug_logger(message=f"↔️ HTML Freq conversion: '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, 
 
 )
                                 else:
@@ -201,13 +201,13 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                                     freq_MHz = float(channel_frequency_str) # Assume it's already in MHz
     
                                     if app_constants.global_settings['debug_enabled']:
-                                        debug_logger(message=f"HTML Freq conversion (fallback): '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, 
+                                        debug_logger(message=f"↔️ HTML Freq conversion (fallback): '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, 
 
 )
                             except ValueError:
     
                                 if app_constants.global_settings['debug_enabled']:
-                                    debug_logger(message=f"HTML Freq conversion error: '{channel_frequency_str}'",  file=current_file, version=current_version, function=current_function, 
+                                    debug_logger(message=f"❌ HTML Freq conversion error: '{channel_frequency_str}'",  file=current_file, version=current_version, function=current_function, 
 
 )
                                 freq_MHz = "Invalid Frequency"
@@ -224,7 +224,7 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                                 data_rows.append(row_data)
                            
                             if app_constants.global_settings['debug_enabled']:
-                                debug_logger(message=f"Added HTML row: {row_data}",  file=current_file, version=current_version, function=current_function, 
+                                debug_logger(message=f"✅ Added HTML row: {row_data}",  file=current_file, version=current_version, function=current_function, 
 
 )
                 else:
@@ -258,7 +258,7 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                                 else: # No unit specified, assume MHz
                                     freq_MHz = value
                                 if app_constants.global_settings['debug_enabled']:
-                                    debug_logger(message=f"HTML Freq conversion (direct td): '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, 
+                                    debug_logger(message=f"↔️ HTML Freq conversion (direct td): '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, 
 
 )
                             else:
@@ -266,13 +266,13 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                                 freq_MHz = float(channel_frequency_str) # Assume it's already in MHz
     
                                 if app_constants.global_settings['debug_enabled']:
-                                    debug_logger(message=f"HTML Freq conversion (direct td, fallback): '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, 
+                                    debug_logger(message=f"↔️ HTML Freq conversion (direct td, fallback): '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, 
 
 )
                         except ValueError:
     
                             if app_constants.global_settings['debug_enabled']:
-                                debug_logger(message=f"HTML Freq conversion error (direct td): '{channel_frequency_str}'",  file=current_file, version=current_version, function=current_function, 
+                                debug_logger(message=f"❌ HTML Freq conversion error (direct td): '{channel_frequency_str}'",  file=current_file, version=current_version, function=current_function, 
 
 )
                             freq_MHz = "Invalid Frequency"
@@ -289,12 +289,12 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                         if band_type or channel_frequency_str or channel_name:
                             data_rows.append(row_data)
                             if app_constants.global_settings['debug_enabled']:
-                                debug_logger(message=f"Added HTML row (direct td): {row_data}",  file=current_file, version=current_version, function=current_function, 
+                                debug_logger(message=f"✅ Added HTML row (direct td): {row_data}",  file=current_file, version=current_version, function=current_function, 
 
 )
     
     if app_constants.global_settings['debug_enabled']:
-        debug_logger(message=f"Finished HTML report conversion. Extracted {len(data_rows)} rows.",  file=current_file, version=current_version, function=current_function, 
+        debug_logger(message=f"✅ Finished HTML report conversion. Extracted {len(data_rows)} rows.",  file=current_file, version=current_version, function=current_function, 
 
 )
     return headers, data_rows
@@ -326,7 +326,7 @@ def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
     current_file = os.path.basename(__file__)
 
     if app_constants.global_settings['debug_enabled']:
-        debug_logger(message=f"Starting SHW report conversion for '{os.path.basename(xml_file_path)}'.",  file=current_file, version=current_version, function=current_function, 
+        debug_logger(message=f"▶️ Starting SHW report conversion for '{os.path.basename(xml_file_path)}'.",  file=current_file, version=current_version, function=current_function, 
 
 )
 
@@ -339,7 +339,7 @@ def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
         root = tree.getroot()
         
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message="XML file parsed successfully.",  file=current_file, version=current_version, function=current_function, 
+            debug_logger(message="✅ XML file parsed successfully.",  file=current_file, version=current_version, function=current_function, 
 
 )
 
@@ -348,7 +348,7 @@ def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
             if i % 100 == 0: # Print progress every 100 entries
                 
                 if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"Processing SHW entry {i}...",  file=current_file, version=current_version, function=current_function, 
+                    debug_logger(message=f"▶️ Processing SHW entry {i}...",  file=current_file, version=current_version, function=current_function, 
 
 )
 
@@ -376,7 +376,7 @@ def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
                 freq_str = freq_element.text 
             
                 if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"DEBUG (SHW): Processing freq_str: '{freq_str}' for device '{name}'",  file=current_file, version=current_version, function=current_function, 
+                    debug_logger(message=f"🔍 DEBUG (SHW): Processing freq_str: '{freq_str}' for device '{name}'",  file=current_file, version=current_version, function=current_function, 
 
 )
 
@@ -384,13 +384,13 @@ def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
                     # Convert kHz to MHz as per user's clarification
                     freq_MHz = float(freq_str) / 1000.0 
                     if app_constants.global_settings['debug_enabled']:
-                        debug_logger(message=f"SHW Freq conversion: '{freq_str}' kHz -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, 
+                        debug_logger(message=f"↔️ SHW Freq conversion: '{freq_str}' kHz -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, 
 
 )
                 except ValueError:
     
                     if app_constants.global_settings['debug_enabled']:
-                        debug_logger(message=f"SHW Freq conversion error: '{freq_str}'",  file=current_file, version=current_version, function=current_function, 
+                        debug_logger(message=f"❌ SHW Freq conversion error: '{freq_str}'",  file=current_file, version=current_version, function=current_function, 
 
 )
                     freq_MHz = "Invalid Frequency"
@@ -405,7 +405,7 @@ def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
             })
     
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message=f"Finished SHW report conversion. Extracted {len(csv_data)} rows.",  file=current_file, version=current_version, function=current_function, 
+            debug_logger(message=f"✅ Finished SHW report conversion. Extracted {len(csv_data)} rows.",  file=current_file, version=current_version, function=current_function, 
 
 )
         return headers, csv_data
@@ -413,21 +413,21 @@ def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
     except FileNotFoundError:
     
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message=f"🔴 ERROR: The file '{xml_file_path}' was not found.",  file=current_file, version=current_version, function=current_function, 
+            debug_logger(message=f"❌ The file '{xml_file_path}' was not found.",  file=current_file, version=current_version, function=current_function, 
 
 )
         raise FileNotFoundError(f"The file '{xml_file_path}' was not found.")
     except ET.ParseError as e:
     
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message=f"🔴 ERROR: Malformed XML (SHW) file '{xml_file_path}': {e}",  file=current_file, version=current_version, function=current_function, 
+            debug_logger(message=f"❌ Malformed XML (SHW) file '{xml_file_path}': {e}",  file=current_file, version=current_version, function=current_function, 
 
 )
         raise ET.ParseError(f"🔴 ERROR parsing XML (SHW) file '{xml_file_path}': {e}")
     except Exception as e:
     
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message=f"🔴 ERROR during SHW conversion data extraction: {e}",  file=current_file, version=current_version, function=current_function, 
+            debug_logger(message=f"❌ Error during SHW conversion data extraction: {e}",  file=current_file, version=current_version, function=current_function, 
 
 )
         raise
@@ -452,24 +452,22 @@ def Marker_convert_wwb_zip_report_to_csv(file_path):
     if not file_path:
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
-                message="🟢️️️🟡 No file path provided for zip conversion.",
+                message="🟡 No file path provided for zip conversion.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
                 
-
 
             )
         return [], []
         
     if app_constants.global_settings['debug_enabled']:
         debug_logger(
-            message=f"🟢️️️🟢 Starting ZIP report conversion for: {os.path.basename(file_path)}",
+            message=f"▶️ Starting ZIP report conversion for: {os.path.basename(file_path)}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
             
-
 
         )
     
@@ -488,35 +486,33 @@ def Marker_convert_wwb_zip_report_to_csv(file_path):
         group_match = re.search(r'([^_]+)_wwb$', zip_filename_stem)
         main_group = group_match.group(1).replace('_', ' ') if group_match else "N/A"
         
-        debug_logger(message=f"Derived from ZIP filename: ZONE='{zone}', Main Group='{main_group}'")
+        debug_logger(message=f"🔍 Derived from ZIP filename: ZONE='{zone}', Main Group='{main_group}'")
 
         with zipfile.ZipFile(file_path, 'r') as zip_ref:
             csv_files = [name for name in zip_ref.namelist() if name.endswith('.csv')]
             
             if not csv_files:
-                debug_logger(message="❌ Error: No .csv file found inside the .zip archive.")
+                debug_logger(message="❌ No .csv file found inside the .zip archive.")
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
-                        message="❌🔴 No CSV file found within ZIP. Mission failed!",
+                        message="❌ No CSV file found within ZIP. Mission failed!",
                         file=current_file,
                         version=current_version,
                         function=f"{current_function}",
                         
-
 
                     )
                 return [], []
             
             if len(csv_files) > 1:
-                debug_logger(message=f"🟡 Warning: Found multiple .csv files. Processing all of them.")
+                debug_logger(message=f"⚠️ Found multiple .csv files. Processing all of them.")
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
-                        message=f"🟢️️️🟡 Found multiple CSV files. Processing all of them.",
+                        message=f"⚠️ Found multiple CSV files. Processing all of them.",
                         file=current_file,
                         version=current_version,
                         function=f"{current_function}",
                         
-
 
                     )
 
@@ -549,7 +545,7 @@ def Marker_convert_wwb_zip_report_to_csv(file_path):
                             }
                             csv_data.append(row_data)
                             if app_constants.global_settings['debug_enabled']:
-                                debug_logger(message=f"Added ZIP CSV row: {row_data}",
+                                debug_logger(message=f"✅ Added ZIP CSV row: {row_data}",
                                             file=current_file,
                                             version=current_version,
                                             function=f"{current_function}",
@@ -559,7 +555,7 @@ def Marker_convert_wwb_zip_report_to_csv(file_path):
                         except (ValueError, IndexError):
                             # Skip rows that are not valid frequency data
                             if app_constants.global_settings['debug_enabled']:
-                                debug_logger(message=f"Skipping non-frequency data row: {row}",
+                                debug_logger(message=f"⏩ Skipping non-frequency data row: {row}",
                                             file=current_file,
                                             version=current_version,
                                             function=f"{current_function}",
@@ -573,28 +569,26 @@ def Marker_convert_wwb_zip_report_to_csv(file_path):
     except FileNotFoundError:
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
-                message=f"❌ Error: The file '{file_path}' was not found.",
+                message=f"❌ The file '{file_path}' was not found.",
                 file=current_file,
                 version=current_version,
                 function=current_function,
                 
 
-
             )
-        debug_logger(message=f"🔴 ERROR: The file '{file_path}' was not found.")
+        debug_logger(message=f"❌ The file '{file_path}' was not found.")
         return [], []
     except zipfile.BadZipFile:
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
-                message=f"❌ Error: The file '{file_path}' is not a valid zip archive.",
+                message=f"❌ The file '{file_path}' is not a valid zip archive.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
                 
 
-
             )
-        debug_logger(message=f"🔴 ERROR: The file '{file_path}' is not a valid zip archive.")
+        debug_logger(message=f"❌ The file '{file_path}' is not a valid zip archive.")
         return [], []
     except Exception as e:
         if app_constants.global_settings['debug_enabled']:
@@ -605,9 +599,8 @@ def Marker_convert_wwb_zip_report_to_csv(file_path):
                 function=f"{current_function}",
                 
 
-
             )
-        debug_logger(message=f"🔴 ERROR: Failed to convert ZIP file. {e}")
+        debug_logger(message=f"❌ Failed to convert ZIP file. {e}")
         return [], []
     
 def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
@@ -639,7 +632,7 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
     current_file = os.path.basename(__file__)
 
     if app_constants.global_settings['debug_enabled']:
-        debug_logger(message=f"Starting PDF report conversion for '{os.path.basename(pdf_file_path)}'.",  file=current_file, version=current_version, function=current_function, 
+        debug_logger(message=f"▶️ Starting PDF report conversion for '{os.path.basename(pdf_file_path)}'.",  file=current_file, version=current_version, function=current_function, 
 
 )
 
@@ -651,14 +644,14 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
             last_known_group = "Uncategorized" # Default group if not found
             
             if app_constants.global_settings['debug_enabled']:
-                debug_logger(message=f"Opened PDF with {len(pdf.pages)} pages.",  file=current_file, version=current_version, function=current_function, 
+                debug_logger(message=f"📄 Opened PDF with {len(pdf.pages)} pages.",  file=current_file, version=current_version, function=current_function, 
 
 )
 
             for page_num, page in enumerate(pdf.pages):
         
                 if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"Processing Page {page_num + 1}...",  file=current_file, version=current_version, function=current_function, 
+                    debug_logger(message=f"▶️ Processing Page {page_num + 1}...",  file=current_file, version=current_version, function=current_function, 
 
 )
                 # Extract text for group headers
@@ -670,7 +663,7 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
 
                 tables = page.extract_tables()
                 if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"Found {len(tables)} tables on Page {page_num + 1}.",  file=current_file, version=current_version, function=current_function, 
+                    debug_logger(message=f"🔍 Found {len(tables)} tables on Page {page_num + 1}.",  file=current_file, version=current_version, function=current_function, 
 
 )
 
@@ -683,7 +676,7 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
                     current_zone = last_known_group # PDF Group -> CSV ZONE
         
                     if app_constants.global_settings['debug_enabled']:
-                        debug_logger(message=f"Processing Table {table_num + 1} for Zone: {current_zone}",  file=current_file, version=current_version, function=current_function, 
+                        debug_logger(message=f"▶️ Processing Table {table_num + 1} for Zone: {current_zone}",  file=current_file, version=current_version, function=current_function, 
 
 )
 
@@ -693,7 +686,7 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
 
                         if "Model" in row[0] and "Frequency" in row[-1]: # Skip header rows
                             if app_constants.global_settings['debug_enabled']:
-                                debug_logger(message=f"Skipping header row: {row}",  file=current_file, version=current_version, function=current_function, 
+                                debug_logger(message=f"⏩ Skipping header row: {row}",  file=current_file, version=current_version, function=current_function, 
 
 )
                             continue
@@ -707,7 +700,7 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
 
                         if model_pdf.strip() == current_zone.strip(): # Skip rows that mistakenly repeat the group name
                             if app_constants.global_settings['debug_enabled']:
-                                debug_logger(message=f"Skipping duplicate group name row: {row}",  file=current_file, version=current_version, function=current_function, 
+                                debug_logger(message=f"⏩ Skipping duplicate group name row: {row}",  file=current_file, version=current_version, function=current_function, 
 
 )
                             continue
@@ -731,13 +724,13 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
                             # The frequency is already in MHz, so no conversion needed
                             freq_MHz_csv = float(frequency_pdf_str)
                             if app_constants.global_settings['debug_enabled']:
-                                debug_logger(message=f"PDF Freq conversion: '{frequency_pdf_str}' -> {freq_MHz_csv} MHz",  file=current_file, version=current_version, function=current_function, 
+                                debug_logger(message=f"↔️ PDF Freq conversion: '{frequency_pdf_str}' -> {freq_MHz_csv} MHz",  file=current_file, version=current_version, function=current_function, 
 
 )
                         except ValueError:
         
                             if app_constants.global_settings['debug_enabled']:
-                                debug_logger(message=f"PDF Freq conversion error: '{frequency_pdf_str}'",  file=current_file, version=current_version, function=current_function, 
+                                debug_logger(message=f"❌ PDF Freq conversion error: '{frequency_pdf_str}'",  file=current_file, version=current_version, function=current_function, 
 
 )
                             freq_MHz_csv = "Invalid Frequency"
@@ -752,12 +745,12 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
                             "PEAK": np.nan # NEW: Added Peak column
                         })
                         if app_constants.global_settings['debug_enabled']:
-                            debug_logger(message=f"Added PDF row: {csv_data[-1]}",  file=current_file, version=current_version, function=current_function, 
+                            debug_logger(message=f"✅ Added PDF row: {csv_data[-1]}",  file=current_file, version=current_version, function=current_function, 
 
 )
         
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message=f"Finished PDF report conversion. Extracted {len(csv_data)} rows.",  file=current_file, version=current_version, function=current_function, 
+            debug_logger(message=f"✅ Finished PDF report conversion. Extracted {len(csv_data)} rows.",  file=current_file, version=current_version, function=current_function, 
 
 )
         return headers, csv_data
@@ -765,14 +758,14 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
     except FileNotFoundError:
         
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message=f"🔴 ERROR: The file '{pdf_file_path}' was not found.",  file=current_file, version=current_version, function=current_function, 
+            debug_logger(message=f"❌ The file '{pdf_file_path}' was not found.",  file=current_file, version=current_version, function=current_function, 
 
 )
         raise FileNotFoundError(f"The file '{pdf_file_path}' was not found.")
     except Exception as e:
         
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message=f"🔴 ERROR during PDF conversion data extraction: {e}",  file=current_file, version=current_version, function=current_function, 
+            debug_logger(message=f"❌ Error during PDF conversion data extraction: {e}",  file=current_file, version=current_version, function=current_function, 
 
 )
         raise
@@ -792,12 +785,11 @@ def Marker_convert_csv_unknow_report_to_csv(file_path):
     current_function = inspect.currentframe().f_code.co_name
     if app_constants.global_settings['debug_enabled']:
         debug_logger(
-            message=f"🟢️️️🟢 Starting best-effort CSV conversion for: {file_path}",
+            message=f"▶️ Starting best-effort CSV conversion for: {file_path}",
             file=current_file,
             version=current_version,
             function=current_function,
             
-
 
         )
     
@@ -863,19 +855,17 @@ def Marker_convert_csv_unknow_report_to_csv(file_path):
                 function=current_function,
                 
 
-
             )
         return standard_headers, processed_data
   
     except FileNotFoundError:
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
-                message=f"❌ Error: The file '{file_path}' was not found.",
+                message=f"❌ The file '{file_path}' was not found.",
                 file=current_file,
                 version=current_version,
                 function=current_function,
                 
-
 
             )
         return [], []
@@ -887,7 +877,6 @@ def Marker_convert_csv_unknow_report_to_csv(file_path):
                 version=current_version,
                 function=current_function,
                 
-
 
             )
         return [], []
@@ -913,12 +902,11 @@ def Marker_convert_SB_v2_PDF_File_report_to_csv(pdf_file_path):
     
     if app_constants.global_settings['debug_enabled']:
         debug_logger(
-            message=f"🟢️️️🟢 Starting PDF (Sound Base v2) report conversion for: {os.path.basename(pdf_file_path)}",
+            message=f"▶️ Starting PDF (Sound Base v2) report conversion for: {os.path.basename(pdf_file_path)}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
             
-
 
         )
     
@@ -984,12 +972,11 @@ def Marker_convert_SB_v2_PDF_File_report_to_csv(pdf_file_path):
     except FileNotFoundError:
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
-                message=f"❌ Error: The file '{pdf_file_path}' was not found.",
+                message=f"❌ The file '{pdf_file_path}' was not found.",
                 file=current_file,
                 version=current_version,
                 function=current_function,
                 
-
 
             )
         return [], []
@@ -1001,7 +988,6 @@ def Marker_convert_SB_v2_PDF_File_report_to_csv(pdf_file_path):
                 version=current_version,
                 function=current_function,
                 
-
 
             )
         return [], []

@@ -17,7 +17,7 @@ import pyvisa
 import inspect
 from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
-from workers.mqtt.setup.config_reader import Config
+from workers.setup.config_reader import Config
 
 app_constants = Config.get_instance()
 

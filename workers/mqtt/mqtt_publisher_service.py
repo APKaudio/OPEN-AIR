@@ -31,6 +31,6 @@ def publish_json_structure(base_topic: str, json_data: dict):
     if client and client.is_connected():
         payload = orjson.dumps(json_data)
         client.publish(base_topic, payload, retain=True)
-        debug_logger(message=f"Published JSON structure to {base_topic}", **_get_log_args())
+        debug_logger(message=f"📤 Published JSON structure to {base_topic}", **_get_log_args())
     else:
         debug_logger(message=f"❌ Not connected to broker. Cannot publish JSON structure to {base_topic}.", **_get_log_args())

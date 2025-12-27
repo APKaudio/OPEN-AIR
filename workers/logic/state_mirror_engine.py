@@ -13,7 +13,7 @@ import uuid
 import time
 from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
-from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+from workers.setup.config_reader import Config # Import the Config class                                                                          
 from workers.mqtt import mqtt_publisher_service
 
 app_constants = Config.get_instance() # Get the singleton instance      
@@ -116,7 +116,7 @@ class StateMirrorEngine:
             
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"DEBUG: Payload JSON to be published from StateMirrorEngine: {payload_json}",
+                    message=f"📦 Payload JSON to be published from StateMirrorEngine: {payload_json}",
                     **_get_log_args()
                 )
             mqtt_publisher_service.publish_payload(found_full_topic, payload_json)
@@ -155,7 +155,7 @@ class StateMirrorEngine:
             return
 
         mqtt_publisher_service.publish_payload(topic, payload)
-        debug_logger(message=f"Published command to topic {topic}", **_get_log_args())
+        debug_logger(message=f"📤 Published command to topic {topic}", **_get_log_args())
 
     def sync_incoming_mqtt_to_gui(self, topic, payload):
         """
@@ -178,7 +178,7 @@ class StateMirrorEngine:
             if not stripped_payload.startswith(('{', '[')):
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
-                        message=f"⚠️ Non-JSON payload received for topic '{topic}'. Payload: '{payload_str}'. Ignoring for StateMirrorEngine.",
+                        message=f"🛑 Non-JSON payload received for topic '{topic}'. Payload: '{payload_str}'. Ignoring for StateMirrorEngine.",
                         **_get_log_args()
                     )
                 return
@@ -239,6 +239,6 @@ class StateMirrorEngine:
 
         except Exception as e:
             debug_logger(
-                message=f"🔥 The Flux Capacitor is cracking! Error in sync_incoming_mqtt_to_gui: {e}",
+                message=f"❌ The Flux Capacitor is cracking! Error in sync_incoming_mqtt_to_gui: {e}",
                 **_get_log_args()
             )

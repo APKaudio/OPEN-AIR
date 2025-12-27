@@ -1,11 +1,8 @@
-
 {
   "Yak_System": {
     "type": "OcaBlock",
     "description": "Yak System",
     "fields": {
-
-
   "Get": {
     "type": "OcaBlock",
     "description": "System Status and Identification",
@@ -13,16 +10,14 @@
       "Get_error_information": {
         "type": "OcaBlock",
         "description": "System Error Check",
-        "message_details": {
+        "fields": {
           "Generic_Model": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":SYSTem:ERRor?"
-          }
-        },
-        "fields": {
+          },
           "scpi_outputs": {
             "type": "OcaBlock",
             "fields": {
@@ -37,16 +32,14 @@
       "Get_identification_query": {
         "type": "OcaBlock",
         "description": "Instrument ID",
-        "message_details": {
+        "fields": {
           "Generic_Model": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": "*IDN?"
-          }
-        },
-        "fields": {
+          },
           "scpi_outputs": {
             "type": "OcaBlock",
             "fields": {
@@ -69,11 +62,9 @@
             "AES70": "OcaBooleanActuator",
  "active": true,
         "label_inactive": "Update Display",
-        "message_details": {
-          "Generic_Model": {
-            "trigger": false,
-            "value": ":SYSTem:DISPlay:UPDate"
-          }
+        "Generic_Model": {
+          "trigger": false,
+          "value": ":SYSTem:DISPlay:UPDate"
         }
       },
       "Maintenance_Commands": {
@@ -85,35 +76,29 @@
             "AES70": "OcaBooleanActuator",
  "active": true,
             "label_inactive": "Clear Status (*CLS)",
-            "message_details": {
-              "Generic_Model": {
-                "trigger": false,
-                "value": "*CLS"
-              }
+            "Generic_Model": {
+              "trigger": false,
+              "value": "*CLS"
             }
           },
           "Do_Reset": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "label_inactive": "Reset Device (*RST)",
-            "message_details": {
-              "Generic_Model": {
-                "trigger": false,
-                "value": "*RST"
-              }
+            "Generic_Model": {
+              "trigger": false,
+              "value": "*RST"
             }
           },
           "Do_Power_Cycle": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "label_inactive": "Power Cycle",
-            "message_details": {
-              "Generic_Model": {
-                "trigger": false,
-                "value": ":SYSTem:POWer:RESet"
-              }
+            "Generic_Model": {
+              "trigger": false,
+              "value": ":SYSTem:POWer:RESet"
             }
           }
         }

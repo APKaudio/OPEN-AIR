@@ -6,7 +6,7 @@
 import os
 import time
 from datetime import datetime
-from workers.mqtt.setup.config_reader import Config 
+from workers.setup.config_reader import Config 
 
 app_constants = Config.get_instance() 
 
@@ -50,6 +50,9 @@ def debug_logger(message: str, **kwargs):
     # Note: The buffer logic generates its own timestamp, but for screen printing we need one now.
     current_ts = f"{time.time():.6f}"
     
+    is_error = "ERROR" in message or "❌" in message
+    level = "❌" if is_error else "🦆"
+
     # 1. TERMINAL OUTPUT (Immediate & Formatted)
     if app_constants.global_settings.get('debug_to_terminal', True):
         # Extract context
@@ -60,11 +63,14 @@ def debug_logger(message: str, **kwargs):
         clean_context = _clean_context_string(c_file, c_func)
         
         # Format: Timestamp Icon CleanContext Message
-        # Matches: 1766723800.674347 💬 dynamicguicreatelabelfromconfig Message
-        print(f"{current_ts}💬{message}{clean_context}")
+        print(f"{current_ts} {message} {level} {clean_context}")
     
     # 2. FILE/BUFFER OUTPUT
-    _process_and_buffer_log_message("💬 ", message, kwargs)
+    _process_and_buffer_log_message(f"{level} ", message, kwargs)
+    
+    # 3. WRITE TO ERROR LOG
+    if is_error:
+        _write_to_error_log(current_ts, level, message, kwargs)
 
 def console_log(message: str):
     """
@@ -72,7 +78,7 @@ def console_log(message: str):
     """
     current_ts = f"{time.time():.6f}"
     # Console logs usually don't have deep context
-    print(f"{current_ts}\n🖥️{message}")
+    print(f"{current_ts}🖥️{message}")
     _process_and_buffer_log_message("🖥️", message, {})
 
 # --- Alias for compatibility ---
@@ -108,7 +114,7 @@ def _clean_context_string(c_file, c_func):
 
     # 4. Combine
     # If we have a function, append it. 
-    combined = f"{clean_file}/{clean_func}"
+    combined = f"{clean_file}🪿 {clean_func}"
     
     # Return with a trailing space so it separates from the message
     return f"{combined} "
@@ -125,26 +131,46 @@ def _write_to_file(timestamp, level, message, context_data):
         # 2. Extract Context (File, Function)
         c_file = context_data.get('file', '?')
         c_func = context_data.get('function', '?')
+        clean_context = _clean_context_string(c_file, c_func)
+        
+        clean_level = level.strip() 
+
+        log_entry = f"{timestamp} {message} {clean_level} {clean_context}"
+        
+        # Append extras if they exist (excluding file/function since we used them)
+        extras = {k: v for k, v in context_data.items() if k not in ['file', 'function']}
+        if extras:
+            log_entry += f" 🧩 {extras}"
 
         with open(file_path, "a", encoding="utf-8") as f:
-            # Format: Timestamp Level CleanContext Message
-            # Note: Level usually contains the icon and space, e.g., "💬 "
-            
-            clean_context = _clean_context_string(c_file, c_func)
-            
-            # The 'level' var comes in with a space usually ("💬 "), so we strip it to control spacing manually
-            # or just trust the input. The user wants: Timestamp 💬 CleanName
-            
-            clean_level = level.strip() 
-
-            log_entry = f"{timestamp}{message}{clean_level}{clean_context}"
-            
-            # Append extras if they exist (excluding file/function since we used them)
-            extras = {k: v for k, v in context_data.items() if k not in ['file', 'function']}
-            if extras:
-                log_entry += f" 🧩 {extras}"
-
             f.write(log_entry + "\n")
             
     except Exception as e:
         print(f"❌ Critical Failure writing to log: {e}")
+
+def _write_to_error_log(timestamp, level, message, context_data):
+    """Helper to write error messages to a separate ERRORS.log file."""
+    try:
+        if not _log_directory:
+            return
+
+        error_log_filename = "ERRORS.log"
+        file_path = os.path.join(_log_directory, error_log_filename)
+        
+        c_file = context_data.get('file', '?')
+        c_func = context_data.get('function', '?')
+        clean_context = _clean_context_string(c_file, c_func)
+        
+        clean_level = level.strip()
+
+        log_entry = f"{timestamp}{message} {clean_level} {clean_context}"
+        
+        extras = {k: v for k, v in context_data.items() if k not in ['file', 'function']}
+        if extras:
+            log_entry += f" 🧩 {extras}"
+
+        with open(file_path, "a", encoding="utf-8") as f:
+            f.write(log_entry + "\n")
+            
+    except Exception as e:
+        print(f"❌ Critical Failure writing to error log: {e}")

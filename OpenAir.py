@@ -1,10 +1,20 @@
+import sys
+import os
+import pathlib
+
+# Get the directory of the current script (OpenAir.py)
+current_script_dir = pathlib.Path(__file__).resolve().parent
+
+# Add the project root (which is current_script_dir in this case) to sys.path
+if str(current_script_dir) not in sys.path:
+    sys.path.insert(0, str(current_script_dir))
+
 import inspect
 import tkinter as tk
-import pathlib
 import importlib   
 
 # --- Custom Module Imports (Config MUST be read first) ---
-from workers.mqtt.setup.config_reader import Config # Import the Config class
+from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance and ensure config is read
 
 # --- Core Application Imports ---
@@ -39,7 +49,7 @@ def action_open_display(root, splash, mqtt_connection_manager, subscriber_router
     screen remains responsive by updating the event loop between heavy steps.
     """
     current_function_name = inspect.currentframe().f_code.co_name
-    debug_logger(message=f"DEBUG: entering {current_function_name}", **_get_log_args())
+    debug_logger(message=f"▶️ Entering {current_function_name}", **_get_log_args())
 
     try:
         # Each step is followed by root.update() to process events and keep the splash screen alive.
@@ -49,7 +59,7 @@ def action_open_display(root, splash, mqtt_connection_manager, subscriber_router
         ApplicationModule = importlib.import_module("display.gui_display")
         Application = getattr(ApplicationModule, "Application")
         
-        debug_logger(message=f"DEBUG: Preparing to instantiate Application with: mqtt_connection_manager={mqtt_connection_manager}, subscriber_router={subscriber_router}, state_mirror_engine={state_mirror_engine}", **_get_log_args())
+        debug_logger(message=f"⚙️ Preparing to instantiate Application with: mqtt_connection_manager={mqtt_connection_manager}, subscriber_router={subscriber_router}, state_mirror_engine={state_mirror_engine}", **_get_log_args())
         # This is the primary long-running GUI task.
         # We pass the root window to the Application so it can call update() internally.
         app = Application(parent=root, root=root,
@@ -152,7 +162,7 @@ def main():
         sys.exit(1)
 
     # Debug: Inspect managers dictionary
-    debug_logger(message=f"DEBUG: Managers launched: {managers}", **_get_log_args())
+    debug_logger(message=f"✅ Managers launched: {managers}", **_get_log_args())
 
     # Now that the splash screen is visible, proceed with building the main display.
     app = action_open_display(root, splash,

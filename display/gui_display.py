@@ -15,7 +15,7 @@
 #
 # Version 20251226.000000.1
 
-from workers.mqtt.setup.config_reader import Config # Import the Config class
+from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 
 # 📚 Python's standard library modules are our trusty sidekicks!
@@ -111,7 +111,7 @@ class Application(ttk.Frame):
             # Critical errors should always log, even if debug is off (optional, but good practice)
             # using print as fallback if logging fails
             error_msg = f"❌ Critical Error during application initialization: {e}"
-            print(error_msg) 
+
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
                     message=f"{error_msg}\nFull Traceback:\n{traceback.format_exc()}",
@@ -250,7 +250,7 @@ class Application(ttk.Frame):
         # ⚡ OPTIMIZATION: Guarded Log Call
         if app_constants.global_settings['debug_enabled']:
              debug_logger( 
-                message=f"▶️ _build_from_directory for path: '{path}'",
+                message=f"🏗️ _build_from_directory for path: '{path}'",
                 **_get_log_args()
             )
 

@@ -6,7 +6,7 @@
 import tkinter as tk
 from tkinter import ttk
 import math
-from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+from workers.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.logger.logger import  debug_logger
@@ -108,7 +108,7 @@ class PannerCreatorMixin:
             return frame
 
         except Exception as e:
-            debug_logger(message=f"💥 KABOOM! The panner '{label}' shattered! Error: {e}")
+            debug_logger(message=f"❌ The panner '{label}' shattered! Error: {e}")
             return None
 
     def _draw_knob(self, canvas, width, height, value, min_val, max_val, fg, accent, secondary):

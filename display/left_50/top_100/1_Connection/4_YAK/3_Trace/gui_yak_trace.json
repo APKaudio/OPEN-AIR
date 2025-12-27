@@ -14,16 +14,14 @@
       "NAB_traces_1_2_3_N9340B": {
         "type": "OcaBlock",
         "description": "Primary Trace Monitoring",
-        "message_details": {
+        "fields": {
           "N9340B": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe1:MODE?;:TRACe2:MODE?;:TRACe3:MODE?;:TRACe1:DATA?;:TRACe2:DATA?;:TRACe3:DATA?"
-          }
-        },
-        "fields": {
+          },
           "scpi_outputs": {
             "type": "OcaBlock",
             "description": "Trace Settings and Data",
@@ -67,16 +65,14 @@
       "NAB_traces_1_2_3_N9342CN": {
         "type": "OcaBlock",
         "description": "Primary Trace Monitoring",
-        "message_details": {
+        "fields": {
           "N9342CN": {
-            "type":"_GuiActuator",
+            "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRACe:DATA? TRACE1;:TRACe:DATA? TRACE2;:TRACe:DATA? TRACE3;"
-          }
-        },
-        "fields": {
+          },
           "scpi_outputs": {
             "type": "OcaBlock",
             "description": "Trace Settings and Data",
@@ -125,16 +121,14 @@
     "fields": {
       "Get_Trace_1_Data_N9340B": {
         "type": "OcaBlock",
-        "message_details": {
+        "fields": {
           "N9340B": {
             "type":"_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":TRACe<trace_number>:DATA?"
-          }
-        },
-        "fields": {
+          },
           "scpi_inputs": {
             "type": "OcaBlock",
             "fields": {
@@ -158,16 +152,14 @@
       },
       "Get_Trace_1_Data_N9342CN": {
         "type": "OcaBlock",
-        "message_details": {
+        "fields": {
           "N9342CN": {
             "type":"_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":TRACe:DATA? TRACE<trace_number>"
-          }
-        },
-        "fields": {
+          },
           "scpi_inputs": {
             "type": "OcaBlock",
             "fields": {
@@ -191,16 +183,14 @@
       },
       "Get_Trace_2_Data_N9340B": {
         "type": "OcaBlock",
-        "message_details": {
+        "fields": {
           "N9340B": {
             "type":"_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":TRACe<trace_number>:DATA?"
-          }
-        },
-        "fields": {
+          },
           "scpi_inputs": {
             "type": "OcaBlock",
             "fields": {
@@ -223,16 +213,14 @@
       },
       "Get_Trace_2_Data_N9342CN": {
         "type": "OcaBlock",
-        "message_details": {
+        "fields": {
           "N9342CN": {
             "type":"_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":TRACe:DATA? TRACE<trace_number>"
-          }
-        },
-        "fields": {
+          },
           "scpi_inputs": {
             "type": "OcaBlock",
             "fields": {
@@ -255,16 +243,14 @@
       },
       "Get_Trace_3_Data_N9340B": {
         "type": "OcaBlock",
-        "message_details": {
+        "fields": {
           "N9340B": {
             "type":"_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":TRACe<trace_number>:DATA?"
-          }
-        },
-        "fields": {
+          },
           "scpi_inputs": {
             "type": "OcaBlock",
             "fields": {
@@ -287,16 +273,14 @@
       },
       "Get_Trace_3_Data_N9342CN": {
         "type": "OcaBlock",
-        "message_details": {
+        "fields": {
           "N9342CN": {
             "type":"_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":TRACe:DATA? TRACE<trace_number>"
-          }
-        },
-        "fields": {
+          },
           "scpi_inputs": {
             "type": "OcaBlock",
             "fields": {
@@ -319,16 +303,14 @@
       },
       "Get_Trace_4_Data_N9340B": {
         "type": "OcaBlock",
-        "message_details": {
+        "fields": {
           "N9340B": {
             "type":"_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":TRACe<trace_number>:DATA?"
-          }
-        },
-        "fields": {
+          },
           "scpi_inputs": {
             "type": "OcaBlock",
             "fields": {
@@ -351,16 +333,14 @@
       },
       "Get_Trace_4_Data_N9342CN": {
         "type": "OcaBlock",
-        "message_details": {
+        "fields": {
           "N9342CN": {
             "type":"_GuiActuator",
             "AES70": "OcaBooleanActuator",
- "active": true,
+            "active": true,
             "trigger": false,
             "value": ":TRACe:DATA? TRACE<trace_number>"
-          }
-        },
-        "fields": {
+          },
           "scpi_inputs": {
             "type": "OcaBlock",
             "fields": {

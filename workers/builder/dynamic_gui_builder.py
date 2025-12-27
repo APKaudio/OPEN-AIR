@@ -20,7 +20,7 @@ import time
 from workers.logger.logger import  debug_logger
 from workers.styling.style import THEMES, DEFAULT_THEME
 from workers.builder.input.dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
-from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+from workers.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.utils.topic_utils import get_topic

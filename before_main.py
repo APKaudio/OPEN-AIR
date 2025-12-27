@@ -1,6 +1,6 @@
 # OPEN-AIR/before_main.py
 #
-from workers.mqtt.setup.config_reader import Config # Import the Config class
+from workers.setup.config_reader import Config # Import the Config class
 import os
 import sys
 import inspect

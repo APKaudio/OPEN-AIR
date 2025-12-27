@@ -6,7 +6,7 @@ import sys
 import importlib.util
 import pathlib
 from tkinter import ttk, Frame
-from workers.mqtt.setup.config_reader import Config # Import the Config class                                                                          
+from workers.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.logger.logger import  debug_logger # Import the global debug_log
@@ -51,7 +51,7 @@ class ModuleLoader:
             if spec is None:
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
-                        message=f"🔬🔴 Catastrophic failure! Could not forge a module spec for '{module_path}'. Aborting mission!",
+                        message=f"❌ Catastrophic failure! Could not forge a module spec for '{module_path}'. Aborting mission!",
                         **_get_log_args()
                     )
                 return None
@@ -62,7 +62,7 @@ class ModuleLoader:
             if module_name in sys.modules:
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
-                        message=f"🔬🟡 Temporal anomaly detected! Module '{module_name}' already exists. Overwriting with extreme prejudice (and a warning!).",
+                        message=f"⚠️ Temporal anomaly detected! Module '{module_name}' already exists. Overwriting with extreme prejudice (and a warning!).",
                         **_get_log_args()
                     )
             sys.modules[module_name] = module
@@ -77,7 +77,7 @@ class ModuleLoader:
         except Exception as e:
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"🔬🔴 The module, it resists! Error loading module '{module_path}': {e}. A setback, but not defeat!",
+                    message=f"❌ The module, it resists! Error loading module '{module_path}': {e}. A setback, but not defeat!",
                     **_get_log_args()
                 )
             return None
@@ -131,14 +131,14 @@ class ModuleLoader:
                 
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
-                        message=f"🔬✅ Class '{target_class.__name__}' materialized for parent '{parent_widget}'. The creation ritual is complete!",
+                        message=f"✨ Class '{target_class.__name__}' materialized...",
                         **_get_log_args()
                     )
                 return instance
             except Exception as e:
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
-                        message=f"🔬🔴 The magic falters! Error instantiating class '{target_class.__name__}': {e}. A design flaw, perhaps?",
+                        message=f"❌ The magic falters! Error instantiating class '{target_class.__name__}': {e}. A design flaw, perhaps?",
                         **_get_log_args()
                     )
                 return None
@@ -146,13 +146,13 @@ class ModuleLoader:
             if class_filter:
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
-                        message=f"🔬🟡 The desired specimen is elusive! GUI class '{class_filter}' not found in module '{module.__name__}'.",
+                        message=f"⚠️ The desired specimen is elusive! GUI class '{class_filter}' not found in module '{module.__name__}'.",
                         **_get_log_args()
                     )
             else:
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
-                        message=f"🔬🟡 No suitable blueprint found! No GUI class (subclass of Frame) in module '{module.__name__}'.",
+                        message=f"⚠️ No suitable blueprint found! No GUI class (subclass of Frame) in module '{module.__name__}'.",
                         **_get_log_args()
                     )
             return None
@@ -165,7 +165,7 @@ class ModuleLoader:
         current_function_name = inspect.currentframe().f_code.co_name
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
-                message=f"🔬🟢 Entering '{current_function_name}'. Preparing to transmogrify a GUI from path: '{path}'!",
+                message=f"🧙‍♂️ Entering 'load_and_instantiate_gui'.",
                 **_get_log_args()
             )
 
@@ -180,7 +180,7 @@ class ModuleLoader:
             else:
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
-                        message=f"🔬🟡 The directory '{path}' is barren! No 'gui_*.py' files found. Skipping this segment.",
+                        message=f"⚠️ The directory '{path}' is barren! No 'gui_*.py' files found. Skipping this segment.",
                         **_get_log_args()
                     )
                 return None
@@ -190,7 +190,7 @@ class ModuleLoader:
         else:
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"🔬🔴 Path '{path}' is a conundrum! Not a valid directory or 'gui_*.py' file for module loading. My sensors are baffled!",
+                    message=f"❌ Path '{path}' is a conundrum! Not a valid directory or 'gui_*.py' file for module loading. My sensors are baffled!",
                     **_get_log_args()
                 )
             return None
