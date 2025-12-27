@@ -58,16 +58,18 @@ class StateMirrorEngine:
             callback_func=self.sync_incoming_mqtt_to_gui
         )
 
-    def register_widget(self, widget_id, tk_variable, tab_name):
+    def register_widget(self, widget_id, tk_variable, tab_name, config):
         """
         Registers a widget to be tracked by the engine.
+        Now also stores the full config dictionary for the widget.
         """
         # (Existing logic to register widget...)
         full_topic = topic_utils.get_topic(self.base_topic, tab_name, widget_id)
         self.registered_widgets[full_topic] = {
             "var": tk_variable,
             "tab": tab_name,
-            "id": widget_id
+            "id": widget_id,
+            "config": config # Store the config here
         }
         
         # Also subscribe explicitly to this specific topic if the router requires exact matches

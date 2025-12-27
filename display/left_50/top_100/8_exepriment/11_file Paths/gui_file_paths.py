@@ -25,15 +25,9 @@ from tkinter import ttk
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 import pathlib
 
-# --- Global Scope Variables ---
-current_version = "20251127.000000.1"
-current_version_hash = (20251127 * 0 * 1)
-current_file = f"{os.path.basename(__file__)}"
+# --- Fully Dynamic Resolution ---
 current_path = pathlib.Path(__file__).resolve()
-JSON_CONFIG_FILE = current_path.with_suffix('.json')
-
-
-
+# JSON_CONFIG_FILE = current_path.with_suffix('.json') # No longer loading from external JSON
 
 class PresetPusherGui(ttk.Frame):
     """
@@ -44,17 +38,33 @@ class PresetPusherGui(ttk.Frame):
         """
         Initializes the Presets frame and the dynamic GUI builder.
         """
-        config = kwargs.pop('config', None) # Correctly retrieve config from kwargs
+        config_from_kwargs = kwargs.pop('config', {}) # Store original config to extract necessary parts
         super().__init__(parent, *args, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
 
-        self.config_data = config # Store the config for later use
+        # Extract state_mirror_engine and subscriber_router from the config dictionary
+        self.state_mirror_engine = config_from_kwargs.get('state_mirror_engine')
+        self.subscriber_router = config_from_kwargs.get('subscriber_router')
 
+        # Define a default internal configuration
+        self.config_data = {
+            "Generic_Display_Block": {
+                "type": "OcaBlock",
+                "description": "Dynamic Content for File Paths",
+                "fields": {
+                    "message": {
+                        "type": "_Label",
+                        "label_active": f"No specific JSON configuration found for file paths. Displaying default content."
+                    }
+                }
+            }
+        }
+        
         # --- Dynamic GUI Builder ---
         # Create an instance of the new, corrected, and modular builder,
         # passing the specific base topic for this GUI component.
         self.dynamic_gui = DynamicGuiBuilder(
             parent=self,
-            json_path=JSON_CONFIG_FILE,
-            config=self.config_data
+            json_path=None, # No external JSON file to load for this wrapper
+            config=self.config_data # Pass ONLY the serializable config data
         )

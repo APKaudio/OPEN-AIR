@@ -1,8 +1,4 @@
 {
-  "Yak_Markers": {
-    "type": "OcaBlock",
-    "description": "Yak Markers",
-    "fields": {
   "nab": {
     "type": "OcaBlock",
     "description": "NAB Marker Monitoring",
@@ -152,4 +148,4 @@
       }
     }
   }
-}}}
+}

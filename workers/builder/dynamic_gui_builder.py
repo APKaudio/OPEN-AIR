@@ -106,22 +106,28 @@ class DynamicGuiBuilder(
                  function=f"{self.current_class_name}.{current_function_name}"
              )
 
+        # Handle json_path directly in init
         if json_path is None:
-            debug_logger(message=f"❌ Error in __init__: Missing critical argument: json_path.")
-            return
+            self.json_filepath = None
+            self.config_data = {} # Initialize to empty if no external JSON is loaded
+        else:
+            self.json_filepath = Path(json_path)
+            self.config_data = {} # Initialize to empty, will be populated by _load_and_build_from_file
 
         self.pack(fill=tk.BOTH, expand=True)
-        self.json_filepath = Path(json_path)
         self.topic_widgets = {}
-        self.config_data = {}
         self.gui_built = False
         #self.mqtt_callbacks = {}
 
         # --- Calculate base MQTT topic from file path ---
-        if GLOBAL_PROJECT_ROOT is None:
+        if self.json_filepath is None:
+            self.base_mqtt_topic_from_path = "GENERIC_GUI_TOPIC"
+            if app_constants.global_settings['debug_enabled']:
+                 debug_logger(message=f"🔍 Using generic base MQTT topic: {self.base_mqtt_topic_from_path} (no specific JSON path provided)", **_get_log_args())
+        elif GLOBAL_PROJECT_ROOT is None: # json_filepath is not None, but root is.
             debug_logger(message="❌ GLOBAL_PROJECT_ROOT not initialized when DynamicGuiBuilder created. Cannot generate path-based topic.", **_get_log_args())
             self.base_mqtt_topic_from_path = "FALLBACK_TOPIC" # Fallback topic
-        else:
+        else: # Both json_filepath and GLOBAL_PROJECT_ROOT are valid
             self.base_mqtt_topic_from_path = generate_topic_path_from_filepath(self.json_filepath, GLOBAL_PROJECT_ROOT)
             if app_constants.global_settings['debug_enabled']:
                  debug_logger(message=f"🔍 Generated base MQTT topic for {self.json_filepath.name}: {self.base_mqtt_topic_from_path}", **_get_log_args())
@@ -184,7 +190,14 @@ class DynamicGuiBuilder(
 
             ttk.Button(self.button_frame, text="Reload Config", command=self._force_rebuild_gui).pack(side=tk.LEFT, pady=10)
 
-            self._load_and_build_from_file()
+            # Only load from file if json_filepath is not None
+            if self.json_filepath is not None:
+                self._load_and_build_from_file()
+            else:
+                # If json_filepath is None, it means config_data was provided internally
+                # or is expected to be empty. Proceed directly to build.
+                self._rebuild_gui()
+                self.gui_built = True
 
         except Exception as e:
             debug_logger(message=f"❌ Error in __init__: {e}")
@@ -271,6 +284,14 @@ class DynamicGuiBuilder(
         self._load_and_build_from_file()
 
     def _load_and_build_from_file(self):
+        # Only try to load from file if json_filepath is not None
+        if self.json_filepath is None:
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"ℹ️ No external config file provided for this GUI element. Using internal config if available.", **_get_log_args())
+            self._rebuild_gui() # Use already populated self.config_data
+            self.gui_built = True
+            return
+
         try:
             if self.json_filepath.exists():
                 # ⚡ OPTIMIZATION STEP 1: READ RAW & HASH ⚡
@@ -295,9 +316,14 @@ class DynamicGuiBuilder(
                 self._rebuild_gui()
                 self.gui_built = True
             else:
-                debug_logger(message=f"🟡 Warning: Config file missing at {self.json_filepath}")
+                debug_logger(message=f"🟡 Warning: Config file missing at {self.json_filepath}", **_get_log_args())
+                # If file is missing, and no internal config was set, set empty config
+                if not self.config_data:
+                    self.config_data = {}
+                self._rebuild_gui() # Attempt to build even with empty config
+                self.gui_built = True
         except Exception as e:
-            debug_logger(message=f"❌ Error in _load_and_build_from_file: {e}")
+            debug_logger(message=f"❌ Error in _load_and_build_from_file: {e}", **_get_log_args())
 
     def _rebuild_gui(self):
         # Solution B: Silent Running Protocol (Log Suppression)
@@ -371,7 +397,7 @@ class DynamicGuiBuilder(
 
                 if widget_type == "OcaBlock":
                     block_cols = value.get("layout_columns", None)
-                    target_frame = ttk.LabelFrame(parent_frame, text=key, borderwidth=0, relief="flat")
+                    target_frame = ttk.LabelFrame(parent_frame, text=key, borderwidth=0, relief="flat") # Added borderwidth=0, relief="flat"
                     # Recursively but synchronously build sub-blocks as they are usually small.
                     self._create_dynamic_widgets(parent_frame=target_frame, data=value.get("fields", {}), path_prefix=current_path, override_cols=block_cols)
                 
@@ -387,7 +413,11 @@ class DynamicGuiBuilder(
                         "subscriber_router": self.subscriber_router       # Pass subscriber_router
                     }
 
-                    target_frame = self.widget_factory[widget_type](**factory_kwargs)
+                    try: # Added try-except
+                        target_frame = self.widget_factory[widget_type](**factory_kwargs)
+                    except Exception as e:
+                        debug_logger(message=f"❌ Error creating widget '{key}' of type '{widget_type}': {e}", **_get_log_args())
+                        target_frame = None # Ensure target_frame is None on error
 
                 if target_frame:
                     target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)
@@ -456,7 +486,7 @@ class DynamicGuiBuilder(
 
                     if widget_type == "OcaBlock":
                         block_cols = value.get("layout_columns", None)
-                        target_frame = ttk.LabelFrame(parent_frame, text=key)
+                        target_frame = ttk.LabelFrame(parent_frame, text=key, borderwidth=0, relief="flat") # Added borderwidth=0, relief="flat"
                         self._create_dynamic_widgets(parent_frame=target_frame, data=value.get("fields", {}), path_prefix=current_path, override_cols=block_cols)
                     
                     elif widget_type in self.widget_factory:
@@ -471,7 +501,11 @@ class DynamicGuiBuilder(
                             "subscriber_router": self.subscriber_router       # Pass subscriber_router
                         }
 
-                        target_frame = self.widget_factory[widget_type](**factory_kwargs)
+                        try: # Added try-except
+                            target_frame = self.widget_factory[widget_type](**factory_kwargs)
+                        except Exception as e:
+                            debug_logger(message=f"❌ Error creating synchronous widget '{key}' of type '{widget_type}': {e}", **_get_log_args())
+                            target_frame = None # Ensure target_frame is None on error
 
                     if target_frame:
                         target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)

@@ -1,8 +1,4 @@
 {
-  "Yak_System": {
-    "type": "OcaBlock",
-    "description": "Yak System",
-    "fields": {
   "Get": {
     "type": "OcaBlock",
     "description": "System Status and Identification",
@@ -105,4 +101,4 @@
       }
     }
   }
-}}}
+}

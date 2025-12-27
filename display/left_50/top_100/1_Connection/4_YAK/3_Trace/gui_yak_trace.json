@@ -1,12 +1,5 @@
 
 {
-  "Yak_Trace": {
-    "type": "OcaBlock",
-    "description": "Yak Trace",
-    "fields": {
-
-
-
   "nab": {
     "type": "OcaBlock",
     "description": "NAB Trace Monitoring",
@@ -363,4 +356,4 @@
       }
     }
   }
-}}}
+}

@@ -42,7 +42,7 @@ current_version = "20251226.000000.1"
 current_version_hash = (20251127 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
 current_path = pathlib.Path(__file__).resolve()
-JSON_CONFIG_FILE = current_path.with_suffix('.json')
+# JSON_CONFIG_FILE = current_path.with_suffix('.json')
 
 
 class PresetPusherGui(ttk.Frame):
@@ -53,35 +53,34 @@ class PresetPusherGui(ttk.Frame):
         """
         Initializes the Frequency frame and the dynamic GUI builder.
         """
-        config = kwargs.pop('config', {}) # Pop config dict from kwargs
-        self.config_data = config # Store the full config for later use, including MQTT components
-        super().__init__(parent, *args, **kwargs)
+        config_from_kwargs = kwargs.pop('config', {}) # Store original config to extract necessary parts
         
-        self.state_mirror_engine = self.config_data.get('state_mirror_engine')
-        self.subscriber_router = self.config_data.get('subscriber_router')
+        super().__init__(parent, *args, **kwargs)
+        self.pack(fill=tk.BOTH, expand=True)
+
+        # Extract state_mirror_engine and subscriber_router from the config dictionary
+        self.state_mirror_engine = config_from_kwargs.get('state_mirror_engine')
+        self.subscriber_router = config_from_kwargs.get('subscriber_router')
+
+        # Define a default internal configuration
+        self.config_data = {
+            "Generic_Display_Block": {
+                "type": "OcaBlock",
+                "description": "Dynamic Content for Application Configuration",
+                "fields": {
+                    "message": {
+                        "type": "_Label",
+                        "label_active": f"No specific JSON configuration found for application configuration. Displaying default content."
+                    }
+                }
+            }
+        }
         
         # --- Dynamic GUI Builder ---
-        current_function_name = "__init__"
-        debug_logger(
-            message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to initialize the PresetPusherGui.",
-**_get_log_args()
+        # Create an instance of the new, corrected, and modular builder,
+        # passing the specific base topic for this GUI component.
+        self.dynamic_gui = DynamicGuiBuilder(
+            parent=self,
+            json_path=None, # No external JSON file to load for this wrapper
+            config=self.config_data # Pass ONLY the serializable config data
         )
-        try:
-            self.dynamic_gui = DynamicGuiBuilder(
-                parent=self,
-                json_path=JSON_CONFIG_FILE,
-                config=self.config_data # Pass the full config dictionary
-            )
-            debug_logger(
-                message="✅ The PresetPusherGui did initialize its dynamic GUI builder.",
-              **_get_log_args()
-            )
-        except Exception as e:
-            debug_logger(
-                message=f"❌ Error in {current_function_name}: {e}",
-              **_get_log_args()
-            )
-            debug_logger(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-              **_get_log_args()
-            )

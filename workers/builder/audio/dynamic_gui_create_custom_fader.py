@@ -41,7 +41,7 @@ class CustomFaderCreatorMixin:
             # Layout logic handles size, but we need defaults for the canvas
             width = config.get("width", 60)
             height = config.get("height", 200)
-            min_val = config.get("min", 0)
+            min_val = config.get("min", -100)
             max_val = config.get("max", 100)
             value_default = float(config.get("value_default", 75)) # Ensure float
 
@@ -92,12 +92,19 @@ class CustomFaderCreatorMixin:
 
             # Register the StringVar with the StateMirrorEngine for MQTT updates
             if path:
-                state_mirror_engine.register_widget(path, fader_value_var, base_mqtt_topic_from_path)
+                state_mirror_engine.register_widget(path, fader_value_var, base_mqtt_topic_from_path, config)
                 if app_constants.global_settings['debug_enabled']:
-                    debug_logger(
-                        message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {fader_value_var.get()}).",
-                        **_get_log_args()
-                    )
+                                debug_logger(
+                                    message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {fader_value_var.get()}).",
+                                    **_get_log_args()
+                                )
+                            # Broadcast initial state
+                state_mirror_engine.broadcast_gui_change_to_mqtt(path)            
+            # The previous bugfix to publish that the fader has been built was in the wrong place.
+            # This is where it should go, before the return, and inside the try block.
+            # This now mirrors the working dynamic_gui_create_knob.py
+            subscriber_router.subscribe_to_topic(f"{base_mqtt_topic_from_path}/set", lambda msg: fader_value_var.set(float(msg.payload.decode())))
+            state_mirror_engine.publish_command(f"BUILDER/{base_mqtt_topic_from_path}/BUILD_STATUS", "True")
 
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
@@ -111,8 +118,7 @@ class CustomFaderCreatorMixin:
 
 
     def _draw_fader(self, canvas, width, height, value, min_val, max_val, track_col, handle_col):
-        canvas.delete("all")
-        
+        canvas.delete("all")        
         # Center Line
         cx = width / 2
         

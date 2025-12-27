@@ -10,7 +10,7 @@ from workers.utils.log_utils import _get_log_args
 import os
 
 class FaderCreatorMixin:
-    def _create_fader(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
+    def _create_fader(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         """Creates a fader widget."""
         current_function_name = "_create_fader"
         if app_constants.global_settings['debug_enabled']:

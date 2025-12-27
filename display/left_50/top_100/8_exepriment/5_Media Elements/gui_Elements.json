@@ -1,0 +1,30 @@
+{
+   "media_and_specialty": {
+    "type": "OcaBlock",
+    "description": "Media & Specialty Controls (2-Column Grid)",
+    "layout_columns": 2,
+    "fields": {
+      "media_panel": {
+        "type": "OcaBlock",
+        "description": "Visuals",
+        "fields": {
+            "img": { "type": "_ImageDisplay", "label_active": "Image", "image_path": "assets/images/flux_capacitor.png", "layout": {"width": 150, "height": 100} },
+            "anim_gif": { "type": "_AnimationDisplay", "label_active": "GIF Animation", "gif_path": "assets/images/time_circuits.gif", "layout": {"width": 150, "height": 100} },
+            "anim_static": { "type": "_ImageDisplay", "label_active": "GIF Static Frame", "image_path": "assets/images/time_circuits.gif.png", "layout": {"width": 150, "height": 100} }
+        }
+      },
+      "custom_controls": {
+        "type": "OcaBlock",
+        "description": "Advanced Metering & Controls",
+        "fields": {
+            "fader_standard": { "type": "_Fader", "label_active": "Standard Fader", "value_default": 50, "layout": {"height": 200, "width": 60} },
+            "needle": { "type": "_NeedleVUMeter", "label_active": "Analog VU", "value_default": -5, "min": -20, "max": 3, "size": 200 },
+            "vu_meter": { "type": "_VUMeter", "label_active": "Digital VU", "value_default": -10, "min": -40, "max": 0, "layout": {"width": 60, "height": 200} },
+            "knob_example": { "type": "_Knob", "label_active": "Knob Control", "value_default": 0.5, "min": 0.0, "max": 1.0, "resolution": 0.01, "size": 100 },
+            "panner_example": { "type": "_Panner", "label_active": "Panner Control", "value_default": 0, "min": -100, "max": 100, "size": 100 },
+            "custom_fader": { "type": "_CustomFader", "label_active": "Custom Fader", "value_default": 75, "layout": {"height": 200, "width": 60} }
+        }
+      }
+    }
+  }
+}

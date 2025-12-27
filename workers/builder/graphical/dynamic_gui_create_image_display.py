@@ -12,7 +12,7 @@ import os
 from workers.setup.path_initializer import GLOBAL_PROJECT_ROOT
 
 class ImageDisplayCreatorMixin:
-    def _create_image_display(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
+    def _create_image_display(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         """Creates an image display widget."""
         current_function_name = "_create_image_display"
         if app_constants.global_settings['debug_enabled']:

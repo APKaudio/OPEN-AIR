@@ -82,7 +82,7 @@ class ModuleLoader:
                 )
             return None
 
-    def instantiate_gui_class(self, module, parent_widget, class_filter=None):
+    def instantiate_gui_class(self, module, parent_widget, class_filter=None, module_file_path: pathlib.Path = None):
         """
         Finds and instantiates the first suitable GUI class (ttk.Frame or tk.Frame subclass)
         found in the given module. If class_filter is provided, it attempts to find that specific class.
@@ -126,6 +126,12 @@ class ModuleLoader:
                     "subscriber_router": self.subscriber_router
                 }
                 
+                # Dynamically construct the JSON path from the module's file path
+                json_config_path = None
+                if module_file_path:
+                    json_config_path = module_file_path.with_suffix('.json')
+                    config_dict['json_path'] = str(json_config_path)
+
                 # Instantiate the class, passing the config_dict explicitly
                 instance = target_class(parent_widget, config=config_dict)
                 
@@ -201,7 +207,7 @@ class ModuleLoader:
             
             if module:
                 # Instantiate the GUI class from the loaded module
-                instance = self.instantiate_gui_class(module, parent_widget, class_filter=class_filter)
+                instance = self.instantiate_gui_class(module, parent_widget, class_filter=class_filter, module_file_path=module_path)
                 return instance
         
         return None

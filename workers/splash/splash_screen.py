@@ -169,6 +169,7 @@ class SplashScreen:
     # _fade_in and _fade_out methods removed
     
     def hide(self):
+        self._safe_log("DEBUG: splash.hide() called. Attempting to dismiss splash screen.")
         # Ensure splash_window still exists before trying to interact with it
         if self.splash_window and self.splash_window.winfo_exists():
             try:
