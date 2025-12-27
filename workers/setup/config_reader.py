@@ -58,7 +58,7 @@ class Config:
         Reads configuration from config.ini and updates instance attributes.
         """
         config = configparser.ConfigParser()
-        project_root = pathlib.Path(__file__).parent.parent.parent.parent
+        project_root = pathlib.Path(__file__).resolve().parent.parent.parent
         config_path = project_root / 'config.ini'
 
         if config_path.exists():

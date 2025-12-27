@@ -10,7 +10,7 @@ from workers.utils.log_utils import _get_log_args
 import os
 
 class IncDecButtonsCreatorMixin:
-        def _create_inc_dec_buttons(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
+        def _create_inc_dec_buttons(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
             """Creates increment/decrement buttons."""
             current_function_name = "_create_inc_dec_buttons"
             if app_constants.global_settings['debug_enabled']:
@@ -57,7 +57,7 @@ class IncDecButtonsCreatorMixin:
                 widget_id = path
                 
                 # 1. Register widget
-                state_mirror_engine.register_widget(widget_id, current_value, self.tab_name)
+                state_mirror_engine.register_widget(widget_id, current_value, base_mqtt_topic_from_path)
     
                 # 2. Bind variable trace for outgoing messages
                 # Use a lambda that calls broadcast_gui_change_to_mqtt

@@ -10,7 +10,7 @@ from workers.utils.log_utils import _get_log_args
 import os
 
 class TextInputCreatorMixin:
-    def _create_text_input(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
+    def _create_text_input(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         """Creates a text input widget."""
         current_function_name = "_create_text_input"
         if app_constants.global_settings['debug_enabled']:
@@ -49,7 +49,7 @@ class TextInputCreatorMixin:
             text_var.trace_add("write", _on_text_change) # Use trace_add for consistency
 
             if path:
-                state_mirror_engine.register_widget(path, text_var, self.tab_name)
+                state_mirror_engine.register_widget(path, text_var, base_mqtt_topic_from_path)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (StringVar: {text_var.get()}).",

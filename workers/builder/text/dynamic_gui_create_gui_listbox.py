@@ -54,13 +54,14 @@ class GuiListboxCreatorMixin:
     A mixin class that provides the functionality for creating a
     Listbox widget.
     """
-    def _create_gui_listbox(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
+    def _create_gui_listbox(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         # Creates a listbox menu for multiple choice options.
         current_function_name = inspect.currentframe().f_code.co_name
         self.state_mirror_engine = state_mirror_engine # Store for use in instance methods
         self.subscriber_router = subscriber_router
         self.label = label # Store label for use in instance methods
         self.path = path # Store path for use in instance methods
+        self.base_mqtt_topic_from_path = base_mqtt_topic_from_path # Store for use in instance methods
         
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
@@ -94,7 +95,7 @@ class GuiListboxCreatorMixin:
             
             # --- MQTT Subscription for dynamic updates ---
             if self.subscriber_router:
-                wildcard_option_topic = f"{path}/options/#"
+                wildcard_option_topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, path, "options", "#")
                 self.subscriber_router.subscribe_to_topic(
                     topic_filter=wildcard_option_topic, 
                     callback_func=self._on_option_mqtt_update_instance # Use instance method as callback
@@ -150,7 +151,7 @@ class GuiListboxCreatorMixin:
                         # Iterate over all options to enforce single selection
                         for key, opt in self.options_map.items():
                             is_selected = (key == selected_key)
-                            topic_path = f"{path}/options/{key}/selected"
+                            topic_path = get_topic("OPEN-AIR", base_mqtt_topic_from_path, path, "options", key, "selected")
                             self._transmit_command(widget_name=topic_path, value=str(is_selected).lower())
                         
                         self.selected_option_var.set(selected_label) # Update the GUI
@@ -167,7 +168,7 @@ class GuiListboxCreatorMixin:
 
             if path:
                 # Register the StringVar with the StateMirrorEngine for MQTT updates
-                state_mirror_engine.register_widget(path, self.selected_option_var, self.tab_name)
+                state_mirror_engine.register_widget(path, self.selected_option_var, base_mqtt_topic_from_path)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (StringVar: {self.selected_option_var.get()}).",
@@ -232,17 +233,31 @@ class GuiListboxCreatorMixin:
             payload_data = orjson.loads(payload)
             value = payload_data.get('val') # 'val' contains the actual data
             
-            # Extract option key from topic: e.g., OPEN-AIR/Device/.../options/KEY/active
-            parts = topic.split('/')
-            # Find the index of "options"
-            try:
-                options_idx = parts.index("options")
-                option_key = parts[options_idx + 1] # This is the XXX part
-                property_name = parts[-1] # This is 'active', 'label_active', 'selected'
-            except ValueError:
+            # Extract option key from topic: e.g., OPEN-AIR/Connection/YAK/Frequency/widget_id/options/KEY/active
+            parts = topic.split(TOPIC_DELIMITER)
+            
+            # Construct the expected prefix for this listbox
+            expected_prefix_parts = ["OPEN-AIR", self.base_mqtt_topic_from_path, self.path, "options"]
+            expected_prefix = TOPIC_DELIMITER.join(p for p in expected_prefix_parts if p)
+
+            # Check if the topic starts with the expected prefix
+            if not topic.startswith(expected_prefix):
                 if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"⚠️ Unexpected topic format for listbox update: {topic}", **_get_log_args())
+                    debug_logger(message=f"⚠️ Topic '{topic}' does not match expected listbox option prefix '{expected_prefix}'. Ignoring update.", **_get_log_args())
                 return
+
+            # Remove the prefix to get the relative parts: KEY/property_name
+            remaining_parts_str = topic[len(expected_prefix):].strip(TOPIC_DELIMITER)
+            remaining_parts = remaining_parts_str.split(TOPIC_DELIMITER)
+
+            if len(remaining_parts) < 2:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"⚠️ Insufficient parts in listbox option topic '{topic}'. Expected KEY/property_name. Remaining: {remaining_parts_str}", **_get_log_args())
+                return
+            
+            option_key = remaining_parts[0]
+            property_name = remaining_parts[1]
+
 
             if option_key not in self.options_map:
                 self.options_map[option_key] = {}

@@ -52,7 +52,7 @@ class GuiButtonTogglerCreatorMixin:
     A mixin class that provides the functionality for creating a
     group of buttons that behave like radio buttons.
     """
-    def _create_gui_button_toggler(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
+    def _create_gui_button_toggler(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         # Creates a set of custom buttons that behave like radio buttons ("bucket of buttons").
         current_function_name = inspect.currentframe().f_code.co_name
 
@@ -139,7 +139,7 @@ class GuiButtonTogglerCreatorMixin:
                 widget_id = path
                 
                 # 1. Register widget
-                state_mirror_engine.register_widget(widget_id, selected_var, self.tab_name)
+                state_mirror_engine.register_widget(widget_id, selected_var, base_mqtt_topic_from_path)
 
                 # 2. Bind variable trace for outgoing messages
                 callback = lambda: state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
@@ -149,7 +149,7 @@ class GuiButtonTogglerCreatorMixin:
                 selected_var.trace_add("write", update_button_styles)
 
                 # 4. Subscribe to topic for incoming messages
-                topic = get_topic("OPEN-AIR", self.tab_name, widget_id)
+                topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
                 subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
 
                 # 5. Broadcast initial state

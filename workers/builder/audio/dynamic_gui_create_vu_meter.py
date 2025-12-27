@@ -12,9 +12,11 @@ import os
 from workers.utils.topic_utils import get_topic
 
 class VUMeterCreatorMixin:
-    def _create_vu_meter(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
+    def _create_vu_meter(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         """Creates a VU meter widget."""
         current_function_name = "_create_vu_meter"
+        self.base_mqtt_topic_from_path = base_mqtt_topic_from_path # Store as instance variable
+        
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to calibrate a VU meter for '{label}'.",
@@ -57,7 +59,7 @@ class VUMeterCreatorMixin:
                 }
 
                 # Subscribe to updates for this VU meter
-                topic = get_topic("OPEN-AIR", self.tab_name, path) # Use self.tab_name from DynamicGuiBuilder
+                topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, path) # Use new base topic
                 subscriber_router.subscribe_to_topic(topic, self._on_vu_update_mqtt)
 
             if app_constants.global_settings['debug_enabled']:
@@ -86,9 +88,9 @@ class VUMeterCreatorMixin:
             float_value = float(payload_data.get("val", 0.0)) # Extract 'val' from payload
             
             # Extract widget path from topic
-            expected_prefix = f"OPEN-AIR/{self.tab_name}/" # Assuming self.tab_name is available from DynamicGuiBuilder
+            expected_prefix = get_topic("OPEN-AIR", self.base_mqtt_topic_from_path, "") # Construct expected prefix with new base topic
             if topic.startswith(expected_prefix):
-                widget_path = topic[len(expected_prefix):]
+                widget_path = topic[len(expected_prefix):].strip(TOPIC_DELIMITER)
             else:
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(message=f"⚠️ Unexpected topic format for VU meter update: {topic}", **_get_log_args())

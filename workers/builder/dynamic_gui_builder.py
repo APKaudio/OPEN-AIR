@@ -21,9 +21,10 @@ from workers.logger.logger import  debug_logger
 from workers.styling.style import THEMES, DEFAULT_THEME
 from workers.builder.input.dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
 from workers.setup.config_reader import Config # Import the Config class                                                                          
+from workers.setup.path_initializer import GLOBAL_PROJECT_ROOT # Import GLOBAL_PROJECT_ROOT
 
 app_constants = Config.get_instance() # Get the singleton instance      
-from workers.utils.topic_utils import get_topic
+from workers.utils.topic_utils import get_topic, generate_topic_path_from_filepath, TOPIC_DELIMITER
 from workers.utils.log_utils import _get_log_args 
 
 # --- Widget Creator Mixins ---
@@ -90,7 +91,7 @@ class DynamicGuiBuilder(
     def __init__(self, parent, json_path=None, tab_name=None, *args, **kwargs):
         config = kwargs.pop('config', {})
         super().__init__(parent, *args, **kwargs)
-        self.tab_name = tab_name
+        self.tab_name = tab_name # Keep for now, might still be used in some legacy parts
         self.state_mirror_engine = config.get('state_mirror_engine')
         self.subscriber_router = config.get('subscriber_router')
         current_function_name = "__init__"
@@ -115,6 +116,19 @@ class DynamicGuiBuilder(
         self.config_data = {}
         self.gui_built = False
         #self.mqtt_callbacks = {}
+
+        # --- Calculate base MQTT topic from file path ---
+        if GLOBAL_PROJECT_ROOT is None:
+            debug_logger(message="❌ GLOBAL_PROJECT_ROOT not initialized when DynamicGuiBuilder created. Cannot generate path-based topic.", **_get_log_args())
+            self.base_mqtt_topic_from_path = "FALLBACK_TOPIC" # Fallback topic
+        else:
+            self.base_mqtt_topic_from_path = generate_topic_path_from_filepath(self.json_filepath, GLOBAL_PROJECT_ROOT)
+            if app_constants.global_settings['debug_enabled']:
+                 debug_logger(message=f"🔍 Generated base MQTT topic for {self.json_filepath.name}: {self.base_mqtt_topic_from_path}", **_get_log_args())
+        
+        # Ensure state_mirror_engine has a base_topic configured, defaulting to OPEN-AIR
+        if self.state_mirror_engine and not hasattr(self.state_mirror_engine, 'base_topic'):
+             self.state_mirror_engine.base_topic = "OPEN-AIR" # Default if not set elsewhere
 
         self.widget_factory = {
             "_sliderValue": self._create_slider_value,
@@ -182,7 +196,7 @@ class DynamicGuiBuilder(
                 self.state_mirror_engine.broadcast_gui_change_to_mqtt(widget_name)
             else:
                 # For stateless commands like actuators
-                topic = get_topic("OPEN-AIR", self.tab_name, widget_name)
+                topic = get_topic(self.state_mirror_engine.base_topic, self.base_mqtt_topic_from_path, widget_name)
                 payload = {
                     "val": value,
                     "src": "gui",
@@ -357,7 +371,7 @@ class DynamicGuiBuilder(
 
                 if widget_type == "OcaBlock":
                     block_cols = value.get("layout_columns", None)
-                    target_frame = ttk.LabelFrame(parent_frame, text=key)
+                    target_frame = ttk.LabelFrame(parent_frame, text=key, borderwidth=0, relief="flat")
                     # Recursively but synchronously build sub-blocks as they are usually small.
                     self._create_dynamic_widgets(parent_frame=target_frame, data=value.get("fields", {}), path_prefix=current_path, override_cols=block_cols)
                 
@@ -368,6 +382,7 @@ class DynamicGuiBuilder(
                         "label": value.get("label_active", key),
                         "config": value,
                         "path": current_path,
+                        "base_mqtt_topic_from_path": self.base_mqtt_topic_from_path, # Pass the new base topic
                         "state_mirror_engine": self.state_mirror_engine,  # Pass state_mirror_engine
                         "subscriber_router": self.subscriber_router       # Pass subscriber_router
                     }
@@ -399,7 +414,8 @@ class DynamicGuiBuilder(
 
             # --- Publish entire GUI config to MQTT ---
             if self.state_mirror_engine:
-                config_topic = get_topic(self.state_mirror_engine.base_topic, 'GUI/Config/Finished')
+                # Use the new path-based topic for GUI config
+                config_topic = get_topic(self.state_mirror_engine.base_topic, self.base_mqtt_topic_from_path, 'Config', 'Finished')
                 payload = orjson.dumps(self.config_data)
                 self.state_mirror_engine.publish_command(config_topic, payload)
                 if app_constants.global_settings['debug_enabled']:
@@ -450,6 +466,7 @@ class DynamicGuiBuilder(
                             "label": value.get("label_active", key),
                             "config": value,
                             "path": current_path,
+                            "base_mqtt_topic_from_path": self.base_mqtt_topic_from_path, # Pass the new base topic
                             "state_mirror_engine": self.state_mirror_engine,  # Pass state_mirror_engine
                             "subscriber_router": self.subscriber_router       # Pass subscriber_router
                         }

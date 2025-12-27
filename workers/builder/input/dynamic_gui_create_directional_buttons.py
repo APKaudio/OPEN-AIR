@@ -10,7 +10,7 @@ from workers.utils.log_utils import _get_log_args
 import os
 
 class DirectionalButtonsCreatorMixin:
-    def _create_directional_buttons(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
+    def _create_directional_buttons(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         """Creates a set of directional buttons (up, down, left, right)."""
         current_function_name = "_create_directional_buttons"
         if app_constants.global_settings['debug_enabled']:
@@ -44,7 +44,7 @@ class DirectionalButtonsCreatorMixin:
         # Commands (these would typically publish MQTT messages)
         def _publish_command(action):
             action_path = f"{path}/{action}"
-            topic = get_topic("OPEN-AIR", self.tab_name, action_path)
+            topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, action_path)
             payload_data = {
                 "val": True,
                 "src": "gui",

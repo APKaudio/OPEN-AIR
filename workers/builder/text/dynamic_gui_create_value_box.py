@@ -53,7 +53,7 @@ class ValueBoxCreatorMixin:
     A mixin class that provides the functionality for creating an
     editable text box widget.
     """
-    def _create_value_box(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
+    def _create_value_box(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         # Creates an editable text box (_Value).
         current_function_name = inspect.currentframe().f_code.co_name
 
@@ -85,14 +85,14 @@ class ValueBoxCreatorMixin:
                     widget_id = path
                     
                     # 1. Register widget
-                    state_mirror_engine.register_widget(widget_id, entry_value, self.tab_name)
+                    state_mirror_engine.register_widget(widget_id, entry_value, base_mqtt_topic_from_path)
 
                     # 2. Bind variable trace for outgoing messages
                     callback = lambda *args: state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id) # Added *args
                     bind_variable_trace(entry_value, callback)
 
                     # 3. Subscribe to topic for incoming messages
-                    topic = get_topic("OPEN-AIR", self.tab_name, widget_id)
+                    topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
                     subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
                     
                     # 4. Broadcast initial state

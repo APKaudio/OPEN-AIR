@@ -35,7 +35,7 @@ class LabelFromConfigCreatorMixin:
     A mixin class that provides a wrapper for creating a label widget
     from a configuration dictionary.
     """
-    def _create_label_from_config(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
+    def _create_label_from_config(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         # A wrapper for _create_label to match the factory function signature.
         # It calls the _create_label method (provided by LabelCreatorMixin).
         current_function_name = inspect.currentframe().f_code.co_name
@@ -54,6 +54,7 @@ class LabelFromConfigCreatorMixin:
                 value=config.get("value"),
                 units=config.get("units"),
                 path=path,
+                base_mqtt_topic_from_path=base_mqtt_topic_from_path, # Pass through
                 state_mirror_engine=state_mirror_engine, # Pass through
                 subscriber_router=subscriber_router     # Pass through
             )

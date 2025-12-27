@@ -51,7 +51,7 @@ class GuiDropdownOptionCreatorMixin:
     A mixin class that provides the functionality for creating a
     dropdown (Combobox) widget.
     """
-    def _create_gui_dropdown_option(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
+    def _create_gui_dropdown_option(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         # Creates a dropdown menu for multiple choice options.
         current_function_name = inspect.currentframe().f_code.co_name
 
@@ -176,7 +176,7 @@ class GuiDropdownOptionCreatorMixin:
 
             if path:
                 # Register the StringVar with the StateMirrorEngine for MQTT updates
-                state_mirror_engine.register_widget(path, selected_value_var, self.tab_name)
+                state_mirror_engine.register_widget(path, selected_value_var, base_mqtt_topic_from_path)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (StringVar: {selected_value_var.get()}).",

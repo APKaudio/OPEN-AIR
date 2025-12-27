@@ -16,7 +16,7 @@ import os
 from workers.utils.topic_utils import get_topic
 
 class CustomFaderCreatorMixin:
-    def _create_custom_fader(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
+    def _create_custom_fader(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         """Creates a custom fader widget."""
         current_function_name = "_create_custom_fader"
         if app_constants.global_settings['debug_enabled']:
@@ -92,7 +92,7 @@ class CustomFaderCreatorMixin:
 
             # Register the StringVar with the StateMirrorEngine for MQTT updates
             if path:
-                state_mirror_engine.register_widget(path, fader_value_var, self.tab_name)
+                state_mirror_engine.register_widget(path, fader_value_var, base_mqtt_topic_from_path)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {fader_value_var.get()}).",

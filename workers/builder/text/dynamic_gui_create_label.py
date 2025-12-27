@@ -42,7 +42,7 @@ class LabelCreatorMixin:
     """
     A mixin class that provides the functionality for creating a label widget.
     """
-    def _create_label(self, parent_frame, label, value, units=None, path=None, state_mirror_engine=None, subscriber_router=None):
+    def _create_label(self, parent_frame, label, value, units=None, path=None, base_mqtt_topic_from_path=None, state_mirror_engine=None, subscriber_router=None):
         current_function_name = inspect.currentframe().f_code.co_name
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
@@ -68,14 +68,14 @@ class LabelCreatorMixin:
                     widget_id = path
                     
                     # 1. Register widget
-                    state_mirror_engine.register_widget(widget_id, label_var, self.tab_name)
+                    state_mirror_engine.register_widget(widget_id, label_var, base_mqtt_topic_from_path)
 
                     # 2. Bind variable trace for outgoing messages
                     callback = lambda *args: state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id) # Added *args
                     bind_variable_trace(label_var, callback)
 
                     # 3. Subscribe to topic for incoming messages
-                    topic = get_topic("OPEN-AIR", self.tab_name, widget_id)
+                    topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
                     subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
 
                     # 4. Broadcast initial state

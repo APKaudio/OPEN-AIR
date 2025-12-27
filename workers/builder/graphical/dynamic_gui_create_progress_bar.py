@@ -10,9 +10,11 @@ from workers.utils.log_utils import _get_log_args
 from workers.utils.topic_utils import get_topic
 import os
 class ProgressBarCreatorMixin:
-    def _create_progress_bar(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
+    def _create_progress_bar(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         """Creates a progress bar widget."""
         current_function_name = "_create_progress_bar"
+        self.base_mqtt_topic_from_path = base_mqtt_topic_from_path # Store as instance variable
+        
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to construct a progress indicator for '{label}'.",
@@ -60,7 +62,7 @@ class ProgressBarCreatorMixin:
                 self.topic_widgets[path] = _update_progress # Store the update callable
 
                 # --- MQTT Subscription for incoming updates ---
-                topic = get_topic("OPEN-AIR", self.tab_name, path) # Use self.tab_name from DynamicGuiBuilder
+                topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, path) # Use new base topic
                 subscriber_router.subscribe_to_topic(topic, self._on_progress_update_mqtt)
 
             if app_constants.global_settings['debug_enabled']:
@@ -88,10 +90,9 @@ class ProgressBarCreatorMixin:
             value = payload_data.get('val')
             
             # Extract widget path from topic
-            # topic is "OPEN-AIR/<tab_name>/<path>"
-            expected_prefix = f"OPEN-AIR/{self.tab_name}/" # Assuming self.tab_name is available from DynamicGuiBuilder
+            expected_prefix = get_topic("OPEN-AIR", self.base_mqtt_topic_from_path, "") # Construct expected prefix with new base topic
             if topic.startswith(expected_prefix):
-                widget_path = topic[len(expected_prefix):]
+                widget_path = topic[len(expected_prefix):].strip(TOPIC_DELIMITER)
             else:
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(message=f"⚠️ Unexpected topic format for progress bar update: {topic}", **_get_log_args())

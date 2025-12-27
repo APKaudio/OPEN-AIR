@@ -53,7 +53,7 @@ class GuiActuatorCreatorMixin:
     A mixin class that provides the functionality for creating a simple
     actuator button widget that triggers an action.
     """
-    def _create_gui_actuator(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
+    def _create_gui_actuator(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         # Creates a button that acts as a simple actuator.
         current_function_name = inspect.currentframe().f_code.co_name
         
@@ -116,7 +116,7 @@ class GuiActuatorCreatorMixin:
 
                 # 3. Subscribe to topic for incoming messages (to activate/deactivate button)
                 #    The topic for status is usually 'path/active' or 'path/label_active'
-                status_topic = f"{get_topic('OPEN-AIR', self.tab_name, widget_id)}/active"
+                status_topic = f"{get_topic('OPEN-AIR', base_mqtt_topic_from_path, widget_id)}/active"
                 subscriber_router.subscribe_to_topic(status_topic, self._on_actuator_state_update)
 
             if app_constants.global_settings['debug_enabled']:
@@ -144,54 +144,19 @@ class GuiActuatorCreatorMixin:
             is_active = payload_data.get('val')
             
             # Derive widget_id from topic
-            # Example topic: "OPEN-AIR/TAB_NAME/WIDGET_ID/active"
-            # We need "TAB_NAME/WIDGET_ID"
-            parts = topic.split(TOPIC_DELIMITER)
-            # Assuming 'OPEN-AIR' is parts[0] and 'active' is parts[-1]
-            # The actual widget_id path starts after 'OPEN-AIR' and ends before '/active'
-            widget_path_parts = parts[1:-1] # Exclude 'OPEN-AIR' and 'active'
-            widget_id_from_topic = TOPIC_DELIMITER.join(widget_path_parts)
+            # Example topic: "OPEN-AIR/Connection/YAK/Frequency/widget_id/active"
+            # We need "Connection/YAK/Frequency/widget_id"
             
-            # The path stored in self.topic_widgets is typically relative to the base,
-            # so it usually doesn't include "OPEN-AIR/TAB_NAME".
-            # We need to match the key used when setting self.topic_widgets[path] = button.
-            # If path was "tab_name/widget_id", then we need "tab_name/widget_id".
-            # If path was just "widget_id" (meaning tab_name was empty or not included in path_prefix),
-            # then we need to extract only the widget_id part.
+            topic_without_active = topic.rsplit(TOPIC_DELIMITER, 1)[0]
             
-            # Let's assume path is "tab_name/widget_id" or "widget_id"
-            # The `widget_id` passed to register_widget was `path`
-            # and `status_topic` was derived from `get_topic('OPEN-AIR', self.tab_name, widget_id)` + "/active"
-            # so the topic would be OPEN-AIR/<self.tab_name>/<path>/active
-            # we need <path>
-            
-            # Simplified extraction for the path used as key in self.topic_widgets
-            # This relies on the fact that `get_topic` uses self.tab_name and widget_id (which is `path`)
-            # so `topic` is essentially `OPEN-AIR/{self.tab_name}/{path}/active`
-            expected_prefix = f"OPEN-AIR{TOPIC_DELIMITER}{self.tab_name}{TOPIC_DELIMITER}"
-            if topic.startswith(expected_prefix):
-                key_in_topic_widgets = topic[len(expected_prefix):].replace(f"{TOPIC_DELIMITER}active", "")
+            # And remove the 'OPEN-AIR/BASE_MQTT_TOPIC_FROM_PATH/' prefix if it exists
+            # We assume self.base_mqtt_topic_from_path is available from the builder instance
+            expected_prefix = f"OPEN-AIR{TOPIC_DELIMITER}{self.base_mqtt_topic_from_path}{TOPIC_DELIMITER}"
+            if topic_without_active.startswith(expected_prefix):
+                key_in_topic_widgets = topic_without_active.replace(expected_prefix, "", 1)
             else:
-                # Fallback if topic structure is different or tab_name is empty
-                # This needs to be robust. The `widget_id` argument to `get_topic` was `path`.
-                # So we need to reverse get_topic effectively.
-                # get_topic("OPEN-AIR", self.tab_name, widget_id) -> "OPEN-AIR/TAB/WIDGET"
-                # so the incoming topic is "OPEN-AIR/TAB/WIDGET/active"
-                # We need to find "WIDGET"
-                
-                # Try to find the original path (widget_id) from the topic
-                # Assuming `path` is what we need to match in `self.topic_widgets`
-                # A better way might be to store the button object by full topic.
-                # For now, let's try to reconstruct the key.
-                
-                # This assumes 'active' is always at the end.
-                topic_without_active = topic.rsplit(TOPIC_DELIMITER, 1)[0]
-                
-                # And remove the 'OPEN-AIR/TAB_NAME/' prefix if it exists, otherwise just use the rest
-                if topic_without_active.startswith(f"OPEN-AIR{TOPIC_DELIMITER}"):
-                    key_in_topic_widgets = topic_without_active.replace(f"OPEN-AIR{TOPIC_DELIMITER}", "", 1)
-                else:
-                    key_in_topic_widgets = topic_without_active # As a last resort
+                # Fallback if the prefix doesn't match, or if base_mqtt_topic_from_path was empty
+                key_in_topic_widgets = topic_without_active # As a last resort
 
             button = self.topic_widgets.get(key_in_topic_widgets)
             if button:
@@ -208,4 +173,4 @@ class GuiActuatorCreatorMixin:
 
         except (orjson.JSONDecodeError, AttributeError) as e:
             if app_constants.global_settings['debug_enabled']:
-                debug_logger(message=f"❌ Error processing actuator MQTT update for {topic}: {e}. Payload: {payload}", **_get_log_args())
+                debug_logger(message=f"❌ Error processing actuator MQTT update for {topic}: {e}. Payload: {payload}")

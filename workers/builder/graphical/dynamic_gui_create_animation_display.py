@@ -13,9 +13,11 @@ from workers.setup.path_initializer import GLOBAL_PROJECT_ROOT # Import GLOBAL_P
 from workers.utils.topic_utils import get_topic # Import get_topic
 
 class AnimationDisplayCreatorMixin:
-    def _create_animation_display(self, parent_frame, label, config, path, state_mirror_engine, subscriber_router):
+    def _create_animation_display(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         """Creates an animation display widget."""
         current_function_name = "_create_animation_display"
+        self.base_mqtt_topic_from_path = base_mqtt_topic_from_path # Store as instance variable
+        
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
                 message=f"🔬⚡️ Entering '{current_function_name}' to animate the display for '{label}'.",
@@ -82,7 +84,7 @@ class AnimationDisplayCreatorMixin:
             self.topic_widgets[path] = _update_frame # Store the update callable
 
             # --- MQTT Subscription for incoming updates ---
-            topic = get_topic("OPEN-AIR", self.tab_name, path) # Use self.tab_name from DynamicGuiBuilder
+            topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, path) # Use new base topic
             subscriber_router.subscribe_to_topic(topic, self._on_animation_frame_update_mqtt)
 
         if app_constants.global_settings['debug_enabled']:
@@ -99,10 +101,9 @@ class AnimationDisplayCreatorMixin:
             value = payload_data.get('val')
             
             # Extract widget path from topic
-            # topic is "OPEN-AIR/<tab_name>/<path>"
-            expected_prefix = f"OPEN-AIR/{self.tab_name}/" # Assuming self.tab_name is available from DynamicGuiBuilder
+            expected_prefix = get_topic("OPEN-AIR", self.base_mqtt_topic_from_path, "") # Construct expected prefix with new base topic
             if topic.startswith(expected_prefix):
-                widget_path = topic[len(expected_prefix):]
+                widget_path = topic[len(expected_prefix):].strip(TOPIC_DELIMITER)
             else:
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(message=f"⚠️ Unexpected topic format for animation frame update: {topic}", **_get_log_args())
