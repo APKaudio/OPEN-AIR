@@ -11,11 +11,13 @@
       "NAB_Frequency_settings": {
         "type": "OcaBlock",
         "description": "Primary Frequency Monitoring",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":FREQuency:STARt?;:FREQuency:STOP?;:FREQuency:CENTer?;:FREQuency:SPAN?"
+            "value": ":FREQuency:STARt?;:FREQuency:STOP?;:FREQuency:CENTer?;:FREQuency:SPAN?"
           }
         },
         "fields": {
@@ -51,11 +53,13 @@
       "Rig_freq_start_stop": {
         "type": "OcaBlock",
         "description": "Frequency Range Commands",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>"
+            "value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>"
           }
         },
         "fields": {
@@ -76,11 +80,13 @@
       },
       "Set_Span_Frequency": {
         "type": "OcaBlock",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":FREQuency:SPAN <hz_value>"
+            "value": ":FREQuency:SPAN <hz_value>"
           }
         },
         "fields": {
@@ -97,11 +103,13 @@
       },
       "Set_Start_Freq_MHz": {
         "type": "OcaBlock",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":FREQuency:STARt <hz_value>"
+            "value": ":FREQuency:STARt <hz_value>"
           }
         },
         "fields": {
@@ -118,11 +126,13 @@
       },
       "Set_Stop_Freq_MHz": {
         "type": "OcaBlock",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":FREQuency:STOP <hz_value>"
+            "value": ":FREQuency:STOP <hz_value>"
           }
         },
         "fields": {

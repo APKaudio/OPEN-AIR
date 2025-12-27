@@ -13,11 +13,13 @@
       "Get_error_information": {
         "type": "OcaBlock",
         "description": "System Error Check",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":SYSTem:ERRor?"
+            "value": ":SYSTem:ERRor?"
           }
         },
         "fields": {
@@ -35,11 +37,13 @@
       "Get_identification_query": {
         "type": "OcaBlock",
         "description": "Instrument ID",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": "*IDN?"
+            "value": "*IDN?"
           }
         },
         "fields": {
@@ -61,12 +65,14 @@
     "description": "System Maintenance Controls",
     "fields": {
       "Do_Update_Display": {
-        "type": "_GuiActuator",
+        "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
         "label_inactive": "Update Display",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
             "trigger": false,
-            "SCPI_value": ":SYSTem:DISPlay:UPDate"
+            "value": ":SYSTem:DISPlay:UPDate"
           }
         }
       },
@@ -75,32 +81,38 @@
         "description": "Hardware Reset and Clear",
         "fields": {
           "Do_Clear_Device": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "Clear Status (*CLS)",
-            "scpi_details": {
+            "message_details": {
               "Generic_Model": {
                 "trigger": false,
-                "SCPI_value": "*CLS"
+                "value": "*CLS"
               }
             }
           },
           "Do_Reset": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "Reset Device (*RST)",
-            "scpi_details": {
+            "message_details": {
               "Generic_Model": {
                 "trigger": false,
-                "SCPI_value": "*RST"
+                "value": "*RST"
               }
             }
           },
           "Do_Power_Cycle": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "Power Cycle",
-            "scpi_details": {
+            "message_details": {
               "Generic_Model": {
                 "trigger": false,
-                "SCPI_value": ":SYSTem:POWer:RESet"
+                "value": ":SYSTem:POWer:RESet"
               }
             }
           }

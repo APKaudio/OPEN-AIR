@@ -14,11 +14,13 @@
       "NAB_bandwidth_settings": {
         "type": "OcaBlock",
         "description": "Bandwidth and Sweep Monitoring",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SENSe:SWEep:TIME?"
+            "value": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SENSe:SWEep:TIME?"
           }
         },
         "fields": {
@@ -59,11 +61,13 @@
       "rig_RBW_VBW_Hz": {
         "type": "OcaBlock",
         "description": "Set Resolution and Video BW",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":SENSe:BANDwidth:RESolution <rbw_hz_value>;:SENSe:BANDwidth:VIDeo <vbw_hz_value>"
+            "value": ":SENSe:BANDwidth:RESolution <rbw_hz_value>;:SENSe:BANDwidth:VIDeo <vbw_hz_value>"
           }
         },
         "fields": {
@@ -92,11 +96,13 @@
     "fields": {
       "Set_Sweep_time": {
         "type": "OcaBlock",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":SENSe:SWEep:TIME <sweep_time_s>"
+            "value": ":SENSe:SWEep:TIME <sweep_time_s>"
           }
         },
         "fields": {
@@ -113,11 +119,13 @@
       },
       "Set_VBW": {
         "type": "OcaBlock",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":SENSe:BANDwidth:VIDeo <hz_value>"
+            "value": ":SENSe:BANDwidth:VIDeo <hz_value>"
           }
         },
         "fields": {
@@ -134,11 +142,13 @@
       },
       "Set_RBW": {
         "type": "OcaBlock",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":SENSe:BANDwidth:RESolution <hz_value>"
+            "value": ":SENSe:BANDwidth:RESolution <hz_value>"
           }
         },
         "fields": {
@@ -163,20 +173,24 @@
         "type": "OcaBlock",
         "fields": {
           "Do_Sweep_Time_Auto_ON": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "Sweep Auto ON",
-            "scpi_details": {
+            "message_details": {
               "Generic_Model": {
-                "SCPI_value": ":SENSe:SWEep:TIME:AUTO ON"
+                "value": ":SENSe:SWEep:TIME:AUTO ON"
               }
             }
           },
           "Do_Sweep_Time_Auto_OFF": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "Sweep Auto OFF",
-            "scpi_details": {
+            "message_details": {
               "Generic_Model": {
-                "SCPI_value": ":SENSe:SWEep:TIME:AUTO OFF"
+                "value": ":SENSe:SWEep:TIME:AUTO OFF"
               }
             }
           }
@@ -186,20 +200,24 @@
         "type": "OcaBlock",
         "fields": {
           "do_Video_Bandwidth_Auto_ON": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "VBW Auto ON",
-            "scpi_details": {
+            "message_details": {
               "Generic_Model": {
-                "SCPI_value": ":SENSe:BANDwidth:VIDeo:AUTO ON"
+                "value": ":SENSe:BANDwidth:VIDeo:AUTO ON"
               }
             }
           },
           "do_Video_Bandwidth_Auto_OFF": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "VBW Auto OFF",
-            "scpi_details": {
+            "message_details": {
               "Generic_Model": {
-                "SCPI_value": ":SENSe:BANDwidth:VIDeo:AUTO OFF"
+                "value": ":SENSe:BANDwidth:VIDeo:AUTO OFF"
               }
             }
           }
@@ -209,20 +227,24 @@
         "type": "OcaBlock",
         "fields": {
           "Set_Resolution_Bandwidth_Auto_ON": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "RBW Auto ON",
-            "scpi_details": {
+            "message_details": {
               "Generic_Model": {
-                "SCPI_value": ":SENSe:BANDwidth:RESolution:AUTO ON"
+                "value": ":SENSe:BANDwidth:RESolution:AUTO ON"
               }
             }
           },
           "Set_Resolution_Bandwidth_Auto_OFF": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "RBW Auto OFF",
-            "scpi_details": {
+            "message_details": {
               "Generic_Model": {
-                "SCPI_value": ":SENSe:BANDwidth:RESolution:AUTO OFF"
+                "value": ":SENSe:BANDwidth:RESolution:AUTO OFF"
               }
             }
           }

@@ -13,11 +13,13 @@
       "NAB_amplitude_settings": {
         "type": "OcaBlock",
         "description": "Power and Attenuation Readbacks",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel?;:POWer:ATTenuation?;:POWer:GAIN?"
+            "value": ":DISPlay:WINDow:TRACe:Y:RLEVel?;:POWer:ATTenuation?;:POWer:GAIN?"
           }
         },
         "fields": {
@@ -50,11 +52,13 @@
       "rig_Ref_Level_dBm": {
         "type": "OcaBlock",
         "description": "Set Power Levels",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel <Ref_Level_dBm>;:POWer:RF:ATTenuation <Attenuation_dB>;:POWer:GAIN <Preamp_On>"
+            "value": ":DISPlay:WINDow:TRACe:Y:RLEVel <Ref_Level_dBm>;:POWer:RF:ATTenuation <Attenuation_dB>;:POWer:GAIN <Preamp_On>"
           }
         },
         "fields": {
@@ -88,11 +92,13 @@
     "fields": {
       "Get_Reference_Level": {
         "type": "OcaBlock",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel?"
+            "value": ":DISPlay:WINDow:TRACe:Y:RLEVel?"
           }
         },
         "fields": {
@@ -109,11 +115,13 @@
       },
       "Get_Attenuation": {
         "type": "OcaBlock",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":POWer:RF:ATTenuation?"
+            "value": ":POWer:RF:ATTenuation?"
           }
         },
         "fields": {
@@ -130,11 +138,13 @@
       },
       "Get_Preamp_State": {
         "type": "OcaBlock",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":SENSE:POWer:RF:GAIN:STATe?"
+            "value": ":SENSE:POWer:RF:GAIN:STATe?"
           }
         },
         "fields": {
@@ -157,11 +167,13 @@
     "fields": {
       "Set_Reference_Level": {
         "type": "OcaBlock",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel <Ref_Level_dBm>"
+            "value": ":DISPlay:WINDow:TRACe:Y:RLEVel <Ref_Level_dBm>"
           }
         },
         "fields": {
@@ -178,11 +190,13 @@
       },
       "Set_Power_Attenuation": {
         "type": "OcaBlock",
-        "scpi_details": {
+        "message_details": {
           "Generic_Model": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":POWer:ATTenuation <Power_Attenuation>"
+            "value": ":POWer:ATTenuation <Power_Attenuation>"
           }
         },
         "fields": {
@@ -201,22 +215,26 @@
         "type": "OcaBlock",
         "fields": {
           "Set_Input_Auto_Attenuation_ON": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "Auto Atten ON",
-            "scpi_details": {
+            "message_details": {
               "Generic_Model": {
                 "trigger": false,
-                "SCPI_value": ":POWer:ATTenuation:AUTO ON"
+                "value": ":POWer:ATTenuation:AUTO ON"
               }
             }
           },
           "Set_Input_Auto_Attenuation_OFF": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "Auto Atten OFF",
-            "scpi_details": {
+            "message_details": {
               "Generic_Model": {
                 "trigger": false,
-                "SCPI_value": ":POWer:ATTenuation:AUTO OFF"
+                "value": ":POWer:ATTenuation:AUTO OFF"
               }
             }
           }
@@ -226,22 +244,26 @@
         "type": "OcaBlock",
         "fields": {
           "Set_Power_Gain_ON": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "Preamp ON",
-            "scpi_details": {
+            "message_details": {
               "Generic_Model": {
                 "trigger": false,
-                "SCPI_value": ":POWer:GAIN ON"
+                "value": ":POWer:GAIN ON"
               }
             }
           },
           "Set_Power_Gain_OFF": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "Preamp OFF",
-            "scpi_details": {
+            "message_details": {
               "Generic_Model": {
                 "trigger": false,
-                "SCPI_value": ":POWer:GAIN OFF"
+                "value": ":POWer:GAIN OFF"
               }
             }
           }
@@ -252,42 +274,50 @@
         "description": "Quick sensitivity presets",
         "fields": {
           "Set_High_Sensitive_Power_ON_N9340B": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "High Sensitivity ON",
-            "scpi_details": {
+            "message_details": {
               "N9340B": {
                 "trigger": false,
-                "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel -50; :POWer:ATTenuation 0; :POWer:GAIN ON"
+                "value": ":DISPlay:WINDow:TRACe:Y:RLEVel -50; :POWer:ATTenuation 0; :POWer:GAIN ON"
               }
             }
           },
           "Set_High_Sensitive_Power_ON_N9342CN": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "High Sensitivity ON",
-            "scpi_details": {
+            "message_details": {
               "N9342CN": {
                 "trigger": false,
-                "SCPI_value": ":POWer:HSENsitive ON"
+                "value": ":POWer:HSENsitive ON"
               }
             }
           },
           "Set_High_Sensitive_Power_OFF_N9340B": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "High Sensitivity OFF",
-            "scpi_details": {
+            "message_details": {
               "N9340B": {
                 "trigger": false,
-                "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF"
+                "value": ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF"
               }
             }
           },
           "Set_High_Sensitive_Power_OFF_N9342CN": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_inactive": "High Sensitivity OFF",
-            "scpi_details": {
+            "message_details": {
               "N9342CN": {
                 "trigger": false,
-                "SCPI_value": ":POWer:HSENsitive OFF"
+                "value": ":POWer:HSENsitive OFF"
               }
             }
           }

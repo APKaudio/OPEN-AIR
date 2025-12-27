@@ -16,11 +16,13 @@
       "Nab_Preset_Catalog": {
         "type": "OcaBlock",
         "description": "View Preset Files",
-        "scpi_details": {
+        "message_details": {
           "N9342CN": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":MMEMory:CATalog? \"<preset_path>\" "
+            "value": ":MMEMory:CATalog? \"<preset_path>\" "
           }
         },
         "fields": {
@@ -53,11 +55,13 @@
       "Set_stored_Preset": {
         "type": "OcaBlock",
         "description": "Configure Preset Target",
-        "scpi_details": {
+        "message_details": {
           "N9342CN": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":MMEMory:LOAD STA,\"<preset_path><preset_fileName>\" "
+            "value": ":MMEMory:LOAD STA,\"<preset_path><preset_fileName>\" "
           }
         },
         "fields": {
@@ -79,11 +83,13 @@
       "Do_Load_Preset": {
         "type": "OcaBlock",
         "description": "Execute Preset Load",
-        "scpi_details": {
+        "message_details": {
           "N9342CN": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "trigger": false,
-            "SCPI_value": ":MMEMory:LOAD:STATe"
+            "value": ":MMEMory:LOAD:STATe"
           }
         },
         "fields": {
@@ -97,7 +103,9 @@
             }
           },
           "Load_Button": {
-            "type": "_GuiActuator",
+            "type":"_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+ "active": true,
             "label_active": "Load Preset",
             "label_inactive": "Load Preset",
             "trigger": 0
