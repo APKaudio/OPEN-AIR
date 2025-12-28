@@ -121,8 +121,8 @@ def main():
 
     GLOBAL_PROJECT_ROOT, data_dir = initialize_paths()
     log_dir = pathlib.Path(data_dir) / "debug"
-    set_log_directory(log_dir)
     clear_debug_directory(data_dir)
+    set_log_directory(log_dir)
     configure_console_encoding()
 
     # START THE WATCHDOG
