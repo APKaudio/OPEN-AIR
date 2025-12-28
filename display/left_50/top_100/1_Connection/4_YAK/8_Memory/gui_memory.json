@@ -12,7 +12,7 @@
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "trigger": false,
-                "value": ":MMEMory:CATalog? \"<preset_path>\" "
+                "message": ":MMEMory:CATalog? \"<preset_path>\" "
               },
               "scpi_inputs": {
                 "type": "OcaBlock",
@@ -49,7 +49,7 @@
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "trigger": false,
-                "value": ":MMEMory:LOAD STA,\"<preset_path><preset_fileName>\" "
+                "message": ":MMEMory:LOAD STA,\"<preset_path><preset_fileName>\" "
               },
               "scpi_inputs": {
                 "type": "OcaBlock",
@@ -75,7 +75,7 @@
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "trigger": false,
-                "value": ":MMEMory:LOAD:STATe"
+                "message": ":MMEMory:LOAD:STATe"
               },
               "scpi_inputs": {
                 "type": "OcaBlock",

@@ -31,6 +31,7 @@ class Config:
     MQTT_RETAIN_BEHAVIOR = False # New default value
     ENABLE_FULL_CONFIG_MQTT_DUMP = False # New default value
     ENABLE_BUILDER_STATUS_PUBLISH = False # New default value
+    MQTT_BASE_TOPIC = "OPEN-AIR" # New default value
 
     def __init__(self):
         # This __init__ will only be called once due to the singleton pattern
@@ -61,6 +62,12 @@ class Config:
             "log_truncation_enabled": self.LOG_TRUNCATION_ENABLED,
             "debug_to_terminal": self.DEBUG_TO_TERMINAL, # Include in global settings
         }
+    
+    def get_mqtt_base_topic(self):
+        """
+        Returns the base MQTT topic.
+        """
+        return self.MQTT_BASE_TOPIC
 
     def read_config(self):
         """
@@ -105,6 +112,7 @@ class Config:
             self.MQTT_USERNAME = config['MQTT'].get('MQTT_USERNAME', self.MQTT_USERNAME)
             self.MQTT_PASSWORD = config['MQTT'].get('MQTT_PASSWORD', self.MQTT_PASSWORD)
             self.MQTT_RETAIN_BEHAVIOR = config['MQTT'].getboolean('MQTT_RETAIN_BEHAVIOR', self.MQTT_RETAIN_BEHAVIOR)
+            self.MQTT_BASE_TOPIC = config['MQTT'].get('MQTT_BASE_TOPIC', self.MQTT_BASE_TOPIC)
         
         if 'Protocols' in config:
             self.ENABLE_FULL_CONFIG_MQTT_DUMP = config['Protocols'].getboolean('ENABLE_FULL_CONFIG_MQTT_DUMP', self.ENABLE_FULL_CONFIG_MQTT_DUMP)

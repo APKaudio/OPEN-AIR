@@ -12,7 +12,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SENSe:SWEep:TIME?"
+            "message": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SENSe:SWEep:TIME?"
           },
           "scpi_outputs": {
             "type": "OcaBlock",
@@ -57,7 +57,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":SENSe:BANDwidth:RESolution <rbw_hz_value>;:SENSe:BANDwidth:VIDeo <vbw_hz_value>"
+            "message": ":SENSe:BANDwidth:RESolution <rbw_hz_value>;:SENSe:BANDwidth:VIDeo <vbw_hz_value>"
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -90,7 +90,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":SENSe:SWEep:TIME <sweep_time_s>"
+            "message": ":SENSe:SWEep:TIME <sweep_time_s>"
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -111,7 +111,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":SENSe:BANDwidth:VIDeo <hz_value>"
+            "message": ":SENSe:BANDwidth:VIDeo <hz_value>"
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -132,7 +132,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":SENSe:BANDwidth:RESolution <hz_value>"
+            "message": ":SENSe:BANDwidth:RESolution <hz_value>"
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -160,7 +160,7 @@
             "active": true,
             "label_inactive": "Sweep Auto ON",
             "Generic_Model": {
-              "value": ":SENSe:SWEep:TIME:AUTO ON"
+              "message": ":SENSe:SWEep:TIME:AUTO ON"
             }
           },
           "Do_Sweep_Time_Auto_OFF": {
@@ -169,7 +169,7 @@
             "active": true,
             "label_inactive": "Sweep Auto OFF",
             "Generic_Model": {
-              "value": ":SENSe:SWEep:TIME:AUTO OFF"
+              "message": ":SENSe:SWEep:TIME:AUTO OFF"
             }
           }
         }
@@ -183,7 +183,7 @@
             "active": true,
             "label_inactive": "VBW Auto ON",
             "Generic_Model": {
-              "value": ":SENSe:BANDwidth:VIDeo:AUTO ON"
+              "message": ":SENSe:BANDwidth:VIDeo:AUTO ON"
             }
           },
           "do_Video_Bandwidth_Auto_OFF": {
@@ -192,7 +192,7 @@
             "active": true,
             "label_inactive": "VBW Auto OFF",
             "Generic_Model": {
-              "value": ":SENSe:BANDwidth:VIDeo:AUTO OFF"
+              "message": ":SENSe:BANDwidth:VIDeo:AUTO OFF"
             }
           }
         }
@@ -206,7 +206,7 @@
             "active": true,
             "label_inactive": "RBW Auto ON",
             "Generic_Model": {
-              "value": ":SENSe:BANDwidth:RESolution:AUTO ON"
+              "message": ":SENSe:BANDwidth:RESolution:AUTO ON"
             }
           },
           "Set_Resolution_Bandwidth_Auto_OFF": {
@@ -215,7 +215,7 @@
             "active": true,
             "label_inactive": "RBW Auto OFF",
             "Generic_Model": {
-              "value": ":SENSe:BANDwidth:RESolution:AUTO OFF"
+              "message": ":SENSe:BANDwidth:RESolution:AUTO OFF"
             }
           }
         }

@@ -117,6 +117,7 @@ class DynamicGuiBuilder(
         self.pack(fill=tk.BOTH, expand=True)
         self.topic_widgets = {}
         self.gui_built = False
+        self.tk_vars = {} # Initialize tk_vars dictionary
         #self.mqtt_callbacks = {}
 
         # --- Calculate base MQTT topic from file path ---
@@ -132,9 +133,9 @@ class DynamicGuiBuilder(
             if app_constants.global_settings['debug_enabled']:
                  debug_logger(message=f"🔍 Generated base MQTT topic for {self.json_filepath.name}: {self.base_mqtt_topic_from_path}", **_get_log_args())
         
-        # Ensure state_mirror_engine has a base_topic configured, defaulting to OPEN-AIR
+        # Ensure state_mirror_engine has a base_topic configured, defaulting to app_constants' MQTT_BASE_TOPIC
         if self.state_mirror_engine and not hasattr(self.state_mirror_engine, 'base_topic'):
-             self.state_mirror_engine.base_topic = "OPEN-AIR" # Default if not set elsewhere
+             self.state_mirror_engine.base_topic = app_constants.get_mqtt_base_topic() # Default if not set elsewhere
 
         self.widget_factory = {
             "_sliderValue": self._create_slider_value,
@@ -201,6 +202,168 @@ class DynamicGuiBuilder(
 
         except Exception as e:
             debug_logger(message=f"❌ Error in __init__: {e}")
+
+    def _process_yak_handler(self, widget_instance, widget_config, current_path, tk_variable_or_get_func):
+        """
+        Processes the 'yak_handler' configuration for a widget, setting up dynamic MQTT
+        topics and binding a callback for communication with the YAK backend.
+        Includes extensive debugging.
+        """
+        if not app_constants.global_settings['debug_enabled']:
+            return # Skip if debug is not enabled
+
+        handler_cfg = widget_config.get("yak_handler", {})
+        if not handler_cfg or not handler_cfg.get("enable"):
+            debug_logger(message=f"🔍 Skipping yak_handler for '{current_path}': not enabled or configured.", **_get_log_args())
+            return
+
+        debug_logger(message=f"⚙️ Processing yak_handler for '{current_path}' with config: {handler_cfg}", **_get_log_args())
+
+        try:
+            # 1. Construct the Topics dynamically
+            sub_path = handler_cfg.get("sub_path")
+            yak_type = handler_cfg.get("yak_type") # e.g., "set", "rig", "nab", "do"
+            command = handler_cfg.get("command")
+            input_name = handler_cfg.get("input_name")
+            
+            if not all([sub_path, yak_type, command]):
+                debug_logger(message=f"❌ Incomplete yak_handler config for '{current_path}'. Missing sub_path, yak_type, or command.", **_get_log_args())
+                return
+
+            base_yak = f"{app_constants.get_mqtt_base_topic()}/yak/{sub_path}/{yak_type}/{command}"
+            input_topic = f"{base_yak}/scpi_inputs/{input_name}/value" if input_name else None
+            trigger_topic = f"{base_yak}/scpi_details/generic_model/trigger"
+            
+            debug_logger(message=f"🔗 Generated MQTT Topics for '{current_path}':", **_get_log_args())
+            debug_logger(message=f"   - Input Topic: {input_topic}", **_get_log_args())
+            debug_logger(message=f"   - Trigger Topic: {trigger_topic}", **_get_log_args())
+
+            # 2. Define the Bridge Function
+            def yak_bridge_callback(event=None):
+                debug_logger(message=f"⚡ yak_bridge_callback triggered for '{current_path}'", **_get_log_args())
+                
+                payload = None
+                if not handler_cfg.get("trigger_only"):
+                    # Get value from GUI variable or passed function
+                    if tk_variable_or_get_func:
+                        if callable(tk_variable_or_get_func):
+                            raw_value = tk_variable_or_get_func()
+                        else: # Assume it's a tk.Variable
+                            raw_value = tk_variable_or_get_func.get()
+                    else:
+                        # Attempt to get value directly from widget instance if tk_variable wasn't passed
+                        # This might be less reliable depending on widget type
+                        try:
+                            raw_value = widget_instance.get() # Common for Entry, Slider, etc.
+                        except AttributeError:
+                            raw_value = None # No direct get method
+                    
+                    debug_logger(message=f"   - Raw Value from GUI: '{raw_value}' (Type: {type(raw_value)})", **_get_log_args())
+
+                    # Apply Converter (if defined)
+                    converter = handler_cfg.get("converter")
+                    if converter == "mhz_to_hz":
+                        try:
+                            payload = float(raw_value) * 1_000_000
+                            debug_logger(message=f"   - Converted to Hz: {payload}", **_get_log_args())
+                        except (ValueError, TypeError):
+                            debug_logger(message=f"❌ Converter 'mhz_to_hz' failed for raw value '{raw_value}'", **_get_log_args())
+                            payload = raw_value
+                    elif converter == "bool_to_int":
+                        payload = 1 if raw_value in (True, 'True', '1') else 0
+                        debug_logger(message=f"   - Converted to int (bool_to_int): {payload}", **_get_log_args())
+                    elif converter == "float":
+                        try:
+                            payload = float(raw_value)
+                            debug_logger(message=f"   - Converted to float: {payload}", **_get_log_args())
+                        except (ValueError, TypeError):
+                            debug_logger(message=f"❌ Converter 'float' failed for raw value '{raw_value}'", **_get_log_args())
+                            payload = raw_value
+                    elif converter == "int":
+                        try:
+                            payload = int(float(raw_value)) # Handle cases where value might be float string
+                            debug_logger(message=f"   - Converted to int: {payload}", **_get_log_args())
+                        except (ValueError, TypeError):
+                            debug_logger(message=f"❌ Converter 'int' failed for raw value '{raw_value}'", **_get_log_args())
+                            payload = raw_value
+                    elif converter == "string":
+                        payload = str(raw_value)
+                        debug_logger(message=f"   - Converted to string: {payload}", **_get_log_args())
+                    else:
+                        payload = raw_value # No converter or unknown converter
+                        debug_logger(message=f"   - No converter applied. Payload: {payload}", **_get_log_args())
+
+                # 3. Publish to MQTT
+                if self.state_mirror_engine and self.state_mirror_engine.mqtt_client:
+                    if not handler_cfg.get("trigger_only") and input_topic and payload is not None:
+                        try:
+                            yak_info_payload = {
+                                "value": payload,
+                                "yak_handler_config": handler_cfg,
+                                "gui_path": current_path
+                            }
+                            self.state_mirror_engine.mqtt_client.publish(input_topic, orjson.dumps(yak_info_payload), retain=True)
+                            debug_logger(message=f"   - Published enriched input to '{input_topic}' with payload: {yak_info_payload}", **_get_log_args())
+                        except Exception as e:
+                            debug_logger(message=f"❌ Error publishing input for '{current_path}': {e}", **_get_log_args())
+                    
+                    # Fire Trigger (True -> False pulse)
+                    if trigger_topic:
+                        try:
+                            # Use unique instance_id for trigger if available in state_mirror_engine
+                            instance_id = getattr(self.state_mirror_engine, 'instance_id', None)
+                            trigger_payload_true = {"value": True, "instance_id": instance_id}
+                            trigger_payload_false = {"value": False, "instance_id": instance_id}
+
+                            self.state_mirror_engine.mqtt_client.publish(trigger_topic, orjson.dumps(trigger_payload_true))
+                            self.state_mirror_engine.mqtt_client.publish(trigger_topic, orjson.dumps(trigger_payload_false))
+                            debug_logger(message=f"   - Fired trigger for '{trigger_topic}'", **_get_log_args())
+                        except Exception as e:
+                            debug_logger(message=f"❌ Error firing trigger for '{current_path}': {e}", **_get_log_args())
+                else:
+                    debug_logger(message=f"⚠️ MQTT client not available in state_mirror_engine for '{current_path}'. Cannot publish.", **_get_log_args())
+                
+                debug_logger(message=f"✅ yak_bridge_callback completed for '{current_path}'", **_get_log_args())
+
+            # 3. Bind the Event
+            widget_type = widget_config.get("type")
+            if widget_type == "_sliderValue":
+                # Sliders emit <ButtonRelease-1> when the user stops dragging
+                widget_instance.bind("<ButtonRelease-1>", yak_bridge_callback)
+                debug_logger(message=f"   - Bound <ButtonRelease-1> to yak_bridge_callback for slider '{current_path}'", **_get_log_args())
+            elif widget_type in ["_GuiButtonToggle", "_GuiButtonToggler", "_GuiDropDownOption", "_GuiActuator", "_GuiCheckbox"]:
+                # These typically have a 'command' option
+                # We need to preserve any existing command and chain them, or replace.
+                # For simplicity now, if 'command' is already set by widget factory,
+                # we'll assume the widget's tk_variable is the source of truth,
+                # and the yak_bridge_callback should be bound to changes in that variable.
+                # Alternatively, we could wrap the original command.
+                
+                # A common pattern for these is that their value is linked to a tk_variable
+                # Binding to the tk_variable's trace for 'w'rite events is more robust.
+                if tk_variable_or_get_func and not callable(tk_variable_or_get_func): # if it's a tk.Variable
+                    tk_variable_or_get_func.trace_add('write', lambda *args: yak_bridge_callback())
+                    debug_logger(message=f"   - Bound tk.Variable trace to yak_bridge_callback for '{current_path}'", **_get_log_args())
+                else:
+                    # Fallback for widgets without direct tk_variable or for simple command widgets
+                    # This might overwrite existing commands, needs careful consideration for mixins
+                    if hasattr(widget_instance, 'config'): # Check if config method exists
+                        if 'command' in inspect.signature(widget_instance.config).parameters:
+                            widget_instance.config(command=yak_bridge_callback)
+                            debug_logger(message=f"   - Bound 'command' to yak_bridge_callback for '{current_path}'", **_get_log_args())
+                        else:
+                             debug_logger(message=f"   - Widget '{current_path}' does not support 'command' option for binding.", **_get_log_args())
+                    elif hasattr(widget_instance, 'bind'):
+                        # Generic binding attempt, e.g. <Button-1> for a button click
+                        widget_instance.bind("<Button-1>", yak_bridge_callback)
+                        debug_logger(message=f"   - Bound <Button-1> (fallback) to yak_bridge_callback for '{current_path}'", **_get_log_args())
+                    else:
+                        debug_logger(message=f"   - No suitable binding mechanism found for '{current_path}' (type: {widget_type})", **_get_log_args())
+            else:
+                debug_logger(message=f"   - No specific binding rule for widget type '{widget_type}' for '{current_path}'. Manual binding might be needed.", **_get_log_args())
+
+        except Exception as e:
+            debug_logger(message=f"❌ Error setting up yak_handler for '{current_path}': {e}", **_get_log_args())
 
     def _transmit_command(self, widget_name: str, value):
         if self.state_mirror_engine:
@@ -420,6 +583,14 @@ class DynamicGuiBuilder(
                         target_frame = None # Ensure target_frame is None on error
 
                 if target_frame:
+                    # Attempt to get the tk_variable associated with the widget
+                    # self.tk_vars is a dictionary storing tk.Variables mapped by their path
+                    tk_var = self.tk_vars.get(current_path)
+
+                    # Call _process_yak_handler if yak_handler is present in config
+                    if value.get("yak_handler"):
+                        self._process_yak_handler(target_frame, value, current_path, tk_var)
+                        
                     target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)
                     col += col_span
                     if col >= max_cols:
@@ -522,6 +693,14 @@ class DynamicGuiBuilder(
                             target_frame = None # Ensure target_frame is None on error
 
                     if target_frame:
+                        # Attempt to get the tk_variable associated with the widget
+                        # self.tk_vars is a dictionary storing tk.Variables mapped by their path
+                        tk_var = self.tk_vars.get(current_path)
+
+                        # Call _process_yak_handler if yak_handler is present in config
+                        if value.get("yak_handler"):
+                            self._process_yak_handler(target_frame, value, current_path, tk_var)
+
                         target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)
                         col += col_span
                         if col >= max_cols:

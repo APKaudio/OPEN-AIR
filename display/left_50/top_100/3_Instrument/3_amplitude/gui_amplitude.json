@@ -13,6 +13,14 @@
             "label_inactive": "Reference Level",
             "type": "_sliderValue",
             "handler": "set_ref_level",
+            "yak_handler": {
+              "enable": true,
+              "yak_type": "set",
+              "sub_path": "Amplitude",
+              "command": "Set_Reference_Level",
+              "input_name": "dbm_value",
+              "converter": "float"
+            },
             "locked": false,
             "value": "-30",
             "units": "dBm",
@@ -24,6 +32,14 @@
             "type": "_GuiDropDownOption",
             "AES70": "OcaSwitch",
             "handler": "set_reference_level",
+            "yak_handler": {
+              "enable": true,
+              "yak_type": "set",
+              "sub_path": "Amplitude",
+              "command": "Set_Reference_Level",
+              "input_name": "dbm_value",
+              "converter": "float"
+            },
             "options": {
               "1": {
                 "label_active": "-125 dB",
@@ -212,6 +228,14 @@
             "type": "_GuiDropDownOption",
             "AES70": "OcaSwitch",
             "handler": "set_power_attenuation",
+            "yak_handler": {
+              "enable": true,
+              "yak_type": "set",
+              "sub_path": "Amplitude",
+              "command": "Set_Power_Attenuation",
+              "input_name": "db_value",
+              "converter": "float"
+            },
             "options": {
               "1": {
                 "label_active": "0 dB",
@@ -262,6 +286,14 @@
             "label_inactive": "Power Attenuation",
             "type": "_sliderValue",
             "handler": "set_power_attenuation",
+            "yak_handler": {
+              "enable": true,
+              "yak_type": "set",
+              "sub_path": "Amplitude",
+              "command": "Set_Power_Attenuation",
+              "input_name": "db_value",
+              "converter": "float"
+            },
             "locked": false,
             "value": "10",
             "units": "dBm",
@@ -277,6 +309,14 @@
         "type": "_GuiButtonToggle",
         "AES70": "OcaBooleanActuator",
         "handler": "toggle_preamp",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Amplitude",
+          "command": "Set_Power_Gain",
+          "input_name": "state_bool",
+          "converter": "bool_to_int"
+        },
         "options": {
           "ON": {
             "label_active": "Preamp ON",
@@ -296,6 +336,14 @@
         "type": "_GuiButtonToggle",
         "AES70": "OcaBooleanActuator",
         "handler": "toggle_high_sensitivity",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Amplitude",
+          "command": "Set_High_Sensitivity",
+          "input_name": "state_bool",
+          "converter": "bool_to_int"
+        },
         "options": {
           "ON": {
             "label_active": "High Sensitivity ON",

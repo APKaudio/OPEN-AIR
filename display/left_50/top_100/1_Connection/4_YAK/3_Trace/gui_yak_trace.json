@@ -13,7 +13,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe1:MODE?;:TRACe2:MODE?;:TRACe3:MODE?;:TRACe1:DATA?;:TRACe2:DATA?;:TRACe3:DATA?"
+            "message": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe1:MODE?;:TRACe2:MODE?;:TRACe3:MODE?;:TRACe1:DATA?;:TRACe2:DATA?;:TRACe3:DATA?"
           },
           "scpi_outputs": {
             "type": "OcaBlock",
@@ -64,7 +64,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRACe:DATA? TRACE1;:TRACe:DATA? TRACE2;:TRACe:DATA? TRACE3;"
+            "message": ":FREQuency:STARt?;:FREQuency:STOP?;:TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRACe:DATA? TRACE1;:TRACe:DATA? TRACE2;:TRACe:DATA? TRACE3;"
           },
           "scpi_outputs": {
             "type": "OcaBlock",
@@ -120,7 +120,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":TRACe<trace_number>:DATA?"
+            "message": ":TRACe<trace_number>:DATA?"
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -151,7 +151,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":TRACe:DATA? TRACE<trace_number>"
+            "message": ":TRACe:DATA? TRACE<trace_number>"
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -182,7 +182,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":TRACe<trace_number>:DATA?"
+            "message": ":TRACe<trace_number>:DATA?"
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -212,7 +212,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":TRACe:DATA? TRACE<trace_number>"
+            "message": ":TRACe:DATA? TRACE<trace_number>"
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -242,7 +242,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":TRACe<trace_number>:DATA?"
+            "message": ":TRACe<trace_number>:DATA?"
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -272,7 +272,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":TRACe:DATA? TRACE<trace_number>"
+            "message": ":TRACe:DATA? TRACE<trace_number>"
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -302,7 +302,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":TRACe<trace_number>:DATA?"
+            "message": ":TRACe<trace_number>:DATA?"
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -332,7 +332,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":TRACe:DATA? TRACE<trace_number>"
+            "message": ":TRACe:DATA? TRACE<trace_number>"
           },
           "scpi_inputs": {
             "type": "OcaBlock",

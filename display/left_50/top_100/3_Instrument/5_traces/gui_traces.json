@@ -6,7 +6,16 @@
       "TRACE_MODE_1": {
         "type": "_GuiDropDownOption",
         "AES70": "OcaSwitch",
-        "handler": "handle_trace_modes_beg",
+        "handler": "set_trace_mode",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Trace",
+          "command": "Set_Trace_Mode",
+          "input_name": "mode_string",
+          "converter": "string",
+          "trace_number": 1
+        },
         "options": {
           "WRITE": {
             "label_active": "LIVE REALTIME",
@@ -59,7 +68,16 @@
       "TRACE_MODE_2": {
         "type": "_GuiDropDownOption",
         "AES70": "OcaSwitch",
-        "handler": "handle_trace_modes_beg",
+        "handler": "set_trace_mode",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Trace",
+          "command": "Set_Trace_Mode",
+          "input_name": "mode_string",
+          "converter": "string",
+          "trace_number": 2
+        },
         "options": {
           "WRITE": {
             "label_active": "LIVE REALTIME",
@@ -112,7 +130,16 @@
       "TRACE_MODE_3": {
         "type": "_GuiDropDownOption",
         "AES70": "OcaSwitch",
-        "handler": "handle_trace_modes_beg",
+        "handler": "set_trace_mode",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Trace",
+          "command": "Set_Trace_Mode",
+          "input_name": "mode_string",
+          "converter": "string",
+          "trace_number": 3
+        },
         "options": {
           "WRITE": {
             "label_active": "LIVE REALTIME",
@@ -165,7 +192,16 @@
       "TRACE_MODE_4": {
         "type": "_GuiDropDownOption",
         "AES70": "OcaSwitch",
-        "handler": "handle_trace_modes_beg",
+        "handler": "set_trace_mode",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Trace",
+          "command": "Set_Trace_Mode",
+          "input_name": "mode_string",
+          "converter": "string",
+          "trace_number": 4
+        },
         "options": {
           "WRITE": {
             "label_active": "LIVE REALTIME",
@@ -220,6 +256,14 @@
         "type": "_GuiButtonToggle",
         "AES70": "OcaBooleanActuator",
         "handler": "set_continuous_initiate_mode",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Trace",
+          "command": "Set_Continuous_Mode",
+          "input_name": "state_bool",
+          "converter": "bool_to_int"
+        },
         "options": {
           "ON": {
             "label_active": "CONTINUOUS ON",
@@ -241,6 +285,13 @@
         "type": "_GuiActuator",
         "AES70": "OcaBooleanActuator",
         "handler": "toggle_continuous_initiate",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "do",
+          "sub_path": "Trace",
+          "command": "Do_Initiate_Continuous",
+          "trigger_only": true
+        },
         "trigger": "0"
       }
     }
@@ -254,6 +305,14 @@
         "type": "_GuiButtonToggler",
         "AES70": "OcaSwitch",
         "handler": "set_averaging",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Trace",
+          "command": "Set_Averaging",
+          "input_name": "count_int",
+          "converter": "int"
+        },
         "options": {
           "0": {
             "label_active": "Off",

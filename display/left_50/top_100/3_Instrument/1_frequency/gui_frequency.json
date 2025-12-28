@@ -9,6 +9,14 @@
         "label_inactive": "Center Frequency",
         "type": "_sliderValue",
         "handler": "set_center_frequency",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Frequency",
+          "command": "Set_Center_Freq_MHz",
+          "input_name": "hz_value",
+          "converter": "mhz_to_hz"
+        },
         "locked": false,
         "value": "500",
         "min": "0",
@@ -21,6 +29,14 @@
         "label_inactive": "Frequency Span",
         "type": "_sliderValue",
         "handler": "set_span_frequency",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Frequency",
+          "command": "Set_Span_Frequency",
+          "input_name": "hz_value",
+          "converter": "mhz_to_hz"
+        },
         "locked": false,
         "value": "200",
         "min": "0",
@@ -33,6 +49,14 @@
         "label_inactive": "Start Frequency",
         "type": "_sliderValue",
         "handler": "set_start_frequency",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Frequency",
+          "command": "Set_Start_Freq_MHz",
+          "input_name": "hz_value",
+          "converter": "mhz_to_hz"
+        },
         "locked": false,
         "value": "400",
         "min": "0",
@@ -45,6 +69,14 @@
         "label_inactive": "Stop Frequency",
         "type": "_sliderValue",
         "handler": "set_stop_frequency",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Frequency",
+          "command": "Set_Stop_Freq_MHz",
+          "input_name": "hz_value",
+          "converter": "mhz_to_hz"
+        },
         "locked": false,
         "value": "600",
         "min": "1",
@@ -63,6 +95,14 @@
         "type": "_GuiButtonToggler",
         "AES70": "OcaSwitch",
         "handler": "set_span_frequency",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Frequency",
+          "command": "Set_Span_Frequency",
+          "input_name": "hz_value",
+          "converter": "mhz_to_hz"
+        },
         "options": {
           "1": {
             "value": "0.01",

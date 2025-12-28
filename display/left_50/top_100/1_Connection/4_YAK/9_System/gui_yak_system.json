@@ -12,7 +12,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": ":SYSTem:ERRor?"
+            "message": ":SYSTem:ERRor?"
           },
           "scpi_outputs": {
             "type": "OcaBlock",
@@ -60,7 +60,7 @@
         "label_inactive": "Update Display",
         "Generic_Model": {
           "trigger": false,
-          "value": ":SYSTem:DISPlay:UPDate"
+          "message": ":SYSTem:DISPlay:UPDate"
         }
       },
       "Maintenance_Commands": {
@@ -94,7 +94,7 @@
             "label_inactive": "Power Cycle",
             "Generic_Model": {
               "trigger": false,
-              "value": ":SYSTem:POWer:RESet"
+              "message": ":SYSTem:POWer:RESet"
             }
           }
         }

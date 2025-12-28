@@ -34,11 +34,13 @@ import os
 import tkinter as tk
 from tkinter import ttk
 import inspect
+import orjson
 
 # --- Module Imports ---
 from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.setup.config_reader import Config # Import the Config class                                                                          
+from workers.mqtt.mqtt_publisher_service import publish_payload
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.utils.topic_utils import get_topic
@@ -109,6 +111,13 @@ class GuiActuatorCreatorMixin:
                 # --- New MQTT Wiring ---
                 widget_id = path
                 
+                # Publish the static configuration of the actuator
+                config_topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id, "config")
+                config_payload = orjson.dumps(config)
+                publish_payload(config_topic, config_payload, retain=True)
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"📢 Published actuator config for '{label}' to '{config_topic}'", **_get_log_args())
+
                 # 1. This widget is stateless and directly transmits commands,
                 #    so no StringVar to register.
 

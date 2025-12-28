@@ -10,6 +10,14 @@
         "type": "_GuiButtonToggle",
         "AES70": "OcaBooleanActuator",
         "handler": "turn_all_markers_on",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Markers",
+          "command": "Set_All_Markers_State",
+          "input_name": "state_bool",
+          "converter": "bool_to_int"
+        },
         "options": {
           "ON": {
             "label_active": "All Markers ON",
@@ -34,7 +42,16 @@
         "label_inactive": "Active",
         "type": "_GuiCheckbox",
         "AES70": "OcaSwitch",
-        "handler": "toggle Marker 1 Active",
+        "handler": "toggle_marker_active",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Markers",
+          "command": "Set_Marker_State",
+          "input_name": "state_bool",
+          "converter": "bool_to_int",
+          "marker_number": 1
+        },
         "value": false
       },
       "X_MHz": {
@@ -42,6 +59,16 @@
         "label_inactive": "X",
         "type": "_Value",
         "AES70": "OcaFrequencyActuator",
+        "handler": "set_marker_frequency",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Markers",
+          "command": "Set_Marker_X_position",
+          "input_name": "hz_value",
+          "converter": "mhz_to_hz",
+          "marker_number": 1
+        },
         "value": "111",
         "units": "MHz"
       },
@@ -64,7 +91,16 @@
         "label_inactive": "Active",
         "type": "_GuiCheckbox",
         "AES70": "OcaSwitch",
-        "handler": "toggle Marker 2 Active",
+        "handler": "toggle_marker_active",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Markers",
+          "command": "Set_Marker_State",
+          "input_name": "state_bool",
+          "converter": "bool_to_int",
+          "marker_number": 2
+        },
         "value": false
       },
       "X_MHz": {
@@ -72,6 +108,16 @@
         "label_inactive": "X",
         "type": "_Value",
         "AES70": "OcaFrequencyActuator",
+        "handler": "set_marker_frequency",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Markers",
+          "command": "Set_Marker_X_position",
+          "input_name": "hz_value",
+          "converter": "mhz_to_hz",
+          "marker_number": 2
+        },
         "value": "111",
         "units": "MHz"
       },
@@ -94,7 +140,16 @@
         "label_inactive": "Active",
         "type": "_GuiCheckbox",
         "AES70": "OcaSwitch",
-        "handler": "toggle Marker 3 Active",
+        "handler": "toggle_marker_active",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Markers",
+          "command": "Set_Marker_State",
+          "input_name": "state_bool",
+          "converter": "bool_to_int",
+          "marker_number": 3
+        },
         "value": false
       },
       "X_MHz": {
@@ -102,6 +157,16 @@
         "label_inactive": "X",
         "type": "_Value",
         "AES70": "OcaFrequencyActuator",
+        "handler": "set_marker_frequency",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Markers",
+          "command": "Set_Marker_X_position",
+          "input_name": "hz_value",
+          "converter": "mhz_to_hz",
+          "marker_number": 3
+        },
         "value": "111",
         "units": "MHz"
       },
@@ -124,7 +189,16 @@
         "label_inactive": "Active",
         "type": "_GuiCheckbox",
         "AES70": "OcaSwitch",
-        "handler": "toggle Marker 4 Active",
+        "handler": "toggle_marker_active",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Markers",
+          "command": "Set_Marker_State",
+          "input_name": "state_bool",
+          "converter": "bool_to_int",
+          "marker_number": 4
+        },
         "value": false
       },
       "X_MHz": {
@@ -132,6 +206,16 @@
         "label_inactive": "X",
         "type": "_Value",
         "AES70": "OcaFrequencyActuator",
+        "handler": "set_marker_frequency",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Markers",
+          "command": "Set_Marker_X_position",
+          "input_name": "hz_value",
+          "converter": "mhz_to_hz",
+          "marker_number": 4
+        },
         "value": "111",
         "units": "MHz"
       },
@@ -154,7 +238,16 @@
         "label_inactive": "Active",
         "type": "_GuiCheckbox",
         "AES70": "OcaSwitch",
-        "handler": "toggle Marker 5 Active",
+        "handler": "toggle_marker_active",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Markers",
+          "command": "Set_Marker_State",
+          "input_name": "state_bool",
+          "converter": "bool_to_int",
+          "marker_number": 5
+        },
         "value": false
       },
       "X_MHz": {
@@ -162,6 +255,16 @@
         "label_inactive": "X",
         "type": "_Value",
         "AES70": "OcaFrequencyActuator",
+        "handler": "set_marker_frequency",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Markers",
+          "command": "Set_Marker_X_position",
+          "input_name": "hz_value",
+          "converter": "mhz_to_hz",
+          "marker_number": 5
+        },
         "value": "111",
         "units": "MHz"
       },
@@ -184,7 +287,16 @@
         "label_inactive": "Active",
         "type": "_GuiCheckbox",
         "AES70": "OcaSwitch",
-        "handler": "toggle Marker 6 Active",
+        "handler": "toggle_marker_active",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Markers",
+          "command": "Set_Marker_State",
+          "input_name": "state_bool",
+          "converter": "bool_to_int",
+          "marker_number": 6
+        },
         "value": false
       },
       "X_MHz": {
@@ -192,6 +304,16 @@
         "label_inactive": "X",
         "type": "_Value",
         "AES70": "OcaFrequencyActuator",
+        "handler": "set_marker_frequency",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Markers",
+          "command": "Set_Marker_X_position",
+          "input_name": "hz_value",
+          "converter": "mhz_to_hz",
+          "marker_number": 6
+        },
         "value": "111",
         "units": "MHz"
       },
