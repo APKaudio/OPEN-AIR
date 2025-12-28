@@ -40,6 +40,7 @@ class CustomFaderFrame(tk.Frame):
         self.label_text = config.get("label_active", "")
         self.outline_col = "black" # Not configurable at the moment
         self.outline_width = 1 # Not configurable at the moment
+        self.ticks = config.get("ticks", None)
 
         super().__init__(master, bg=self.bg_color, bd=self.border_width, relief="solid", highlightbackground=self.border_color, highlightthickness=self.border_width)
         self.variable = variable
@@ -218,6 +219,9 @@ class CustomFaderCreatorMixin:
                     active_color = "white" # Hardcoded for now, could be frame.handle_col
                 value_label.config(text=f"{int(current_fader_val)}", foreground=active_color)
                 
+                if state_mirror_engine:
+                    state_mirror_engine.broadcast_gui_change_to_mqtt(path)
+                
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"⚡ fluxing... Custom Fader '{frame.label_text}' updated visually to {current_fader_val} from MQTT.",
@@ -265,10 +269,10 @@ class CustomFaderCreatorMixin:
             return None
 
 
-    def _draw_fader(self, canvas, width, height, value, min_val, max_val, neutral_color, track_col, handle_col, accent_color):
+    def _draw_fader(self, frame_instance, canvas, width, height, value):
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
-                message=f"🎨 Drawing fader: value={value}, min_val={min_val}, max_val={max_val}, height={height}",
+                message=f"🎨 Drawing fader: value={value}, min_val={frame_instance.min_val}, max_val={frame_instance.max_val}, height={height}",
                 **_get_log_args()
             )
         canvas.delete("all")        
@@ -276,17 +280,17 @@ class CustomFaderCreatorMixin:
         cx = width / 2
         
         # Track (Groove)
-        canvas.create_line(cx, 10, cx, height-10, fill=track_col, width=4, capstyle=tk.ROUND)
+        canvas.create_line(cx, 10, cx, height-10, fill=frame_instance.track_col, width=4, capstyle=tk.ROUND)
         
         # Calculate handle position based on logarithmic scale
         # Normalize the current value to a 0-1 range (0 for min_val, 1 for max_val)
-        norm_value = (value - min_val) / (max_val - min_val) if (max_val - min_val) != 0 else 0
+        norm_value = (value - frame_instance.min_val) / (frame_instance.max_val - frame_instance.min_val) if (frame_instance.max_val - frame_instance.min_val) != 0 else 0
         norm_value = max(0.0, min(1.0, norm_value)) # Clamp to ensure it's within 0-1
 
         # Apply inverse logarithmic scaling if log_exponent is not 1.0 and range is not zero
-        if self.log_exponent != 1.0 and (max_val - min_val) != 0:
+        if frame_instance.log_exponent != 1.0 and (frame_instance.max_val - frame_instance.min_val) != 0:
             # Use max to prevent issues with 0 ** (1/E) when norm_value is 0 or very close
-            display_norm_pos = max(0.0000001, norm_value) ** (1.0 / self.log_exponent)
+            display_norm_pos = max(0.0000001, norm_value) ** (1.0 / frame_instance.log_exponent)
         else:
             display_norm_pos = norm_value # Linear display position
 
@@ -300,40 +304,53 @@ class CustomFaderCreatorMixin:
         tick_color = "light grey"  # User requested light grey
         tick_length_half = width * 0.1 # Small tick marks, 10% of width on each side
 
-        # Determine step for displaying ticks. User requested intervals of 5.
-        # Ensure that min_val, max_val, and interval are handled correctly for iteration direction.
-        if min_val < max_val:
-            start_tick = math.ceil(min_val / 5) * 5
-            end_tick = math.floor(max_val / 5) * 5
-            step = 5
-        else: # Handle case where max_val <= min_val, though unlikely for fader range
-            start_tick = math.floor(min_val / 5) * 5
-            end_tick = math.ceil(max_val / 5) * 5
-            step = -5 # Iterate downwards
+        tick_values = []
+        if frame_instance.ticks is not None:
+            tick_values = frame_instance.ticks
+        else:
+            # Determine step for displaying ticks. User requested intervals of 5.
+            # Ensure that min_val, max_val, and interval are handled correctly for iteration direction.
+            if frame_instance.min_val < frame_instance.max_val:
+                start_tick = math.ceil(frame_instance.min_val / 5) * 5
+                end_tick = math.floor(frame_instance.max_val / 5) * 5
+                step = 5
+            else: # Handle case where max_val <= min_val, though unlikely for fader range
+                start_tick = math.floor(frame_instance.min_val / 5) * 5
+                end_tick = math.ceil(frame_instance.max_val / 5) * 5
+                step = -5 # Iterate downwards
+            
+            tick_values = range(int(start_tick), int(end_tick) + 1, int(step))
 
-        for tick_value in range(int(start_tick), int(end_tick) + 1, int(step)):
+        for tick_value in tick_values:
             # Calculate linear normalized position for the tick value
-            linear_tick_norm = (tick_value - min_val) / (max_val - min_val) if (max_val - min_val) != 0 else 0
+            linear_tick_norm = (tick_value - frame_instance.min_val) / (frame_instance.max_val - frame_instance.min_val) if (frame_instance.max_val - frame_instance.min_val) != 0 else 0
             linear_tick_norm = max(0.0, min(1.0, linear_tick_norm)) # Clamp for safety
 
             # Apply inverse logarithmic scaling for display position
-            if self.log_exponent != 1.0 and (max_val - min_val) != 0:
+            if frame_instance.log_exponent != 1.0 and (frame_instance.max_val - frame_instance.min_val) != 0:
                 # Use max to prevent issues with 0 ** (1/E) when linear_tick_norm is 0 or very close
-                display_tick_norm = max(0.0000001, linear_tick_norm) ** (1.0 / self.log_exponent)
+                display_tick_norm = max(0.0000001, linear_tick_norm) ** (1.0 / frame_instance.log_exponent)
             else:
                 display_tick_norm = linear_tick_norm # Linear display position
 
             # Invert display_tick_norm because y=0 is top (max_val), y=1 is bottom (min_val)
             tick_y_pos = (height - 20) * (1 - display_tick_norm) + 10
             
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
+                    message=f"📊 Fader Tick: value={tick_value}, linear_norm={linear_tick_norm:.3f}, display_norm={display_tick_norm:.3f}, y_pos={tick_y_pos:.2f}",
+                    **_get_log_args()
+                )
             # Draw a short line for the tick mark
             canvas.create_line(cx - tick_length_half, tick_y_pos, cx + tick_length_half, tick_y_pos, fill=tick_color, width=1)
-            # Potentially add a label here later if needed, but for now, just lines.
+            
+            # Draw tick value label
+            canvas.create_text(cx + 15, tick_y_pos, text=str(int(tick_value)), fill=tick_color, anchor="w")
         
-        # Determine active_color based on norm_val
-        if abs(norm_val) < 0.01:
-            active_color = neutral_color # Neutral color
-        elif norm_val > 0:
+        # Determine active_color based on norm_value (using the actual norm_value, not display_norm_pos)
+        if abs(norm_value) < 0.01:
+            active_color = frame_instance.neutral_color # Neutral color
+        elif norm_value > 0:
             active_color = "red"
         else:
             active_color = "white"
@@ -343,15 +360,15 @@ class CustomFaderCreatorMixin:
         cap_width = width * 0.7 # Make cap width 70% of the canvas width
         cap_height = 30
         canvas.create_rectangle(
-            cx - cap_width/2, y_pos - cap_height/2, 
-            cx + cap_width/2, y_pos + cap_height/2, 
-            fill=handle_col, outline=track_col
+            cx - cap_width/2, handle_y - cap_height/2, 
+            cx + cap_width/2, handle_y + cap_height/2, 
+            fill=frame_instance.handle_col, outline=frame_instance.track_col
         )
         # Main center line on the cap
         line_length_half = cap_width * 0.4 # Roughly 80% of current cap_width
         line_offset = 6 # Vertical offset for the small lines
-        canvas.create_line(cx - line_length_half, y_pos, cx + line_length_half, y_pos, fill=track_col, width=2)
+        canvas.create_line(cx - line_length_half, handle_y, cx + line_length_half, handle_y, fill=frame_instance.track_col, width=2)
         # Additional smaller lines above and below
         small_line_length_half = line_length_half * 0.6 # 60% of the main line's half length
-        canvas.create_line(cx - small_line_length_half, y_pos - line_offset, cx + small_line_length_half, y_pos - line_offset, fill=track_col, width=1)
-        canvas.create_line(cx - small_line_length_half, y_pos + line_offset, cx + small_line_length_half, y_pos + line_offset, fill=track_col, width=1)
+        canvas.create_line(cx - small_line_length_half, handle_y - line_offset, cx + small_line_length_half, handle_y - line_offset, fill=frame_instance.track_col, width=1)
+        canvas.create_line(cx - small_line_length_half, handle_y + line_offset, cx + small_line_length_half, handle_y + line_offset, fill=frame_instance.track_col, width=1)

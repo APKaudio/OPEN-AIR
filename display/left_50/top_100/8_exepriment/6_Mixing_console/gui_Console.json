@@ -22,7 +22,7 @@
             "aux3": { "type": "_Knob", "label_active": "Aux 3", "indicator_color": "#FF8C00", "value_default": 43, "reff_point": 75, "min": 0, "max": 100 },
             "aux4": { "type": "_Knob", "label_active": "Aux 4", "indicator_color": "#FFD700", "value_default": 91, "reff_point": 75, "min": 0, "max": 100 },
             "pan": { "type": "_Panner", "label_active": "Pan", "value_default": -32, "reff_point": 0 },
-            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -100, "reff_point": -15, "value_min": -100, "value_max": 0, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -100, "reff_point": -15, "value_min": -100, "value_max": 20, "ticks": [-100, -80, -60, -45, -30, -15, 0, 10, 20], "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
             "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" }
         } },
         "ch2": { "type": "OcaBlock", "description": "CH 2", "fields": {
@@ -33,7 +33,7 @@
             "aux3": { "type": "_Knob", "label_active": "Aux 3", "indicator_color": "#FF8C00", "value_default": 5, "reff_point": 75, "min": 0, "max": 100 },
             "aux4": { "type": "_Knob", "label_active": "Aux 4", "indicator_color": "#FFD700", "value_default": 99, "reff_point": 75, "min": 0, "max": 100 },
             "pan": { "type": "_Panner", "label_active": "Pan", "value_default": -32, "reff_point": 0 },
-            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -20, "reff_point": -15, "value_min": -100, "value_max": 0, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -100, "reff_point": -15, "value_min": -100, "value_max": 20, "ticks": [-100, -80, -60, -45, -30, -15, 0, 10, 20], "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
             "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" }
         } },
         "ch3": { "type": "OcaBlock", "description": "CH 3", "fields": {
@@ -44,7 +44,7 @@
             "aux3": { "type": "_Knob", "label_active": "Aux 3", "indicator_color": "#FF8C00", "value_default": 14, "reff_point": 75, "min": 0, "max": 100 },
             "aux4": { "type": "_Knob", "label_active": "Aux 4", "indicator_color": "#FFD700", "value_default": 55, "reff_point": 75, "min": 0, "max": 100 },
             "pan": { "type": "_Panner", "label_active": "Pan", "value_default": 32, "reff_point": 0 },
-            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -5, "reff_point": -15, "value_min": -100, "value_max": 0, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -100, "reff_point": -15, "value_min": -100, "value_max": 20, "ticks": [-100, -80, -60, -45, -30, -15, 0, 10, 20], "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
             "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" }
         } },
         "ch4": { "type": "OcaBlock", "description": "CH 4", "fields": {
@@ -55,7 +55,7 @@
             "aux3": { "type": "_Knob", "label_active": "Aux 3", "indicator_color": "#FF8C00", "value_default": 47, "reff_point": 75, "min": 0, "max": 100 },
             "aux4": { "type": "_Knob", "label_active": "Aux 4", "indicator_color": "#FFD700", "value_default": 28, "reff_point": 75, "min": 0, "max": 100 },
             "pan": { "type": "_Panner", "label_active": "Pan", "value_default": 0, "reff_point": 0 },
-            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": 0, "reff_point": -15, "value_min": -100, "value_max": 0, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -100, "reff_point": -15, "value_min": -100, "value_max": 20, "ticks": [-100, -80, -60, -45, -30, -15, 0, 10, 20], "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
             "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" }
         } },
         "ch5": { "type": "OcaBlock", "description": "CH 5", "fields": {
@@ -66,7 +66,7 @@
             "aux3": { "type": "_Knob", "label_active": "Aux 3", "indicator_color": "#FF8C00", "value_default": 94, "reff_point": 75, "min": 0, "max": 100 },
             "aux4": { "type": "_Knob", "label_active": "Aux 4", "indicator_color": "#FFD700", "value_default": 18, "reff_point": 75, "min": 0, "max": 100 },
             "pan": { "type": "_Panner", "label_active": "Pan", "value_default": 0, "reff_point": 0 },
-            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -10, "reff_point": -15, "value_min": -100, "value_max": 0, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -100, "reff_point": -15, "value_min": -100, "value_max": 20, "ticks": [-100, -80, -60, -45, -30, -15, 0, 10, 20], "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
             "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" }
         } },
         "ch6": { "type": "OcaBlock", "description": "CH 6", "fields": {
@@ -77,7 +77,7 @@
             "aux3": { "type": "_Knob", "label_active": "Aux 3", "indicator_color": "#FF8C00", "value_default": 53, "reff_point": 75, "min": 0, "max": 100 },
             "aux4": { "type": "_Knob", "label_active": "Aux 4", "indicator_color": "#FFD700", "value_default": 85, "reff_point": 75, "min": 0, "max": 100 },
             "pan": { "type": "_Panner", "label_active": "Pan", "value_default": 0, "reff_point": 0 },
-            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -30, "reff_point": -15, "value_min": -100, "value_max": 0, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -100, "reff_point": -15, "value_min": -100, "value_max": 20, "ticks": [-100, -80, -60, -45, -30, -15, 0, 10, 20], "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
             "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" }
         } },
         "ch7": { "type": "OcaBlock", "description": "CH 7", "fields": {
@@ -88,7 +88,7 @@
             "aux3": { "type": "_Knob", "label_active": "Aux 3", "indicator_color": "#FF8C00", "value_default": 21, "reff_point": 75, "min": 0, "max": 100 },
             "aux4": { "type": "_Knob", "label_active": "Aux 4", "indicator_color": "#FFD700", "value_default": 66, "reff_point": 75, "min": 0, "max": 100 },
             "pan": { "type": "_Panner", "label_active": "Pan", "value_default": -64, "reff_point": 0 },
-            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -50, "reff_point": -15, "value_min": -100, "value_max": 0, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -100, "reff_point": -15, "value_min": -100, "value_max": 20, "ticks": [-100, -80, -60, -45, -30, -15, 0, 10, 20], "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
             "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" }
         } },
         "ch8": { "type": "OcaBlock", "description": "CH 8", "fields": {
@@ -99,7 +99,7 @@
             "aux3": { "type": "_Knob", "label_active": "Aux 3", "indicator_color": "#FF8C00", "value_default": 98, "reff_point": 75, "min": 0, "max": 100 },
             "aux4": { "type": "_Knob", "label_active": "Aux 4", "indicator_color": "#FFD700", "value_default": 11, "reff_point": 75, "min": 0, "max": 100 },
             "pan": { "type": "_Panner", "label_active": "Pan", "value_default": 64, "reff_point": 0 },
-            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -100, "reff_point": -15, "value_min": -100, "value_max": 0, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -100, "reff_point": -15, "value_min": -100, "value_max": 20, "ticks": [-100, -80, -60, -45, -30, -15, 0, 10, 20], "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} },
             "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" }
         } }
     }

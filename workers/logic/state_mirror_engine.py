@@ -254,7 +254,28 @@ class StateMirrorEngine:
                                 message=f"⚠️ Incoming MQTT value {new_value_float} for '{widget_info['id']}' clamped to {clamped_value} (Configured range: {min_val} to {max_val}).",
                                 **_get_log_args()
                             )
-                        new_value = clamped_value # Use the clamped value
+                        new_value_float = clamped_value # Use the clamped value
+                    
+                    widget_type = widget_config.get("type")
+
+                    if widget_type == "_CustomFader":
+                        log_exponent = float(widget_config.get("log_exponent", 1.0))
+                        if log_exponent != 1.0 and (max_val - min_val) != 0:
+                            # 1. Normalize the incoming linear value (clamped_value) to a 0-1 linear position.
+                            linear_norm_pos = (new_value_float - min_val) / (max_val - min_val)
+                            linear_norm_pos = max(0.0000001, min(1.0, linear_norm_pos)) # Clamp to avoid issues with 0 or 1 edge cases
+
+                            # 2. Apply the logarithmic curve (inverse of _draw_fader's visual scaling)
+                            # This transforms the linear_norm_pos into the logarithmic domain for setting the tk_var.
+                            log_transformed_norm_pos = linear_norm_pos ** (1.0 / log_exponent)
+                            
+                            # 3. Map this transformed normalized position back to the fader's actual value range.
+                            new_value = min_val + log_transformed_norm_pos * (max_val - min_val)
+                        else:
+                            new_value = new_value_float # If log_exponent is 1.0 (linear), use clamped_value directly
+                    else:
+                        new_value = new_value_float # For non-fader widgets, use clamped_value directly
+
 
                     if app_constants.global_settings['debug_enabled']:
                         debug_logger(
