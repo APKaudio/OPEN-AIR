@@ -8,8 +8,10 @@ from .mqtt_connection_manager import MqttConnectionManager
 import orjson
 from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
+from workers.setup.config_reader import Config # Import the Config class
+app_constants = Config.get_instance() # Get the singleton instance
 
-def publish_payload(topic: str, payload: str, retain: bool = False):
+def publish_payload(topic: str, payload: str, retain: bool = app_constants.MQTT_RETAIN_BEHAVIOR):
     """
     Publishes a payload to a given topic.
     """
@@ -30,7 +32,7 @@ def publish_json_structure(base_topic: str, json_data: dict):
     client = connection_manager.get_client_instance()
     if client and client.is_connected():
         payload = orjson.dumps(json_data)
-        client.publish(base_topic, payload, retain=True)
+        client.publish(base_topic, payload, retain=app_constants.MQTT_RETAIN_BEHAVIOR)
         debug_logger(message=f"📤 Published JSON structure to {base_topic}", **_get_log_args())
     else:
         debug_logger(message=f"❌ Not connected to broker. Cannot publish JSON structure to {base_topic}.", **_get_log_args())

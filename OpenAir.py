@@ -18,8 +18,8 @@ from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance and ensure config is read
 
 # --- Core Application Imports ---
-import before_main # Moved to top - app_constants is already global
-before_main.initialize_flags() # Call early to set flags
+from managers.dependancy import dependancy_checker
+dependancy_checker.initialize_flags(app_constants) # Call early to set flags
 
 # Other essential modules
 from workers.splash.splash_screen import SplashScreen
@@ -38,10 +38,14 @@ from managers.manager_launcher import launch_managers
 current_version = "20251226.000000.1"
 
 def _reveal_main_window(root, splash):
+    debug_logger(message="DEBUG: Entering _reveal_main_window.", **_get_log_args())
     if app_constants.ENABLE_DEBUG_SCREEN:
-        print("DEBUG: Revealing main window...")
+        debug_logger(message="DEBUG: Revealing main window...", **_get_log_args())
+    debug_logger(message="DEBUG: Calling root.deiconify().", **_get_log_args())
     root.deiconify() # Ensure main window is visible
+    debug_logger(message="DEBUG: Calling splash.hide().", **_get_log_args())
     splash.hide()    # Dismiss the splash screen
+    debug_logger(message="DEBUG: _reveal_main_window completed.", **_get_log_args())
 
 def action_open_display(root, splash, mqtt_connection_manager, subscriber_router, state_mirror_engine):
     """
@@ -81,20 +85,10 @@ def action_open_display(root, splash, mqtt_connection_manager, subscriber_router
         splash.set_status("Workers launched.")
         root.update()
 
+        debug_logger(message="DEBUG: Calling _reveal_main_window.", **_get_log_args())
+        _reveal_main_window(root, splash)
+        debug_logger(message="DEBUG: _reveal_main_window returned.", **_get_log_args())
         
-
-        # Schedule the final reveal to happen after the event loop has had a chance to start properly.
-
-        root.after(2000, lambda: (
-
-            (print("DEBUG: _reveal_main_window SCHEDULED AND EXECUTING") if app_constants.ENABLE_DEBUG_SCREEN else None), 
-
-            _reveal_main_window(root, splash)
-
-        ))
-
-        
-
         return app
 
 
@@ -111,7 +105,6 @@ def action_open_display(root, splash, mqtt_connection_manager, subscriber_router
 
 def main():
     """The main execution function for the application."""
-    temp_print = print # Keep temp_print for critical bootstrap failures that happen before debug_log is fully functional
     GLOBAL_PROJECT_ROOT = None
     data_dir = None
 
@@ -124,6 +117,7 @@ def main():
     from workers.setup.debug_cleaner import clear_debug_directory
     from workers.setup.console_encoder import configure_console_encoding
     import pathlib
+    import workers.utils.watchdog as watchdog # Import watchdog
 
     GLOBAL_PROJECT_ROOT, data_dir = initialize_paths()
     log_dir = pathlib.Path(data_dir) / "debug"
@@ -131,16 +125,19 @@ def main():
     clear_debug_directory(data_dir)
     configure_console_encoding()
 
+    # START THE WATCHDOG
+    watchdog.start_heartbeat(debug_logger) 
+    
     # Now that the logger is safe, we can proceed with the rest of the setup.
     if not initialize_app():
-        temp_print("❌ Critical initialization failed. Application will now exit.")
+        debug_logger(message="❌ Critical initialization failed. Application will now exit.", **_get_log_args())
         sys.exit(1)
 
     # Perform dependency check after initial setup
     def conditional_console_print(message):
         if app_constants.global_settings["debug_enabled"]:
-            print(message)
-    before_main.run_interactive_pre_check(conditional_console_print, debug_logger)
+            debug_logger(message=message, **_get_log_args())
+    dependancy_checker.run_interactive_pre_check(conditional_console_print, debug_logger, app_constants)
 
     # --- GUI setup starts here, after core initialization is complete ---
     root = tk.Tk()
@@ -149,7 +146,7 @@ def main():
     # root.withdraw() # Removed for diagnostic
     
    
-    splash = SplashScreen(root, app_constants.CURRENT_VERSION, app_constants.global_settings['debug_enabled'], temp_print, debug_logger)
+    splash = SplashScreen(root, app_constants.CURRENT_VERSION, app_constants.global_settings['debug_enabled'], debug_logger, debug_logger)
     root.splash_window = splash.splash_window # Strong reference
     splash.set_status("Initialization complete. Loading UI...")
     root.update() 
@@ -178,6 +175,7 @@ def main():
 
     root.protocol("WM_DELETE_WINDOW", on_closing)
     
+    debug_logger(message="DEBUG: Entering root.mainloop().", **_get_log_args())
     # Finally, enter the main event loop.
     root.mainloop()
 

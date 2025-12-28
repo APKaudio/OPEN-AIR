@@ -7,10 +7,8 @@
 #
 
 import inspect
-import os
-from workers.setup.config_reader import Config
 
-app_constants = Config.get_instance()
+import os
 
 def _get_log_args():
     """

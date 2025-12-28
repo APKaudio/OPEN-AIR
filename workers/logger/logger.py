@@ -6,13 +6,33 @@
 import os
 import time
 from datetime import datetime
-from workers.setup.config_reader import Config 
+# REMOVE: from workers.setup.config_reader import Config 
 
-app_constants = Config.get_instance() 
+# Global cache for Config instance
+_config_instance_cache = None
 
 # --- GLOBALS ---
 _log_directory = None
 _log_buffer = [] 
+
+def _get_config_instance():
+    global _config_instance_cache
+    if _config_instance_cache is None:
+        from workers.setup.config_reader import Config
+        # This is the crucial change: don't call Config.get_instance() recursively.
+        # Instead, try to retrieve the already partially constructed instance.
+        # If Config._instance is still None, it means Config is not yet fully initialized.
+        # In this very early stage, we might have to use some sensible defaults.
+        if Config._instance is None:
+            class DummyConfig:
+                PERFORMANCE_MODE = False
+                @property
+                def global_settings(self):
+                    return {"debug_to_terminal": True, "debug_to_file": False, "debug_enabled": False} # Sensible defaults
+            _config_instance_cache = DummyConfig()
+        else:
+            _config_instance_cache = Config._instance
+    return _config_instance_cache
 
 def set_log_directory(directory):
     """
@@ -24,17 +44,20 @@ def set_log_directory(directory):
     # Create directory if it doesn't exist
     if not os.path.exists(_log_directory):
         try:
+            config_instance = _get_config_instance()
             os.makedirs(_log_directory)
-            if app_constants.global_settings.get("debug_to_terminal", True):
+            if config_instance.global_settings.get("debug_to_terminal", True): # Use config_instance
                 print(f"📁 Created log directory: {_log_directory}")
         except OSError as e:
-            if app_constants.global_settings.get("debug_to_terminal", True):
+            config_instance = _get_config_instance()
+            if config_instance.global_settings.get("debug_to_terminal", True): # Use config_instance
                 print(f"❌ Error creating log directory: {e}")
             return
 
     # 🧪 FLUSH THE BUFFER
     if _log_buffer:
-        if app_constants.global_settings.get("debug_to_terminal", True):
+        config_instance = _get_config_instance()
+        if config_instance.global_settings.get("debug_to_terminal", True): # Use config_instance
             print(f"🧪 Great Scott! Flushing {len(_log_buffer)} buffered messages to the timeline!")
         for timestamp, level, message, context_data in _log_buffer:
             _write_to_file(timestamp, level, message, context_data)
@@ -46,6 +69,12 @@ def debug_logger(message: str, **kwargs):
     Public function to log debug messages.
     Receives 'message' and unpacked dictionary from _get_log_args() (file, function, version) in kwargs.
     """
+    config_instance = _get_config_instance() # Get the Config instance
+
+    # If PERFORMANCE_MODE is enabled, completely silence debug_logger
+    if config_instance.PERFORMANCE_MODE: # Use config_instance here
+        return
+    
     # Generate timestamp immediately so screen and file (if unbuffered) are close
     # Note: The buffer logic generates its own timestamp, but for screen printing we need one now.
     current_ts = f"{time.time():.6f}"
@@ -54,7 +83,7 @@ def debug_logger(message: str, **kwargs):
     level = "❌" if is_error else "🦆"
 
     # 1. TERMINAL OUTPUT (Immediate & Formatted)
-    if app_constants.global_settings.get('debug_to_terminal', True):
+    if config_instance.global_settings['debug_to_terminal']: # Use config_instance
         # Extract context
         c_file = kwargs.get('file', '?')
         c_func = kwargs.get('function', '?')
@@ -78,7 +107,10 @@ def console_log(message: str):
     """
     current_ts = f"{time.time():.6f}"
     # Console logs usually don't have deep context
-    print(f"{current_ts}🖥️{message}")
+    # Need to check config_instance here too if we want to silence console_log based on DEBUG_TO_TERMINAL
+    config_instance = _get_config_instance()
+    if config_instance.global_settings['debug_to_terminal']: # Use config_instance
+        print(f"{current_ts}🖥️{message}")
     _process_and_buffer_log_message("🖥️", message, {})
 
 # --- Alias for compatibility ---
@@ -93,8 +125,11 @@ def _process_and_buffer_log_message(level: str, message: str, context_data: dict
     
     if _log_directory is None:
         _log_buffer.append((timestamp, level, message, context_data))
-    elif app_constants.global_settings.get('debug_to_file', False): 
-        _write_to_file(timestamp, level, message, context_data)
+    else:
+        config_instance = _get_config_instance()
+        if config_instance.global_settings.get('debug_to_file', False): # Use config_instance
+            _write_to_file(timestamp, level, message, context_data)
+
 
 def _clean_context_string(c_file, c_func):
     """
@@ -122,6 +157,10 @@ def _clean_context_string(c_file, c_func):
 def _write_to_file(timestamp, level, message, context_data):
     """Helper to actually write to the disk."""
     try:
+        config_instance = _get_config_instance()
+        if not config_instance.global_settings.get('debug_to_file', False):
+            return # Don't write to file if debug_to_file is False
+
         # 1. Filename: YYYYMMDDHHMM.log
         ts_float = float(timestamp)
         file_time_str = datetime.fromtimestamp(ts_float).strftime("%Y%m%d%H%M")
@@ -151,6 +190,10 @@ def _write_to_file(timestamp, level, message, context_data):
 def _write_to_error_log(timestamp, level, message, context_data):
     """Helper to write error messages to a separate ERRORS.log file."""
     try:
+        config_instance = _get_config_instance()
+        if not config_instance.global_settings.get('debug_to_file', False):
+            return # Don't write to error log if debug_to_file is False
+
         if not _log_directory:
             return
 

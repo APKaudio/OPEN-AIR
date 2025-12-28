@@ -442,14 +442,28 @@ class DynamicGuiBuilder(
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(message="✅ Batch processing complete! All widgets built.", **_get_log_args())
 
-            # --- Publish entire GUI config to MQTT ---
-            if self.state_mirror_engine:
-                # Use the new path-based topic for GUI config
-                config_topic = get_topic(self.state_mirror_engine.base_topic, self.base_mqtt_topic_from_path, 'Config', 'Finished')
-                payload = orjson.dumps(self.config_data)
-                self.state_mirror_engine.publish_command(config_topic, payload)
-                if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"✅ Published entire GUI config to MQTT topic: {config_topic}", **_get_log_args())
+            # ------------------------------------------------------------------
+            # 🛑 MODIFICATION: WRAP THE HUGE PUBLISH IN A CONDITIONAL CHECK
+            # ------------------------------------------------------------------
+            if app_constants.ENABLE_FULL_CONFIG_MQTT_DUMP:
+                if self.state_mirror_engine:
+                    # Use the new path-based topic for GUI config
+                    config_topic = get_topic(
+                        self.state_mirror_engine.base_topic, 
+                        self.base_mqtt_topic_from_path, 
+                        'Config', 'Finished'
+                    )
+                    payload = orjson.dumps(self.config_data)
+                    self.state_mirror_engine.publish_command(config_topic, payload)
+                    
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(
+                            message=f"✅ Published entire GUI config to MQTT topic: {config_topic}", 
+                            **_get_log_args()
+                        )
+            else:
+                 # Optional: Log that we SKIPPED the dump (for sanity)
+                 pass
 
 
     def _create_dynamic_widgets(self, parent_frame, data, path_prefix="", override_cols=None):
@@ -515,4 +529,4 @@ class DynamicGuiBuilder(
                             row += row_span
 
         except Exception as e:
-            print(f"❌ Error in synchronous _create_dynamic_widgets: {e}")
+            debug_logger(message=f"❌ Error in synchronous _create_dynamic_widgets: {e}", **_get_log_args())
