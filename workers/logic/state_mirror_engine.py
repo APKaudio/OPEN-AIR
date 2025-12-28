@@ -234,60 +234,53 @@ class StateMirrorEngine:
                 
                 # Only update if different (prevent jitter)
                 if str(current_val) != str(new_value):
-                    # Clamp the new_value to the widget's configured min/max
                     widget_config = widget_info["config"]
-                    min_val = float(widget_config.get("min", -100.0))
-                    max_val = float(widget_config.get("max", 100.0))
+                    widget_type = widget_config.get("type")
                     
-                    # Ensure new_value is a float for comparison
-                    try:
-                        new_value_float = float(new_value)
-                    except (ValueError, TypeError):
-                        debug_logger(message=f"⚠️ Cannot convert MQTT new_value '{new_value}' to float for clamping. Ignoring.", **_get_log_args())
-                        return
+                    final_value = None
 
-                    clamped_value = max(min_val, min(max_val, new_value_float))
+                    # Process value based on widget type
+                    if widget_type == '_GuiButtonToggle':
+                        if isinstance(new_value, bool):
+                            final_value = new_value
+                        else:
+                            if str(new_value).lower() in ('true', '1', 'on'):
+                                final_value = True
+                            elif str(new_value).lower() in ('false', '0', 'off'):
+                                final_value = False
+                    
+                    elif widget_type in ['_CustomFader', '_sliderValue', '_Knob', '_VUMeter', '_NeedleVUMeter', '_Panner']:
+                        try:
+                            new_value_float = float(new_value)
+                            min_val = float(widget_config.get("min", -1e9)) # A very small number
+                            max_val = float(widget_config.get("max", 1e9))  # A very large number
+                            
+                            final_value = max(min_val, min(max_val, new_value_float))
 
-                    if new_value_float != clamped_value:
+                            if new_value_float != final_value and app_constants.global_settings['debug_enabled']:
+                                debug_logger(
+                                    message=f"⚠️ Incoming MQTT value {new_value_float} for '{widget_info['id']}' clamped to {final_value} (Range: {min_val} to {max_val}).",
+                                    **_get_log_args()
+                                )
+                        except (ValueError, TypeError):
+                            if app_constants.global_settings['debug_enabled']:
+                                debug_logger(message=f"⚠️ Cannot convert MQTT value '{new_value}' to float for {widget_type}. Ignoring.", **_get_log_args())
+                            return
+                    else:
+                        # Default for Dropdowns, TextInputs, etc.
+                        final_value = new_value
+
+                    if final_value is not None:
                         if app_constants.global_settings['debug_enabled']:
                             debug_logger(
-                                message=f"⚠️ Incoming MQTT value {new_value_float} for '{widget_info['id']}' clamped to {clamped_value} (Configured range: {min_val} to {max_val}).",
+                                message=f"⚡ fluxing... Updating GUI Widget '{widget_info['id']}' to {final_value}",
                                 **_get_log_args()
                             )
-                        new_value_float = clamped_value # Use the clamped value
-                    
-                    widget_type = widget_config.get("type")
-
-                    if widget_type == "_CustomFader":
-                        log_exponent = float(widget_config.get("log_exponent", 1.0))
-                        if log_exponent != 1.0 and (max_val - min_val) != 0:
-                            # 1. Normalize the incoming linear value (clamped_value) to a 0-1 linear position.
-                            linear_norm_pos = (new_value_float - min_val) / (max_val - min_val)
-                            linear_norm_pos = max(0.0000001, min(1.0, linear_norm_pos)) # Clamp to avoid issues with 0 or 1 edge cases
-
-                            # 2. Apply the logarithmic curve (inverse of _draw_fader's visual scaling)
-                            # This transforms the linear_norm_pos into the logarithmic domain for setting the tk_var.
-                            log_transformed_norm_pos = linear_norm_pos ** (1.0 / log_exponent)
-                            
-                            # 3. Map this transformed normalized position back to the fader's actual value range.
-                            new_value = min_val + log_transformed_norm_pos * (max_val - min_val)
-                        else:
-                            new_value = new_value_float # If log_exponent is 1.0 (linear), use clamped_value directly
-                    else:
-                        new_value = new_value_float # For non-fader widgets, use clamped_value directly
-
-
-                    if app_constants.global_settings['debug_enabled']:
-                        debug_logger(
-                            message=f"⚡ fluxing... Updating GUI Widget '{widget_info['id']}' to {new_value}",
-                            **_get_log_args()
-                        )
-                    # Temporarily disable broadcasting to prevent feedback loop
-                    self._silent_update = True
-                    try:
-                        tk_var.set(new_value)
-                    finally:
-                        self._silent_update = False
+                        self._silent_update = True
+                        try:
+                            tk_var.set(final_value)
+                        finally:
+                            self._silent_update = False
             else:
                 # Topic not registered to a specific widget
                 pass

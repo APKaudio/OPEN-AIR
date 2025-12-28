@@ -1,2 +1,3 @@
-1766890827.314567🗑️ Successfully deleted: /home/anthony/Documents/OPEN-AIR/DATA/debug/ERRORS.log ❌ debug cleaner🪿 clear debug directory  🧩 {'version': 'Unknown_Ver'}
-1766890828.968993❌ The Flux Capacitor is cracking! Error in sync_incoming_mqtt_to_gui: main thread is not in main loop ❌ state mirror engine🪿 sync incoming mqtt to gui  🧩 {'version': '20251225.004500.1'}
+1766892198.713374🗑️ Successfully deleted: /home/anthony/Documents/OPEN-AIR/DATA/debug/ERRORS.log ❌ debug cleaner🪿 clear debug directory  🧩 {'version': 'Unknown_Ver'}
+1766892200.407028❌ The Flux Capacitor is cracking! Error in sync_incoming_mqtt_to_gui: main thread is not in main loop ❌ state mirror engine🪿 sync incoming mqtt to gui  🧩 {'version': '20251225.004500.1'}
+1766892263.529476❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/3_markers/1_showtime/gui_showtime.py': unterminated string literal (detected at line 64) (worker_marker_file_import_handling.py, line 64). A setback, but not defeat! ❌ module loader🪿  load module  🧩 {'version': 'Unknown_Ver'}
