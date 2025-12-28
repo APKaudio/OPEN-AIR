@@ -141,6 +141,7 @@ def main():
 
     # --- GUI setup starts here, after core initialization is complete ---
     root = tk.Tk()
+    root.configure(bg="#2b2b2b")
     root.title("OPEN-AIR 2")
     root.geometry("1600x1200")
     # root.withdraw() # Removed for diagnostic
@@ -149,7 +150,6 @@ def main():
     splash = SplashScreen(root, app_constants.CURRENT_VERSION, app_constants.global_settings['debug_enabled'], debug_logger, debug_logger)
     root.splash_window = splash.splash_window # Strong reference
     splash.set_status("Initialization complete. Loading UI...")
-    root.update() 
     
     # Launch managers
     managers = launch_managers(app=None, splash=splash) # Pass app=None for now, will be updated.
