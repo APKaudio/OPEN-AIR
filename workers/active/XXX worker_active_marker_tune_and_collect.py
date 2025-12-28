@@ -90,10 +90,7 @@ class MarkerGoGetterWorker:
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
                 message=f"🟢️️️🟢 Initializing the tireless Marker Go-Getter!",
-                **_get_log_args()"
-                
-
-
+                **_get_log_args()
             )
 
         self.mqtt_util = mqtt_util

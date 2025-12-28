@@ -61,7 +61,7 @@ current_version_hash = (20251009 * 213617 * 2)
 current_file_path = pathlib.Path(__file__).resolve()
 # FIX: The project root is one level up from the 'workers' folder.
 project_root = current_file_path.parent.parent
-current_file = str(current_file_path.relative_to(project_root)).replace("\", "/")
+current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
 LOCAL_DEBUG_ENABLE = False
 
 # --- Constants ---
@@ -79,14 +79,9 @@ def maker_file_check_for_markers_file():
     
     if app_constants.global_settings['debug_enabled']:
         debug_logger(
-            message=f"🟢️️️🕵️‍♂️ Checking for existing markers file at: {target_path}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            
-
-
-        )
+                        function=f"{current_function}",
+                        **_get_log_args()
+                    )
     
     if target_path.is_file():
         if app_constants.global_settings['debug_enabled']:

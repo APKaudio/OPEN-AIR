@@ -23,8 +23,9 @@ import os
 import inspect
 from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
-from workers.utils.log_utils import _get_log_args
-from workers
+from workers.setup.config_reader import Config
+
+app_constants = Config.get_instance() # Get the singleton instance
 
 LOCAL_DEBUG_ENABLE = False
 
@@ -37,10 +38,7 @@ def fill_scpi_placeholders(scpi_command_template: str, scpi_inputs: dict):
     current_function_name = inspect.currentframe().f_code.co_name
     if app_constants.global_settings['debug_enabled']:
         debug_logger(message=f"🔍🔵 Entering {current_function_name} to fill SCPI placeholders.",
-                  **_get_log_args()
-                  
-
-)
+                  **_get_log_args())
               
     filled_command = scpi_command_template
     

@@ -64,7 +64,7 @@ class CustomKnobFrame(ttk.Frame):
         
         # 5. Bind Exit Events (Enter key or Clicking away)
         self.temp_entry.bind("<Return>", self._submit_manual_entry)
-        self.temp_entry.bind("<FocusOut>", self._destroy_manual_entry)
+        self.temp_entry.bind("<FocusOut>", self._submit_manual_entry)
         self.temp_entry.bind("<Escape>", self._destroy_manual_entry)
 
     def _submit_manual_entry(self, event):

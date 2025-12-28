@@ -54,10 +54,7 @@ class MarkerPeakPublisher:
         
         debug_logger(
             message=f"🟢️️️🟢 Initializing Peak Publisher for batch starting with {starting_device_id}. STARTING MAP GENERATION.",
-            **_get_log_args()"
-            
-
-
+            **_get_log_args()
         )
 
         self.mqtt_util = mqtt_util
@@ -66,10 +63,7 @@ class MarkerPeakPublisher:
         self.marker_to_device_map = self._generate_device_map(starting_device_id)
         debug_logger(
             message=f"🟢️️️🔍 Generated Map: {self.marker_to_device_map}",
-            **_get_log_args()"
-            
-
-
+            **_get_log_args()
         )
 
         # Register Subscription

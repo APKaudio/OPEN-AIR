@@ -64,7 +64,7 @@ class CustomPannerFrame(ttk.Frame):
         
         # 5. Bind Exit Events (Enter key or Clicking away)
         self.temp_entry.bind("<Return>", self._submit_manual_entry)
-        self.temp_entry.bind("<FocusOut>", self._destroy_manual_entry)
+        self.temp_entry.bind("<FocusOut>", self._submit_manual_entry)
         self.temp_entry.bind("<Escape>", self._destroy_manual_entry)
 
     def _submit_manual_entry(self, event):
@@ -307,77 +307,3 @@ class PannerCreatorMixin:
                 )
         # Update the label's color
         value_label.config(foreground=active_color)
-    def _jump_to_reff_point(self, event):
-        """
-        ⚡ Great Scott! Jumping to the Reference Point immediately!
-        """
-        if app_constants.global_settings['debug_enabled']: # Use global_settings for consistency
-            debug_logger(message=f"⚡ User invoked Quantum Jump! Resetting to {self.reff_point}", **_get_log_args())
-
-        self.variable.set(self.reff_point)
-        # Directly trigger MQTT update
-        if self.state_mirror_engine:
-            self.state_mirror_engine.broadcast_gui_change_to_mqtt(self.path)
-        
-    def _open_manual_entry(self, event):
-        """
-        📝 User requested manual coordinate entry.
-        """
-        # Ensure only one entry is open at a time
-        if self.temp_entry and self.temp_entry.winfo_exists():
-            return
-
-        self.temp_entry = tk.Entry(self, width=8, justify='center')
-        
-        # Place it exactly where the user clicked (or centered)
-        self.temp_entry.place(x=event.x - 20, y=event.y - 10) 
-        
-        # 3. Insert current value
-        current_val = self.variable.get()
-        self.temp_entry.insert(0, str(current_val))
-        self.temp_entry.select_range(0, tk.END) # Select all text for easy overwriting
-        
-        # 4. Focus so user can type immediately
-        self.temp_entry.focus_set()
-        
-        # 5. Bind Exit Events (Enter key or Clicking away)
-        self.temp_entry.bind("<Return>", self._submit_manual_entry)
-        self.temp_entry.bind("<FocusOut>", self._destroy_manual_entry)
-        self.temp_entry.bind("<Escape>", self._destroy_manual_entry)
-
-    def _submit_manual_entry(self, event):
-        """
-        Validates the input and sets the new timeline.
-        """
-        raw_value = self.temp_entry.get()
-        
-        try:
-            # Validate Number
-            new_value = float(raw_value)
-            
-            # Check Limits (The laws of physics!)
-            if self.min_val <= new_value <= self.max_val:
-                # Valid! Set it!
-                self.variable.set(new_value)
-                # Directly trigger MQTT update.
-                if self.state_mirror_engine:
-                    self.state_mirror_engine.broadcast_gui_change_to_mqtt(self.path)
-
-                if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"✅ Manual entry successful: {new_value}", **_get_log_args())
-            else:
-                if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"⚠️ Value {new_value} out of bounds! Ignoring.", **_get_log_args())
-                    
-        except ValueError:
-            # Not a number
-            if app_constants.global_settings['debug_enabled']:
-                debug_logger(message=f"❌ Invalid manual entry: '{raw_value}' is not a number.", **_get_log_args())
-        
-        # Cleanup
-        self._destroy_manual_entry(event)
-
-    def _destroy_manual_entry(self, event):
-        if self.temp_entry and self.temp_entry.winfo_exists():
-            self.temp_entry.destroy()
-            self.temp_entry = None # Clean up the attribute
