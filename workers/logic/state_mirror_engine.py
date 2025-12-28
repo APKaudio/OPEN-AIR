@@ -234,6 +234,28 @@ class StateMirrorEngine:
                 
                 # Only update if different (prevent jitter)
                 if str(current_val) != str(new_value):
+                    # Clamp the new_value to the widget's configured min/max
+                    widget_config = widget_info["config"]
+                    min_val = float(widget_config.get("min", -100.0))
+                    max_val = float(widget_config.get("max", 100.0))
+                    
+                    # Ensure new_value is a float for comparison
+                    try:
+                        new_value_float = float(new_value)
+                    except (ValueError, TypeError):
+                        debug_logger(message=f"⚠️ Cannot convert MQTT new_value '{new_value}' to float for clamping. Ignoring.", **_get_log_args())
+                        return
+
+                    clamped_value = max(min_val, min(max_val, new_value_float))
+
+                    if new_value_float != clamped_value:
+                        if app_constants.global_settings['debug_enabled']:
+                            debug_logger(
+                                message=f"⚠️ Incoming MQTT value {new_value_float} for '{widget_info['id']}' clamped to {clamped_value} (Configured range: {min_val} to {max_val}).",
+                                **_get_log_args()
+                            )
+                        new_value = clamped_value # Use the clamped value
+
                     if app_constants.global_settings['debug_enabled']:
                         debug_logger(
                             message=f"⚡ fluxing... Updating GUI Widget '{widget_info['id']}' to {new_value}",

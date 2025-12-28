@@ -6,7 +6,7 @@
 import os
 import time
 from datetime import datetime
-# REMOVE: from workers.setup.config_reader import Config 
+from workers.utils.log_utils import _get_log_args # Import _get_log_args
 
 # Global cache for Config instance
 _config_instance_cache = None
@@ -19,8 +19,6 @@ def _get_config_instance():
     global _config_instance_cache
     if _config_instance_cache is None:
         from workers.setup.config_reader import Config
-        # This is the crucial change: don't call Config.get_instance() recursively.
-        # Instead, try to retrieve the already partially constructed instance.
         # If Config._instance is still None, it means Config is not yet fully initialized.
         # In this very early stage, we might have to use some sensible defaults.
         if Config._instance is None:
@@ -32,6 +30,11 @@ def _get_config_instance():
             _config_instance_cache = DummyConfig()
         else:
             _config_instance_cache = Config._instance
+    # Ensure that if the real config has been initialized, we always return that.
+    # This covers the case where DummyConfig was used initially.
+    from workers.setup.config_reader import Config # Re-import just in case
+    if Config._instance is not None:
+        return Config._instance
     return _config_instance_cache
 
 def set_log_directory(directory):
@@ -44,25 +47,19 @@ def set_log_directory(directory):
     # Create directory if it doesn't exist
     if not os.path.exists(_log_directory):
         try:
-            config_instance = _get_config_instance()
             os.makedirs(_log_directory)
-            if config_instance.global_settings.get("debug_to_terminal", True): # Use config_instance
-                print(f"📁 Created log directory: {_log_directory}")
+            debug_logger(message=f"📁 Created log directory: {_log_directory}", **_get_log_args())
         except OSError as e:
-            config_instance = _get_config_instance()
-            if config_instance.global_settings.get("debug_to_terminal", True): # Use config_instance
-                print(f"❌ Error creating log directory: {e}")
+            debug_logger(message=f"❌ Error creating log directory: {e}", **_get_log_args())
             return
 
     # 🧪 FLUSH THE BUFFER
     if _log_buffer:
-        config_instance = _get_config_instance()
-        if config_instance.global_settings.get("debug_to_terminal", True): # Use config_instance
-            print(f"🧪 Great Scott! Flushing {len(_log_buffer)} buffered messages to the timeline!")
+        debug_logger(message=f"🧪 Great Scott! Flushing {len(_log_buffer)} buffered messages to the timeline!", **_get_log_args())
         for timestamp, level, message, context_data in _log_buffer:
             _write_to_file(timestamp, level, message, context_data)
         
-        _log_buffer = [] 
+        _log_buffer = []
 
 def debug_logger(message: str, **kwargs):
     """
@@ -128,7 +125,9 @@ def _process_and_buffer_log_message(level: str, message: str, context_data: dict
     else:
         config_instance = _get_config_instance()
         if config_instance.global_settings.get('debug_to_file', False): # Use config_instance
+            # Write current message
             _write_to_file(timestamp, level, message, context_data)
+
 
 
 def _clean_context_string(c_file, c_func):

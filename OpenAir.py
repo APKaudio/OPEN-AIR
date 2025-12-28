@@ -126,7 +126,7 @@ def main():
     configure_console_encoding()
 
     # START THE WATCHDOG
-    watchdog.start_heartbeat(debug_logger) 
+    watchdog.start_heartbeat(debug_logger, app_constants) 
     
     # Now that the logger is safe, we can proceed with the rest of the setup.
     if not initialize_app():

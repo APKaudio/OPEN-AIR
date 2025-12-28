@@ -13,7 +13,7 @@ from workers.utils.log_utils import _get_log_args
 # Global flag to kill the watchdog when app closes
 WATCHDOG_RUNNING = True
 
-def start_heartbeat(debug_logger_func=None):
+def start_heartbeat(debug_logger_func=None, app_constants_instance=None):
     """
     Starts a background thread that prints a heartbeat.
     If the GUI freezes, this thread SHOULD keep printing to the system console (terminal),
@@ -22,15 +22,16 @@ def start_heartbeat(debug_logger_func=None):
     global WATCHDOG_RUNNING
     WATCHDOG_RUNNING = True
     
-    thread = threading.Thread(target=_heartbeat_loop, args=(debug_logger_func,), daemon=True)
+    thread = threading.Thread(target=_heartbeat_loop, args=(debug_logger_func, app_constants_instance), daemon=True)
     thread.start()
-    print("🐕 Watchdog: Heartbeat thread started.")
+    if app_constants_instance and app_constants_instance.global_settings['debug_to_terminal']:
+        print("🐕 Watchdog: Heartbeat thread started.")
 
 def stop_heartbeat():
     global WATCHDOG_RUNNING
     WATCHDOG_RUNNING = False
 
-def _heartbeat_loop(logger_func):
+def _heartbeat_loop(logger_func, app_constants_instance):
     """
     The actual loop running in the background dimension.
     """
@@ -40,8 +41,9 @@ def _heartbeat_loop(logger_func):
         counter += 1
         
         # Message to the System Console (Terminal) - unlikely to freeze
-        sys.stdout.write(f"\r🐕 [Watchdog] Tick {counter}: System Alive.")
-        sys.stdout.flush()
+        if app_constants_instance and app_constants_instance.global_settings['debug_to_terminal']:
+            sys.stdout.write(f"\r🐕 [Watchdog] Tick {counter}: System Alive.")
+            sys.stdout.flush()
         
         # Message to the GUI/Logger - WILL freeze if GUI is blocked
         if logger_func:

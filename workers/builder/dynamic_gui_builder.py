@@ -327,9 +327,8 @@ class DynamicGuiBuilder(
 
     def _rebuild_gui(self):
         # Solution B: Silent Running Protocol (Log Suppression)
-
-        previous_performance_mode = app_constants.PERFORMANCE_MODE
-        app_constants.PERFORMANCE_MODE = True
+        # REMOVED: previous_performance_mode = app_constants.PERFORMANCE_MODE
+        # REMOVED: app_constants.PERFORMANCE_MODE = True
 
         try:
             if app_constants.global_settings['debug_enabled']:
@@ -354,6 +353,7 @@ class DynamicGuiBuilder(
             # Restore states in the final batch completion, not here.
             # The finalization (packing, restoring logs) will happen
             # at the end of the batch processing.
+            # REMOVED: app_constants.PERFORMANCE_MODE = False
             pass
 
     def _create_widgets_in_batches(self, parent_frame, widget_configs, path_prefix="", override_cols=None, start_index=0, row_offset=0):

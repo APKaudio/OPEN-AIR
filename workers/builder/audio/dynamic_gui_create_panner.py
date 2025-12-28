@@ -6,13 +6,103 @@
 import tkinter as tk
 from tkinter import ttk
 import math
-from workers.setup.config_reader import Config # Import the Config class                                                                          
+from workers.setup.config_reader import Config                                                                          
 
-app_constants = Config.get_instance() # Get the singleton instance      
+app_constants = Config.get_instance()      
 from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 import os
+
+class CustomPannerFrame(ttk.Frame):
+    """
+    A custom Tkinter Frame that hosts the panner and provides the "Flux Control" methods.
+    """
+    def __init__(self, parent, variable, min_val, max_val, reff_point, path, state_mirror_engine, command, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+        self.variable = variable
+        self.min_val = min_val
+        self.max_val = max_val
+        self.reff_point = reff_point
+        self.path = path
+        self.state_mirror_engine = state_mirror_engine
+        self.command = command # The function to call when value changes (e.g., on_drag_or_click)
+        self.temp_entry = None # Initialize temp_entry
+
+    def _jump_to_reff_point(self, event):
+        """
+        ⚡ Great Scott! Jumping to the Reference Point immediately!
+        """
+        if app_constants.global_settings['debug_enabled']: # Use global_settings for consistency
+            debug_logger(message=f"⚡ User invoked Quantum Jump! Resetting to {self.reff_point}", **_get_log_args())
+
+        self.variable.set(self.reff_point)
+        # Directly trigger MQTT update
+        if self.state_mirror_engine:
+            self.state_mirror_engine.broadcast_gui_change_to_mqtt(self.path)
+        
+    def _open_manual_entry(self, event):
+        """
+        📝 User requested manual coordinate entry.
+        """
+        # Ensure only one entry is open at a time
+        if self.temp_entry and self.temp_entry.winfo_exists():
+            return
+
+        self.temp_entry = tk.Entry(self, width=8, justify='center')
+        
+        # Place it exactly where the user clicked (or centered)
+        self.temp_entry.place(x=event.x - 20, y=event.y - 10) 
+        
+        # 3. Insert current value
+        current_val = self.variable.get()
+        self.temp_entry.insert(0, str(current_val))
+        self.temp_entry.select_range(0, tk.END) # Select all text for easy overwriting
+        
+        # 4. Focus so user can type immediately
+        self.temp_entry.focus_set()
+        
+        # 5. Bind Exit Events (Enter key or Clicking away)
+        self.temp_entry.bind("<Return>", self._submit_manual_entry)
+        self.temp_entry.bind("<FocusOut>", self._destroy_manual_entry)
+        self.temp_entry.bind("<Escape>", self._destroy_manual_entry)
+
+    def _submit_manual_entry(self, event):
+        """
+        Validates the input and sets the new timeline.
+        """
+        raw_value = self.temp_entry.get()
+        
+        try:
+            # Validate Number
+            new_value = float(raw_value)
+            
+            # Check Limits (The laws of physics!)
+            if self.min_val <= new_value <= self.max_val:
+                # Valid! Set it!
+                self.variable.set(new_value)
+                # Directly trigger MQTT update.
+                if self.state_mirror_engine:
+                    self.state_mirror_engine.broadcast_gui_change_to_mqtt(self.path)
+
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"✅ Manual entry successful: {new_value}", **_get_log_args())
+            else:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"⚠️ Value {new_value} out of bounds! Ignoring.", **_get_log_args())
+                    
+        except ValueError:
+            # Not a number
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"❌ Invalid manual entry: '{raw_value}' is not a number.", **_get_log_args())
+        
+        # Cleanup
+        self._destroy_manual_entry(event)
+
+    def _destroy_manual_entry(self, event):
+        if self.temp_entry and self.temp_entry.winfo_exists():
+            self.temp_entry.destroy()
+            self.temp_entry = None # Clean up the attribute
 
 class PannerCreatorMixin:
     def _create_panner(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
@@ -30,8 +120,41 @@ class PannerCreatorMixin:
         fg_color = colors.get("fg", "#dcdcdc")
         accent_color = colors.get("accent", "#33A1FD")
         secondary_color = colors.get("secondary", "#444444")
+        # Customization: Allow indicator_color to be specified in config, default to accent_color
+        indicator_color = config.get("indicator_color", accent_color)
 
-        frame = ttk.Frame(parent_frame)
+        # Create our custom frame type
+        min_val = float(config.get("min", -100.0))
+        max_val = float(config.get("max", 100.0))
+        reff_point = float(config.get("reff_point", (min_val + max_val) / 2.0)) # Default reff_point to midpoint
+        value_default = float(config.get("value_default", 0.0)) # Ensure float
+
+        panner_value_var = tk.DoubleVar(value=value_default)
+        
+        def on_drag_or_click_callback(event):
+            delta = 0
+            if hasattr(self, '_last_drag_y_panner'): # Use a unique name to avoid conflicts
+                delta = self._last_drag_y_panner - event.y
+            self._last_drag_y_panner = event.y
+            
+            new_val = panner_value_var.get() + (delta * (max_val - min_val) / 100)
+            new_val = max(min_val, min(max_val, new_val))
+            
+            # Update the StringVar, which will trigger the trace for visual update
+            if panner_value_var.get() != new_val: # Only update if value changed to prevent unnecessary MQTT messages
+                panner_value_var.set(new_val)
+                state_mirror_engine.broadcast_gui_change_to_mqtt(path) # Use state_mirror_engine directly
+
+        frame = CustomPannerFrame(
+            parent_frame,
+            variable=panner_value_var,
+            min_val=min_val,
+            max_val=max_val,
+            reff_point=reff_point,
+            path=path,
+            state_mirror_engine=state_mirror_engine,
+            command=on_drag_or_click_callback # Pass the callback
+        )
 
         if label:
             ttk.Label(frame, text=label).pack(side=tk.TOP, pady=(0, 5))
@@ -39,11 +162,6 @@ class PannerCreatorMixin:
         try:
             width = config.get("width", 50)
             height = config.get("height", 50)
-            min_val = config.get("min", -100)
-            max_val = config.get("max", 100)
-            value_default = float(config.get("value_default", 0)) # Ensure float
-
-            panner_value_var = tk.DoubleVar(value=value_default)
 
             # Canvas with Theme Background
             canvas = tk.Canvas(frame, width=width, height=height, bg=bg_color, highlightthickness=0)
@@ -56,7 +174,7 @@ class PannerCreatorMixin:
             def update_panner_visuals(*args):
                 current_panner_val = panner_value_var.get()
                 value_label.config(text=f"{int(current_panner_val)}")
-                self._draw_knob(canvas, width, height, current_panner_val, min_val, max_val, fg_color, accent_color, secondary_color)
+                self._draw_panner_visuals(canvas, width, height, current_panner_val, frame.min_val, frame.max_val, value_label, fg_color, accent_color, secondary_color)
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"⚡ fluxing... Panner '{label}' updated visually to {current_panner_val} from MQTT.",
@@ -69,25 +187,12 @@ class PannerCreatorMixin:
             update_panner_visuals()
 
             # Drag Interaction
-            def on_drag(event):
-                delta = 0
-                if hasattr(self, '_last_drag_y_panner'): # Use a unique name to avoid conflicts
-                    delta = self._last_drag_y_panner - event.y
-                self._last_drag_y_panner = event.y
-                
-                new_val = panner_value_var.get() + (delta * (max_val - min_val) / 100)
-                new_val = max(min_val, min(max_val, new_val))
-                
-                # Update the StringVar, which will trigger the trace for visual update
-                if panner_value_var.get() != new_val: # Only update if value changed to prevent unnecessary MQTT messages
-                    panner_value_var.set(new_val)
-                    state_mirror_engine.broadcast_gui_change_to_mqtt(path) # Use state_mirror_engine directly
+            canvas.bind("<Button-1>", on_drag_or_click_callback)
+            canvas.bind("<B1-Motion>", on_drag_or_click_callback)
 
-            def on_click(event):
-                self._last_drag_y_panner = event.y # Initialize drag start position
-
-            canvas.bind("<Button-1>", on_click)
-            canvas.bind("<B1-Motion>", on_drag)
+            # --- Bind Special Keys for Quantum Jump and Precise Entry ---
+            canvas.bind("<Control-Button-1>", frame._jump_to_reff_point)
+            canvas.bind("<Alt-Button-1>", frame._open_manual_entry)
 
             # Register the StringVar with the StateMirrorEngine for MQTT updates
             if path:
@@ -111,24 +216,168 @@ class PannerCreatorMixin:
             debug_logger(message=f"❌ The panner '{label}' shattered! Error: {e}")
             return None
 
-    def _draw_knob(self, canvas, width, height, value, min_val, max_val, fg, accent, secondary):
+    def _draw_panner_visuals(self, canvas, width, height, value, min_val, max_val, value_label, neutral_color, accent, secondary):
+        """
+        Draws the panner knob with dynamic coloring:
+        - 0 (Center): Neutral (No color spread)
+        - Positive (>0): RED spreading to the right
+        - Negative (<0): WHITE spreading to the left
+        """
         canvas.delete("all")
+        
+        # 1. Geometry Constants
         cx, cy = width / 2, height / 2
         radius = min(width, height) / 2 - 5
+        start_angle = 135
+        end_angle = 45
+        total_angle = 270
+        
+        # 2. Draw Background Arc (The "Track")
+        # tkinter arcs start from 3 o'clock (0) and go Counter-Clockwise
+        # 135 degrees is bottom-left, -45 (or 315) is bottom-right.
+        canvas.create_arc(
+            cx - radius, cy - radius, cx + radius, cy + radius,
+            start=270 - 45, extent=-270,  # Start at bottom-left, go around to bottom-right
+            style=tk.ARC, outline=secondary, width=4
+        )
 
-        # 1. Background Arc (The Track)
-        start_angle = 240
-        extent = -300 # 300 degrees total travel
-        canvas.create_arc(5, 5, width-5, height-5, start=start_angle, extent=extent, style=tk.ARC, outline=secondary, width=4)
+        # 3. Calculate Normalized Value (-1.0 to 1.0)
+        # Assuming min_val is like -64 and max_val is 64
+        # If value is 0, norm_val is 0.
+        # 3. Calculate Normalized Value (-1.0 to 1.0)
+        # Assuming min_val is like -64 and max_val is 64
+        # If value is 0, norm_val is 0.
+        
+        # Map input value to 0..1 range first
+        if max_val == min_val:
+            norm_val = 0
+        else:
+            # Map 0..1 to -1..1
+            norm_val = ((value - min_val) / (max_val - min_val) * 2) - 1
+                
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(message=f"Panner Debug: value={value}, min_val={min_val}, max_val={max_val}, norm_val={norm_val}", **_get_log_args())
+                
+        # 4. Determine Dynamic Color & Arc Extent
+        # Center of the pot (physically) is at 90 degrees (12 o'clock)
+        # 0 degrees in Tkinter is 3 o'clock. 90 is 12 o'clock.
+        
+        center_angle_tk = 90  # 12 o'clock
+        max_extent = 135      # Degrees from center to either side
+        
+        if abs(norm_val) < 0.01:
+            # --- DEAD CENTER (0) ---
+            # Draw a simple tick mark at 12 o'clock
+            active_color = neutral_color  # Neutral color
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"Panner Debug: Dead center. Active color={active_color}", **_get_log_args())
+            canvas.create_line(
+                cx, cy - radius + 2, cx, cy - radius + 12,
+                fill=active_color, width=3, capstyle=tk.ROUND
+            )
+            
+        else:
+            # --- OFF CENTER ---
+            if norm_val > 0:
+                # POSITIVE -> RIGHT -> RED
+                active_color = "red" # Or a brighter red like "#FF4444"
+                
+                # Arc starts at 90 (Top) and goes Clockwise (Negative extent in Tkinter)
+                # Extent is proportional to the value (0 to 1) * max_degrees
+                extent = -1 * (norm_val * max_extent)
+                
+                canvas.create_arc(
+                    cx - radius, cy - radius, cx + radius, cy + radius,
+                    start=center_angle_tk, extent=extent,
+                    style=tk.ARC, outline=active_color, width=4
+                )
+                
+            else:
+                # NEGATIVE -> LEFT -> WHITE
+                active_color = "white"
+                
+                # Arc starts at 90 (Top) and goes Counter-Clockwise (Positive extent)
+                # norm_val is negative, so abs(norm_val) * max_extent
+                extent = abs(norm_val) * max_extent
+                
+                canvas.create_arc(
+                    cx - radius, cy - radius, cx + radius, cy + radius,
+                    start=center_angle_tk, extent=extent,
+                    style=tk.ARC, outline=active_color, width=4
+                )
+        # Update the label's color
+        value_label.config(foreground=active_color)
+    def _jump_to_reff_point(self, event):
+        """
+        ⚡ Great Scott! Jumping to the Reference Point immediately!
+        """
+        if app_constants.global_settings['debug_enabled']: # Use global_settings for consistency
+            debug_logger(message=f"⚡ User invoked Quantum Jump! Resetting to {self.reff_point}", **_get_log_args())
 
-        # 2. Value Arc (The Active Level)
-        # Normalize value 0.0 to 1.0
-        norm_val = (value - min_val) / (max_val - min_val) if max_val > min_val else 0
-        val_extent = extent * norm_val
-        canvas.create_arc(5, 5, width-5, height-5, start=start_angle, extent=val_extent, style=tk.ARC, outline=accent, width=4)
+        self.variable.set(self.reff_point)
+        # Directly trigger MQTT update
+        if self.state_mirror_engine:
+            self.state_mirror_engine.broadcast_gui_change_to_mqtt(self.path)
+        
+    def _open_manual_entry(self, event):
+        """
+        📝 User requested manual coordinate entry.
+        """
+        # Ensure only one entry is open at a time
+        if self.temp_entry and self.temp_entry.winfo_exists():
+            return
 
-        # 3. The Pointer Line
-        angle_rad = math.radians(start_angle + val_extent)
-        px = cx + radius * math.cos(angle_rad)
-        py = cy - radius * math.sin(angle_rad) # Canvas Y is inverted
-        canvas.create_line(cx, cy, px, py, fill=fg, width=2, capstyle=tk.ROUND)
+        self.temp_entry = tk.Entry(self, width=8, justify='center')
+        
+        # Place it exactly where the user clicked (or centered)
+        self.temp_entry.place(x=event.x - 20, y=event.y - 10) 
+        
+        # 3. Insert current value
+        current_val = self.variable.get()
+        self.temp_entry.insert(0, str(current_val))
+        self.temp_entry.select_range(0, tk.END) # Select all text for easy overwriting
+        
+        # 4. Focus so user can type immediately
+        self.temp_entry.focus_set()
+        
+        # 5. Bind Exit Events (Enter key or Clicking away)
+        self.temp_entry.bind("<Return>", self._submit_manual_entry)
+        self.temp_entry.bind("<FocusOut>", self._destroy_manual_entry)
+        self.temp_entry.bind("<Escape>", self._destroy_manual_entry)
+
+    def _submit_manual_entry(self, event):
+        """
+        Validates the input and sets the new timeline.
+        """
+        raw_value = self.temp_entry.get()
+        
+        try:
+            # Validate Number
+            new_value = float(raw_value)
+            
+            # Check Limits (The laws of physics!)
+            if self.min_val <= new_value <= self.max_val:
+                # Valid! Set it!
+                self.variable.set(new_value)
+                # Directly trigger MQTT update.
+                if self.state_mirror_engine:
+                    self.state_mirror_engine.broadcast_gui_change_to_mqtt(self.path)
+
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"✅ Manual entry successful: {new_value}", **_get_log_args())
+            else:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"⚠️ Value {new_value} out of bounds! Ignoring.", **_get_log_args())
+                    
+        except ValueError:
+            # Not a number
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(message=f"❌ Invalid manual entry: '{raw_value}' is not a number.", **_get_log_args())
+        
+        # Cleanup
+        self._destroy_manual_entry(event)
+
+    def _destroy_manual_entry(self, event):
+        if self.temp_entry and self.temp_entry.winfo_exists():
+            self.temp_entry.destroy()
+            self.temp_entry = None # Clean up the attribute
