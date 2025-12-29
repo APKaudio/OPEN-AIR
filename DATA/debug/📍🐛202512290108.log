@@ -1,0 +1,8 @@
+1766988480.189993 ✅ Lazy Loading complete for tab: Media Elements 🦆 gui display🪿  on tab change  🧩 {'version': 'Unknown_Ver'}
+1766988480.190162 Calling _on_tab_selected for GenericInstrumentGui. 🦆 gui display🪿  on tab change  🧩 {'version': 'Unknown_Ver'}
+1766988480.190199 🖥️🔵 Tab 'Elements' activated! Stand back, I'm checking the data flow! 🦆 gui Elements🪿  on tab selected  🧩 {'version': 'Unknown_Ver'}
+1766988480.190220 ⏹️_on_tab_change complete for 'Media Elements'. 🦆 gui display🪿  on tab change  🧩 {'version': 'Unknown_Ver'}
+1766988482.894976 ▶️ _on_tab_change detected. 🦆 gui display🪿  on tab change  🧩 {'version': 'Unknown_Ver'}
+1766988482.895118 ⏹️_on_tab_change complete for 'Scan'. 🦆 gui display🪿  on tab change  🧩 {'version': 'Unknown_Ver'}
+1766988485.237019 Initiating application shutdown... 🦆 gui display🪿 shutdown  🧩 {'version': 'Unknown_Ver'}
+1766988485.737368 🔌 MQTT client disconnected. 🦆 mqtt connection manager🪿 disconnect  🧩 {'version': 'Unknown_Ver'}

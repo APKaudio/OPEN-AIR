@@ -1,0 +1,64 @@
+{
+  "DC_Load_Panel": {
+    "type": "OcaBlock",
+    "description": "DC Electronic Load Control Panel",
+    "fields": {
+      "Mode_Control": {
+        "type": "OcaBlock",
+        "description": "Operating Mode",
+        "fields": {
+          "mode_set": {
+            "type": "_GuiDropDownOption",
+            "label_active": "Mode",
+            "options": ["CC", "CV", "CR", "CP"],
+            "default_option": "CC",
+            "message_details": {
+              "DC_LOAD_MODEL": {
+                "type": "_GuiActuator",
+                "trigger": false,
+                "command_value": "MODE <value>"
+              }
+            }
+          }
+        }
+      },
+      "Value_Control": {
+        "type": "OcaBlock",
+        "description": "Set Value",
+        "fields": {
+          "set_value": {
+            "type": "_TextInput",
+            "label_active": "Set Value",
+            "value_default": "1.0",
+            "message_details": {
+              "DC_LOAD_MODEL": {
+                "type": "_GuiActuator",
+                "trigger": false,
+                "command_value": "<current_mode_command> <value>"
+              }
+            }
+          }
+        }
+      },
+      "Input_Control": {
+        "type": "OcaBlock",
+        "description": "Input State",
+        "fields": {
+          "input_enable": {
+            "type": "_GuiButtonToggle",
+            "label_active": "ON",
+            "label_inactive": "OFF",
+            "state_default": false,
+            "message_details": {
+              "DC_LOAD_MODEL": {
+                "type": "_GuiActuator",
+                "trigger": false,
+                "command_value": "INPUT <state>"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
