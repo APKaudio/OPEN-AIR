@@ -287,7 +287,7 @@ class CSVToJSONApp(tk.Tk):
 
         try:
             with open(json_filepath, 'w') as f:
-                orjson.dump(json_data, f, indent=4)
+                f.write(orjson.dumps(json_data).decode('utf-8'))
             
             self.update_output_with_json(json_data)
             messagebox.showinfo("Success", f"Successfully converted and saved to {json_filepath}")

@@ -1,0 +1,102 @@
+{
+
+    "nab": {
+      "type": "OcaBlock",
+      "description": "Load Measurements",
+      "fields": {
+        "Measure_All": {
+          "type": "OcaBlock",
+          "description": "Measure V, I, P",
+          "fields": {
+            "Generic_Model": {
+              "type": "_GuiActuator",
+              "active": true,
+              "message": "measure:volt?;measure:curr?;measure:pow?",
+              "layout": { "height": 30, "sticky": "" }
+            },
+            "scpi_outputs": {
+              "type": "OcaBlock",
+              "fields": {
+                "meas_voltage": { "value": "Measured Voltage", "type": "_Value" },
+                "meas_current": { "value": "Measured Current", "type": "_Value" },
+                "meas_power": { "value": "Measured Power", "type": "_Value" }
+              }
+            }
+          }
+        },
+        "Check_Status": {
+          "type": "OcaBlock",
+          "description": "Check Input Status",
+          "fields": {
+            "Generic_Model": {
+              "type": "_GuiActuator",
+              "active": true,
+              "message": "inp:stat?;mode?",
+              "layout": { "height": 30, "sticky": "" }
+            },
+            "scpi_outputs": {
+              "type": "OcaBlock",
+              "fields": {
+                "input_status": { "value": "Input State (0/1)", "type": "_Value" },
+                "mode_status": { "value": "Current Mode", "type": "_Value" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "set": {
+      "type": "OcaBlock",
+      "description": "Load Settings",
+      "fields": {
+        "Set_Resistance": {
+          "type": "OcaBlock",
+          "fields": {
+            "Generic_Model": {
+              "type": "_GuiActuator",
+              "active": true,
+              "message": "res:lev <res_val>",
+              "layout": { "height": 30, "sticky": "" }
+            },
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": {
+                "res_val": { "value": "1000", "type": "_Value", "description": "Resistance in Ohms" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Do": {
+      "type": "OcaBlock",
+      "description": "Load Actions",
+      "fields": {
+        "Input_Control": {
+          "type": "OcaBlock",
+          "fields": {
+            "Input_Enable": {
+              "type": "_GuiActuator",
+              "label_inactive": "Input ON",
+              "Generic_Model": { "message": "inp:stat on" }
+            },
+            "Input_Disable": {
+              "type": "_GuiActuator",
+              "label_inactive": "Input OFF",
+              "Generic_Model": { "message": "inp:stat off" }
+            },
+            "Set_Res_Mode": {
+              "type": "_GuiActuator",
+              "label_inactive": "Set Res Mode",
+              "Generic_Model": { "message": "mode:res" }
+            },
+            "Clear_Status": {
+              "type": "_GuiActuator",
+              "label_inactive": "CLS",
+              "Generic_Model": { "message": "*CLS" }
+            }
+          }
+        }
+      }
+    }
+  }

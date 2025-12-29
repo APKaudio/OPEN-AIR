@@ -118,7 +118,7 @@ class GenericInstrumentGui(ttk.Frame):
                     }
                 }
                 with open(temp_path, 'w') as tf:
-                    orjson.dump(norm_data, tf, indent=4)
+                   tf.write(orjson.dumps(norm_data).decode('utf-8'))
                 processed_path = str(temp_path)
             
             ## If mqtt_util is None because it was shut off in the orchestrator, 
@@ -145,7 +145,7 @@ class GenericInstrumentGui(ttk.Frame):
             self.status_label.config(text=error_msg, foreground="red")
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"🖥️🔴 Great Scott! The wrapper has failed to contain the builder! {e}",
+                    message=f"🖥️❌ 🔴 Great Scott! The wrapper has failed to contain the builder! {e}",
                     **_get_log_args()
                 )
 

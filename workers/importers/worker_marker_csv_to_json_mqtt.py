@@ -125,7 +125,7 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         # Ensure the DATA directory exists
         MARKERS_JSON_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(MARKERS_JSON_PATH, 'w') as f:
-            orjson.dump(json_state, f, indent=4)
+            f.write(orjson.dumps(json_state).decode('utf-8'))
         debug_logger(message=f"✅ Saved generated structure to {MARKERS_JSON_PATH}.")
     except Exception as e:
         debug_logger(message=f"❌ Error saving to {MARKERS_JSON_PATH}: {e}")

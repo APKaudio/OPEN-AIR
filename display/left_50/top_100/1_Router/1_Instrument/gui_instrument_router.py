@@ -118,7 +118,7 @@ class GenericInstrumentGui(ttk.Frame):
                     }
                 }
                 with open(temp_path, 'w') as tf:
-                   tf.write(orjson.dumps(norm_data).decode('utf-8'))
+                    tf.write(orjson.dumps(norm_data, indent=4).decode('utf-8'))
                 processed_path = str(temp_path)
             
             ## If mqtt_util is None because it was shut off in the orchestrator, 

@@ -1,0 +1,319 @@
+{
+  "nab": {
+    "type": "OcaBlock",
+    "description": "DMM Measurements",
+    "fields": {
+      "Measure_One_Shot": {
+        "type": "OcaBlock",
+        "description": "Configure and Measure immediately",
+        "fields": {
+          "Measure_DC_Voltage": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":MEASure:VOLTage:DC? <range>,<resolution>",
+            "layout": { "height": 30, "sticky": "" },
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": {
+                "range": { "value": "AUTO", "type": "_Value", "description": "Range (e.g., 10, 100, AUTO)" },
+                "resolution": { "value": "DEF", "type": "_Value", "description": "Resolution (e.g., 0.0001, DEF)" }
+              }
+            },
+            "scpi_outputs": {
+              "type": "OcaBlock",
+              "fields": { "reading": { "value": "Measured Value", "type": "_Value" } }
+            }
+          },
+          "Measure_AC_Voltage": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":MEASure:VOLTage:AC? <range>,<resolution>",
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": {
+                "range": { "value": "AUTO", "type": "_Value" },
+                "resolution": { "value": "DEF", "type": "_Value" }
+              }
+            },
+            "scpi_outputs": {
+              "type": "OcaBlock",
+              "fields": { "reading": { "value": "Measured Value", "type": "_Value" } }
+            }
+          },
+          "Measure_DC_Current": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":MEASure:CURRent:DC? <range>,<resolution>",
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": {
+                "range": { "value": "AUTO", "type": "_Value" },
+                "resolution": { "value": "DEF", "type": "_Value" }
+              }
+            },
+            "scpi_outputs": {
+              "type": "OcaBlock",
+              "fields": { "reading": { "value": "Measured Value", "type": "_Value" } }
+            }
+          },
+          "Measure_Resistance_2Wire": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":MEASure:RESistance? <range>,<resolution>",
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": {
+                "range": { "value": "AUTO", "type": "_Value" },
+                "resolution": { "value": "DEF", "type": "_Value" }
+              }
+            },
+            "scpi_outputs": {
+              "type": "OcaBlock",
+              "fields": { "reading": { "value": "Measured Value", "type": "_Value" } }
+            }
+          },
+          "Measure_Frequency": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":MEASure:FREQuency? <range>,<resolution>",
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": {
+                "range": { "value": "AUTO", "type": "_Value" },
+                "resolution": { "value": "DEF", "type": "_Value" }
+              }
+            },
+            "scpi_outputs": {
+              "type": "OcaBlock",
+              "fields": { "reading": { "value": "Measured Value", "type": "_Value" } }
+            }
+          }
+        }
+      },
+      "Read_Data": {
+        "type": "OcaBlock",
+        "description": "Fetch data after INITiate",
+        "fields": {
+          "Read_Next": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":READ?",
+            "layout": { "height": 30, "sticky": "" },
+            "scpi_outputs": {
+              "type": "OcaBlock",
+              "fields": { "reading": { "value": "Buffer Value", "type": "_Value" } }
+            }
+          }
+        }
+      }
+    }
+  },
+  "rig": {
+    "type": "OcaBlock",
+    "description": "DMM Configuration (No Trigger)",
+    "fields": {
+      "Configure_Functions": {
+        "type": "OcaBlock",
+        "description": "Preset meter for specific function",
+        "fields": {
+          "Config_DC_Volts": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":CONFigure:VOLTage:DC <range>,<resolution>",
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": {
+                "range": { "value": "AUTO", "type": "_Value" },
+                "resolution": { "value": "DEF", "type": "_Value" }
+              }
+            }
+          },
+          "Config_AC_Volts": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":CONFigure:VOLTage:AC <range>,<resolution>",
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": {
+                "range": { "value": "AUTO", "type": "_Value" },
+                "resolution": { "value": "DEF", "type": "_Value" }
+              }
+            }
+          },
+          "Config_Resistance_4Wire": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":CONFigure:FRESistance <range>,<resolution>",
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": {
+                "range": { "value": "AUTO", "type": "_Value" },
+                "resolution": { "value": "DEF", "type": "_Value" }
+              }
+            }
+          },
+          "Config_Temperature": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":CONFigure:TEMPerature <probe_type>,<sensor_type>",
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": {
+                "probe_type": { "value": "TCouple", "type": "_Value", "description": "FRTD, RTD, FTHermistor, THERmistor, TCouple" },
+                "sensor_type": { "value": "K", "type": "_Value", "description": "Type of sensor (e.g., K, J, T)" }
+              }
+            }
+          }
+        }
+      },
+      "Configure_Triggering": {
+        "type": "OcaBlock",
+        "description": "Setup Trigger Model",
+        "fields": {
+          "Set_Trigger_Source": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":TRIGger:SOURce <source>;:TRIGger:DELay <delay>",
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": {
+                "source": { "value": "IMMediate", "type": "_Value", "description": "IMMediate, EXTernal, BUS" },
+                "delay": { "value": "0", "type": "_Value", "description": "Delay in seconds or AUTO" }
+              }
+            }
+          },
+          "Set_Sample_Count": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":SAMPle:COUNt <count>",
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": {
+                "count": { "value": "1", "type": "_Value", "description": "Number of samples per trigger" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "set": {
+    "type": "OcaBlock",
+    "description": "Individual Parameters",
+    "fields": {
+      "Set_Range_and_Resolution": {
+        "type": "OcaBlock",
+        "fields": {
+          "Set_DCV_Range": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":SENSe:VOLTage:DC:RANGe <range>",
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": { "range": { "value": "10", "type": "_Value" } }
+            }
+          },
+          "Set_Integration_NPLC": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":SENSe:VOLTage:DC:NPLC <nplc>",
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": { "nplc": { "value": "10", "type": "_Value", "description": "0.02, 0.2, 1, 10, 100" } }
+            }
+          }
+        }
+      },
+      "Set_Input_Characteristics": {
+        "type": "OcaBlock",
+        "fields": {
+          "Set_Input_Impedance": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":INPut:IMPedance:AUTO <state>",
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": { "state": { "value": "ON", "type": "_Value", "description": "ON (High Z) or OFF (10M)" } }
+            }
+          },
+          "Set_AC_Bandwidth": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":SENSe:VOLTage:AC:BANDwidth <filter>",
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": { "filter": { "value": "20", "type": "_Value", "description": "3, 20, or 200 Hz" } }
+            }
+          }
+        }
+      }
+    }
+  },
+  "Do": {
+    "type": "OcaBlock",
+    "description": "Actions and Toggles",
+    "fields": {
+      "Measurement_Control": {
+        "type": "OcaBlock",
+        "fields": {
+          "Initiate": {
+            "type": "_GuiActuator",
+            "active": true,
+            "label_inactive": "INIT",
+            "Generic_Model": { "message": ":INITiate" }
+          },
+          "Abort": {
+            "type": "_GuiActuator",
+            "active": true,
+            "label_inactive": "ABORT",
+            "Generic_Model": { "message": ":ABORt" }
+          },
+          "Reset_Device": {
+            "type": "_GuiActuator",
+            "active": true,
+            "label_inactive": "*RST",
+            "Generic_Model": { "message": "*RST" }
+          },
+          "Clear_Status": {
+            "type": "_GuiActuator",
+            "active": true,
+            "label_inactive": "*CLS",
+            "Generic_Model": { "message": "*CLS" }
+          }
+        }
+      },
+      "System_Toggles": {
+        "type": "OcaBlock",
+        "fields": {
+          "Auto_Zero_ON": {
+            "type": "_GuiActuator",
+            "active": true,
+            "label_inactive": "Auto Zero ON",
+            "Generic_Model": { "message": ":SENSe:ZERO:AUTO ON" }
+          },
+          "Auto_Zero_OFF": {
+            "type": "_GuiActuator",
+            "active": true,
+            "label_inactive": "Auto Zero OFF",
+            "Generic_Model": { "message": ":SENSe:ZERO:AUTO OFF" }
+          },
+          "Display_Text": {
+            "type": "_GuiActuator",
+            "active": true,
+            "message": ":DISPlay:TEXT <string>",
+            "scpi_inputs": {
+              "type": "OcaBlock",
+              "fields": { "string": { "value": "\"HELLO\"", "type": "_Value" } }
+            }
+          },
+          "Clear_Display": {
+            "type": "_GuiActuator",
+            "active": true,
+            "label_inactive": "Clear Text",
+            "Generic_Model": { "message": ":DISPlay:TEXT:CLEar" }
+          }
+        }
+      }
+    }
+  }
+}

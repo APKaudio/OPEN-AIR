@@ -13,7 +13,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251227
+# Version 20251226.23580.1
 
 import os
 import pathlib
@@ -118,7 +118,7 @@ class GenericInstrumentGui(ttk.Frame):
                     }
                 }
                 with open(temp_path, 'w') as tf:
-                   tf.write(orjson.dumps(norm_data).decode('utf-8'))
+                    tf.write(orjson.dumps(norm_data, indent=4).decode('utf-8'))
                 processed_path = str(temp_path)
             
             ## If mqtt_util is None because it was shut off in the orchestrator, 
@@ -127,7 +127,10 @@ class GenericInstrumentGui(ttk.Frame):
 
             # --- Presentation Layer ---
             # Instantiate the builder.
-            #print(f"DEBUG: [Hand-off] Passing control to DynamicGuiBuilder for {module_name}")
+            debug_logger(
+                message=f"👋 [Hand-off] Passing control to DynamicGuiBuilder for {module_name}",
+                **_get_log_args()
+            )
             
             self.dynamic_gui = DynamicGuiBuilder(
                 parent=self,
