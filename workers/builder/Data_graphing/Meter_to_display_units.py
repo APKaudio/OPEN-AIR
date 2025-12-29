@@ -2,15 +2,25 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Dict, Any, List
 import math
+import orjson
+from workers.mqtt.mqtt_publisher_service import publish_payload
+from workers.utils.topic_utils import get_topic
+from workers.setup.config_reader import Config
+from workers.utils.log_utils import _get_log_args
+
+app_constants = Config.get_instance()
 
 class HorizontalMeterWithText(ttk.Frame):
     """
     A Tkinter widget inspired by a Visual Basic control, displaying a numerical value
     split into integer and decimal parts, visualized with progress bars and labels.
     """
-    def __init__(self, parent, config: Dict[str, Any], *args, **kwargs):
+    def __init__(self, parent, config: Dict[str, Any], subscriber_router, base_mqtt_topic_from_path: str, widget_id: str, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.config = config
+        self.subscriber_router = subscriber_router
+        self.base_mqtt_topic_from_path = base_mqtt_topic_from_path
+        self.widget_id = widget_id
         
         self.title_text = config.get('title', 'Meter')
         self.max_integer_value = config.get('max_integer_value', 100) # Default max for integer bar
@@ -49,6 +59,36 @@ class HorizontalMeterWithText(ttk.Frame):
         
         self.update_value(config.get('value_default', 0.0))
 
+        # MQTT Subscription for updates
+        if self.subscriber_router:
+            update_topic_suffix = config.get('update_topic_suffix', "set_value")
+            self.update_topic = get_topic(self.base_mqtt_topic_from_path, self.widget_id, update_topic_suffix)
+            self.subscriber_router.subscribe_to_topic(self.update_topic, self._on_value_mqtt_update)
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
+                    message=f"🔗 HorizontalMeterWithText '{self.widget_id}' subscribed to MQTT topic: {self.update_topic}",
+                    **_get_log_args()
+                )
+
+    def _on_value_mqtt_update(self, topic, payload):
+        """Callback for MQTT messages to update the meter's value."""
+        try:
+            payload_data = orjson.loads(payload)
+            new_value = payload_data.get("value")
+            if new_value is not None:
+                self.update_value(float(new_value))
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
+                        message=f"📥 HorizontalMeterWithText '{self.widget_id}' updated to {new_value} from MQTT topic: {topic}",
+                        **_get_log_args()
+                    )
+        except (orjson.JSONDecodeError, ValueError, TypeError) as e:
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
+                    message=f"❌ Error processing MQTT update for HorizontalMeterWithText '{self.widget_id}': {e}. Payload: {payload}",
+                    **_get_log_args()
+                )
+
     def update_value(self, new_value: float):
         """Updates the meter display with a new numerical value."""
         self.label_value.config(text=f"Value: {new_value:.3f}")
@@ -80,9 +120,12 @@ class VerticalMeter(ttk.Frame):
     A Tkinter widget to simulate a 4-channel vertical meter display.
     Placeholder for actual plotting, uses labels for values.
     """
-    def __init__(self, parent, config: Dict[str, Any], *args, **kwargs):
+    def __init__(self, parent, config: Dict[str, Any], subscriber_router, base_mqtt_topic_from_path: str, widget_id: str, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         self.config = config
+        self.subscriber_router = subscriber_router
+        self.base_mqtt_topic_from_path = base_mqtt_topic_from_path
+        self.widget_id = widget_id
         self.channel_labels: List[ttk.Label] = []
 
         num_channels = config.get('num_channels', 4)
@@ -92,6 +135,36 @@ class VerticalMeter(ttk.Frame):
             self.channel_labels.append(label)
         
         self.update_values([config.get('value_default', 0.0)] * num_channels)
+
+        # MQTT Subscription for updates
+        if self.subscriber_router:
+            update_topic_suffix = config.get('update_topic_suffix', "set_values")
+            self.update_topic = get_topic(self.base_mqtt_topic_from_path, self.widget_id, update_topic_suffix)
+            self.subscriber_router.subscribe_to_topic(self.update_topic, self._on_values_mqtt_update)
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
+                    message=f"🔗 VerticalMeter '{self.widget_id}' subscribed to MQTT topic: {self.update_topic}",
+                    **_get_log_args()
+                )
+
+    def _on_values_mqtt_update(self, topic, payload):
+        """Callback for MQTT messages to update the meter's values."""
+        try:
+            payload_data = orjson.loads(payload)
+            new_values = payload_data.get("values")
+            if isinstance(new_values, list):
+                self.update_values([float(v) for v in new_values])
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
+                        message=f"📥 VerticalMeter '{self.widget_id}' updated to {new_values} from MQTT topic: {topic}",
+                        **_get_log_args()
+                    )
+        except (orjson.JSONDecodeError, ValueError, TypeError) as e:
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
+                    message=f"❌ Error processing MQTT update for VerticalMeter '{self.widget_id}': {e}. Payload: {payload}",
+                    **_get_log_args()
+                )
 
     def update_values(self, new_values: List[float]):
         """Updates the display with new values for each channel."""

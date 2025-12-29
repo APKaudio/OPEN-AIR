@@ -12,7 +12,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251229.1715.1
+# Version 20251229.1715.2
 
 import os
 import pathlib
@@ -21,6 +21,7 @@ import tkinter as tk
 from tkinter import ttk
 import inspect
 import traceback # Added for detailed forensics
+from typing import Dict, Any # Added for type hinting
 
 # --- Protocol: Integration Layer ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder

@@ -28,6 +28,10 @@
 
 import os
 import inspect
+import traceback # Added for detailed forensics
+from typing import Dict, Any # Added for type hinting
+
+# --- Protocol: Integration Layer ---
 import tkinter as tk
 from tkinter import ttk
 

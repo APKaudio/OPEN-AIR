@@ -29,6 +29,8 @@ from workers.mqtt.mqtt_publisher_service import publish_payload
 app_constants = Config.get_instance()
 from workers.utils.topic_utils import get_topic, generate_topic_path_from_filepath, TOPIC_DELIMITER
 from workers.utils.log_utils import _get_log_args 
+from typing import Dict, Any # Added for type hinting
+
 
 # --- Widget Creator Mixins ---
 from .text.dynamic_gui_create_label_from_config import LabelFromConfigCreatorMixin
@@ -248,7 +250,11 @@ class DynamicGuiBuilder(
         """
         Factory method for creating a HorizontalMeterWithText widget.
         """
-        meter_widget = HorizontalMeterWithText(parent_frame, config=config)
+        meter_widget = HorizontalMeterWithText(parent_frame, 
+                                               config=config,
+                                               subscriber_router=subscriber_router,
+                                               base_mqtt_topic_from_path=base_mqtt_topic_from_path,
+                                               widget_id=path)
         # MQTT subscription logic can be added here if the meter needs to update dynamically
         # For now, it's a static display.
         return meter_widget
@@ -257,9 +263,58 @@ class DynamicGuiBuilder(
         """
         Factory method for creating a VerticalMeter widget.
         """
-        meter_widget = VerticalMeter(parent_frame, config=config)
+        meter_widget = VerticalMeter(parent_frame, 
+                                           config=config,
+                                           subscriber_router=subscriber_router,
+                                           base_mqtt_topic_from_path=base_mqtt_topic_from_path,
+                                           widget_id=path)
         # MQTT subscription logic can be added here if the meter needs to update dynamically
         return meter_widget
+
+    def _publish_widget_config(self, widget_config: Dict[str, Any], current_path: str):
+        """
+        Publishes the configuration of a newly created widget to MQTT.
+        """
+        if not app_constants.ENABLE_BUILDER_STATUS_PUBLISH: # Check a new constant for enabling/disabling
+            return
+
+        try:
+            if self.state_mirror_engine and self.state_mirror_engine.instance_id:
+                # Construct topic: base_mqtt_topic_from_path/widget_type/widget_id/config
+                # Use current_path for more specific topic if available
+                # Fallback to widget ID if current_path is too generic for the topic hierarchy
+                
+                widget_id = widget_config.get("id", widget_config.get("label_active", "unknown_widget")).replace(" ", "_").lower()
+                topic_elements = [self.base_mqtt_topic_from_path, "build_config", widget_config.get("type", "generic"), widget_id]
+                
+                # Clean topic elements for MQTT standard
+                cleaned_topic_elements = [elem.replace("/", "_").replace("\\", "_").replace(" ", "_") for elem in topic_elements if elem]
+                
+                config_topic = "/".join(cleaned_topic_elements)
+
+                payload = {
+                    "config": widget_config,
+                    "gui_path": current_path,
+                    "instance_id": self.state_mirror_engine.instance_id,
+                    "timestamp": time.time()
+                }
+                publish_payload(config_topic, orjson.dumps(payload), retain=True)
+
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
+                        message=f"MQTT: Published build config for '{current_path}' to '{config_topic}'",
+                        **_get_log_args()
+                    )
+            elif app_constants.global_settings['debug_enabled']:
+                debug_logger(
+                    message=f"MQTT: Skipping config publish for '{current_path}'. State mirror engine not available or PUBLISH_GUI_BUILD_CONFIG_TO_MQTT is False.",
+                    **_get_log_args()
+                )
+        except Exception as e:
+            debug_logger(
+                message=f"❌ Error publishing widget config for '{current_path}': {e}",
+                **_get_log_args()
+            )
 
     def _apply_styles(self, theme_name):
         style = ttk.Style()
@@ -566,7 +621,9 @@ class DynamicGuiBuilder(
 
                         if value.get("yak_handler"):
                             self._process_yak_handler(target_frame, value, current_path, tk_var)
-                            
+                        
+                        self._publish_widget_config(value, current_path) # Publish widget config here
+
                         target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)
                         col += col_span
                         if col >= max_cols:
@@ -662,6 +719,8 @@ class DynamicGuiBuilder(
 
                         if value.get("yak_handler"):
                             self._process_yak_handler(target_frame, value, current_path, tk_var)
+
+                        self._publish_widget_config(value, current_path) # Publish widget config here
 
                         target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)
                         col += col_span

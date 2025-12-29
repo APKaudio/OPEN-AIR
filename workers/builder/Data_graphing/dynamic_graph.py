@@ -41,6 +41,52 @@ class FluxPlotter(tk.Frame):
                 **_get_log_args()
             )
 
+    def _initialize_plot(self):
+        """Initializes the matplotlib figure, axes, and canvas."""
+        # Figure and Axes setup
+        self.fig = Figure(figsize=(
+            self.config.get('layout', {}).get('width', 5) / 100,
+            self.config.get('layout', {}).get('height', 4) / 100
+        ), dpi=100)
+        self.ax = self.fig.add_subplot(111)
+
+        # Apply styles
+        self.fig.patch.set_facecolor(self.config.get('style', {}).get('background_color', 'black'))
+        self.ax.set_facecolor(self.config.get('style', {}).get('background_color', 'black'))
+
+        self.line, = self.ax.plot([], [],
+                                  color=self.config.get('style', {}).get('line_color', 'cyan'),
+                                  linewidth=self.config.get('style', {}).get('line_width', 1))
+
+        # Configure axes
+        x_axis_config = self.config.get('axis', {}).get('x', {})
+        y_axis_config = self.config.get('axis', {}).get('y', {})
+
+        self.ax.set_xlabel(x_axis_config.get('label', 'X-axis'), color=x_axis_config.get('color', 'white'))
+        self.ax.set_ylabel(y_axis_config.get('label', 'Y-axis'), color=y_axis_config.get('color', 'white'))
+        self.ax.set_title(self.config.get('title', 'Plot'), color=self.config.get('style', {}).get('line_color', 'white')) # Use line_color for title
+
+        self.ax.tick_params(axis='x', colors=x_axis_config.get('color', 'white'))
+        self.ax.tick_params(axis='y', colors=y_axis_config.get('color', 'white'))
+        self.ax.grid(True, color=self.config.get('style', {}).get('grid_color', 'darkgrey'))
+
+
+        # Apply scales
+        if x_axis_config.get('scale') == 'log':
+            self.ax.set_xscale('log')
+        if y_axis_config.get('scale') == 'log':
+            self.ax.set_yscale('log')
+
+        # Apply limits for fixed scales (time_domain, frequency_domain)
+        if self.plot_mode in ['time_domain', 'frequency_domain']:
+            self.ax.set_xlim(x_axis_config.get('min', 0), x_axis_config.get('max', 1))
+            self.ax.set_ylim(y_axis_config.get('min', 0), y_axis_config.get('max', 1))
+
+        # Embed in Tkinter
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self)
+        self.canvas_widget = self.canvas.get_tk_widget()
+        self.canvas_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
     def load_initial_data_from_csv_string(self, csv_data_string: str):
         """
         Parses a CSV string and loads the data into the plotter.

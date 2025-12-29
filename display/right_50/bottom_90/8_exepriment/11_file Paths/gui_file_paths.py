@@ -24,6 +24,7 @@ from tkinter import ttk
 # It's crucial that this path correctly points to the new modular builder
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 import pathlib
+from typing import Dict, Any # Added for type hinting
 
 # --- Fully Dynamic Resolution ---
 current_path = pathlib.Path(__file__).resolve()
