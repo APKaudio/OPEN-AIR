@@ -53,6 +53,8 @@ from .audio.dynamic_gui_create_custom_fader import CustomFaderCreatorMixin
 from .audio.dynamic_gui_create_needle_vu_meter import NeedleVUMeterCreatorMixin
 from .audio.dynamic_gui_create_panner import PannerCreatorMixin
 from .audio.dynamic_gui_create_custom_horizontal_fader import CustomHorizontalFaderCreatorMixin
+from .audio.dynamic_gui_create_trapezoid_button import TrapezoidButtonCreatorMixin
+from .audio.dynamic_gui_create_trapezoid_toggler import TrapezoidButtonTogglerCreatorMixin
 
 # --- Protocol Global Variables ---
 CURRENT_DATE = 20251223
@@ -89,7 +91,8 @@ class DynamicGuiBuilder(
     CustomFaderCreatorMixin,
     NeedleVUMeterCreatorMixin,
     PannerCreatorMixin,
-    CustomHorizontalFaderCreatorMixin
+    CustomHorizontalFaderCreatorMixin,
+    TrapezoidButtonTogglerCreatorMixin
 ):
     def __init__(self, parent, json_path=None, tab_name=None, *args, **kwargs):
         config = kwargs.pop('config', {})
@@ -163,7 +166,9 @@ class DynamicGuiBuilder(
             "_CustomFader": self._create_custom_fader,
             "_CustomHorizontalFader": self._create_custom_horizontal_fader,
             "_NeedleVUMeter": self._create_needle_vu_meter,
-            "_Panner": self._create_panner
+            "_Panner": self._create_panner,
+            "_TrapezoidButton": self._create_trapezoid_button,
+            "_TrapezoidButtonToggler": self._create_trapezoid_button_toggler
         }
 
         try:

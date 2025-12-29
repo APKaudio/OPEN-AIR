@@ -13,7 +13,7 @@ from workers.setup.path_initializer import GLOBAL_PROJECT_ROOT
 
 class ImageDisplayCreatorMixin:
     def _create_image_display(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
-        """Creates an image display widget."""
+        """Creates an image display widget that is state-aware."""
         current_function_name = "_create_image_display"
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
@@ -26,33 +26,48 @@ class ImageDisplayCreatorMixin:
         if label:
             ttk.Label(frame, text=label).pack(side=tk.TOP, pady=(0, 5))
 
-        image_path_relative = config.get("image_path", "")
-        image_path_absolute = os.path.join(GLOBAL_PROJECT_ROOT, image_path_relative)
-
-        try:
-            pil_image = Image.open(image_path_absolute)
-            tk_image = ImageTk.PhotoImage(pil_image)
-            image_label = ttk.Label(frame, image=tk_image)
-            image_label.image = tk_image 
-        except FileNotFoundError:
-            image_label = ttk.Label(frame, text=f"Image not found:\n{image_path_relative}", wraplength=150)
-            tk_image = None
-            # Create a placeholder image
-            try:
-                # Ensure the directory exists before saving the placeholder
-                os.makedirs(os.path.dirname(image_path_absolute), exist_ok=True)
-                placeholder_image = Image.new('RGB', (100, 100), color = 'black')
-                placeholder_image.save(image_path_absolute)
-                debug_logger(message=f"☑️ INFO: Created placeholder image at {image_path_absolute}")
-            except Exception as e:
-                debug_logger(message=f"🔴 ERROR creating placeholder image: {e}")
-
-        except Exception as e:
-            image_label = ttk.Label(frame, text=f"Error loading image:\n{e}", wraplength=150)
-            tk_image = None
-            debug_logger(message=f"🔴 ERROR loading image: {e}")
-
+        image_path_var = tk.StringVar(value=config.get("value_default", ""))
+        image_label = ttk.Label(frame)
         image_label.pack(side=tk.LEFT)
+
+        def update_image(*args):
+            """Loads and displays the image from the path in the StringVar."""
+            image_path_relative = image_path_var.get()
+            if not image_path_relative:
+                image_label.config(image=None, text="No image path provided.")
+                return
+
+            image_path_absolute = os.path.join(GLOBAL_PROJECT_ROOT, image_path_relative)
+
+            try:
+                pil_image = Image.open(image_path_absolute)
+                # You might want to resize the image here if needed, e.g.:
+                # pil_image = pil_image.resize((100, 100), Image.ANTIALIAS)
+                tk_image = ImageTk.PhotoImage(pil_image)
+                image_label.config(image=tk_image, text="")
+                image_label.image = tk_image  # Keep a reference
+            except FileNotFoundError:
+                error_text = f"Image not found:\n{image_path_relative}"
+                image_label.config(image=None, text=error_text)
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(message=f"🖼️ {error_text}", **_get_log_args())
+            except Exception as e:
+                error_text = f"Error loading image:\n{e}"
+                image_label.config(image=None, text=error_text)
+                debug_logger(message=f"🔴 ERROR loading image: {e}", **_get_log_args())
+
+        image_path_var.trace_add("write", update_image)
+        update_image() # Initial update
+
+        if path:
+            state_mirror_engine.register_widget(path, image_path_var, base_mqtt_topic_from_path, config)
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
+                    message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine.",
+                    **_get_log_args()
+                )
+            # Broadcast initial state
+            state_mirror_engine.broadcast_gui_change_to_mqtt(path)
         
         if app_constants.global_settings['debug_enabled']:
             debug_logger(

@@ -19,7 +19,6 @@ class NeedleVUMeterCreatorMixin:
     def _create_needle_vu_meter(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         """Creates a needle-style VU meter widget."""
         current_function_name = "_create_needle_vu_meter"
-        self.base_mqtt_topic_from_path = base_mqtt_topic_from_path # Store as instance variable
         
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
@@ -42,40 +41,36 @@ class NeedleVUMeterCreatorMixin:
 
         try:
             size = config.get("size", 150)
-            min_val = config.get("min", -20.0)
-            max_val = config.get("max", 3.0)
-            red_zone_start = config.get("upper_range", 0.0)
-            value_default = config.get("value_default", -20)
+            min_val = float(config.get("min", -20.0))
+            max_val = float(config.get("max", 3.0))
+            red_zone_start = float(config.get("upper_range", 0.0))
+            value_default = float(config.get("value_default", min_val))
 
-            # Canvas with Theme Background
+            vu_value_var = tk.DoubleVar(value=value_default)
+
             canvas = tk.Canvas(frame, width=size, height=size/2 + 20, bg=bg_color, highlightthickness=0)
             canvas.pack()
 
-            # Pass theme colors to the draw function
-            self._draw_needle_vu_meter(
-                canvas, size, value_default, min_val, max_val, red_zone_start,
-                accent_color, secondary_color, fg_color, danger_color
-            )
-            
-            if path:
-                self.topic_widgets[path] = {
-                    "canvas": canvas,
-                    "size": size,
-                    "min": min_val,
-                    "max": max_val,
-                    "red_zone_start": red_zone_start,
-                    "colors": (accent_color, secondary_color, fg_color, danger_color)
-                }
+            def update_visuals(*args):
+                self._draw_needle_vu_meter(
+                    canvas, size, vu_value_var.get(), min_val, max_val, red_zone_start,
+                    accent_color, secondary_color, fg_color, danger_color
+                )
 
-                # Subscribe to updates for this Needle VU meter
-                topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, path) # Use new base topic
-                subscriber_router.subscribe_to_topic(topic, self._on_needle_vu_update_mqtt)
+            vu_value_var.trace_add("write", update_visuals)
             
-            # Handle Resize (still using original values as the draw function is self-contained)
-            canvas.bind("<Configure>", lambda e: self._draw_needle_vu_meter(
-                canvas, size, value_default, min_val, max_val, red_zone_start,
-                accent_color, secondary_color, fg_color, danger_color
-            ))
+            # Initial Draw
+            update_visuals()
+
+            if path:
+                state_mirror_engine.register_widget(path, vu_value_var, base_mqtt_topic_from_path, config)
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
+                        message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine.",
+                        **_get_log_args()
+                    )
+                # Broadcast initial state
+                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
 
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
@@ -93,73 +88,84 @@ class NeedleVUMeterCreatorMixin:
                 )
             return None
 
-    def _on_needle_vu_update_mqtt(self, topic, payload):
-        import orjson
-        try:
-            payload_data = orjson.loads(payload)
-            float_value = float(payload_data.get("val", 0.0))
-            
-            # Extract widget path from topic
-            expected_prefix = get_topic("OPEN-AIR", self.base_mqtt_topic_from_path, "") # Construct expected prefix with new base topic
-            if topic.startswith(expected_prefix):
-                widget_path = topic[len(expected_prefix):].strip(TOPIC_DELIMITER)
-            else:
-                if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"⚠️ Unexpected topic format for needle VU meter update: {topic}", **_get_log_args())
-                return
-
-            widget_info = self.topic_widgets.get(widget_path)
-            if widget_info:
-                canvas = widget_info["canvas"]
-                size = widget_info["size"]
-                min_val = widget_info["min"]
-                max_val = widget_info["max"]
-                red_zone_start = widget_info["red_zone_start"]
-                accent_color, secondary_color, fg_color, danger_color = widget_info["colors"]
-
-                self._draw_needle_vu_meter(
-                    canvas, size, float_value, min_val, max_val, red_zone_start,
-                    accent_color, secondary_color, fg_color, danger_color
-                )
-                if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"🎵 Needle VU meter '{widget_path}' updated to {float_value}", **_get_log_args())
-            else:
-                if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"⚠️ Needle VU meter widget not found for path: {widget_path}", **_get_log_args())
-
-        except (ValueError, TypeError, orjson.JSONDecodeError) as e:
-            if app_constants.global_settings['debug_enabled']:
-                debug_logger(message=f"🔴 ERROR in _on_needle_vu_update_mqtt for topic {topic}: {e}. Payload: {payload}", **_get_log_args())
-
-
     def _draw_needle_vu_meter(self, canvas, size, value, min_val, max_val, red_zone_start, accent, secondary, fg, danger):
         canvas.delete("all")
         width = size
-        height = size / 2
+        height = size / 2 + 20
 
-        # 1. Main Arc (The Track) - Uses Secondary Theme Color
-        canvas.create_arc(10, 10, width - 10, width - 10, start=0, extent=180, style=tk.ARC, outline=secondary, width=2)
+        center_x = width / 2
+        center_y = height - 10 
 
-        # 2. Red Zone - Uses Danger Color
-        red_start_angle = ((red_zone_start - min_val) / (max_val - min_val)) * 180
-        canvas.create_arc(10, 10, width - 10, width - 10, start=0, extent=180 - red_start_angle, style=tk.ARC, outline=danger, width=4)
+        main_arc_radius = (width - 20) / 2
+        arc_thickness = 4
 
-        # 3. The Needle Calculation
+        start_angle_deg = 135
+        end_angle_deg = 45
+        extent_deg = start_angle_deg - end_angle_deg
+
+        # --- Draw Ticks and Labels ---
+        tick_length = 8
+        text_offset_from_arc = 15
+
+        # Ticks should start from the inner edge of the arc
+        tick_start_radius = main_arc_radius - (arc_thickness / 2)
+
+        for i in range(6): 
+            percentage = i / 5.0
+            tick_val = min_val + (percentage * (max_val - min_val))
+            
+            current_angle_deg = start_angle_deg - (percentage * extent_deg)
+            current_angle_rad = math.radians(current_angle_deg)
+
+            # Tick line: starts on inner arc edge, goes inwards
+            x_tick_start = center_x + tick_start_radius * math.cos(current_angle_rad)
+            y_tick_start = center_y - tick_start_radius * math.sin(current_angle_rad)
+            
+            x_tick_end = center_x + (tick_start_radius - tick_length) * math.cos(current_angle_rad)
+            y_tick_end = center_y - (tick_start_radius - tick_length) * math.sin(current_angle_rad)
+            
+            canvas.create_line(x_tick_start, y_tick_start, x_tick_end, y_tick_end, fill=fg, width=2)
+            
+            # Text label: position further OUT from the arc
+            text_radius_pos = main_arc_radius + text_offset_from_arc
+            tx = center_x + text_radius_pos * math.cos(current_angle_rad)
+            ty = center_y - text_radius_pos * math.sin(current_angle_rad)
+            canvas.create_text(tx, ty, text=f"{int(tick_val)}", fill=fg, font=("Helvetica", 8))
+
+        # --- Draw Arcs ---
+        green_start_norm = (red_zone_start - min_val) / (max_val - min_val) if max_val > min_val else 0
+        green_start_angle_deg = start_angle_deg - (green_start_norm * extent_deg)
+        
+        canvas.create_arc(
+            10, 10, width - 10, width - 10, 
+            start=green_start_angle_deg, 
+            extent=(start_angle_deg - green_start_angle_deg), 
+            style=tk.ARC, outline="green", width=arc_thickness
+        )
+
+        canvas.create_arc(
+            10, 10, width - 10, width - 10, 
+            start=end_angle_deg, 
+            extent=(green_start_angle_deg - end_angle_deg), 
+            style=tk.ARC, outline=danger, width=arc_thickness
+        )
+
+        # --- Draw Needle ---
         if value < min_val: value = min_val
         if value > max_val: value = max_val
         
-        # Invert angle logic so min is Left (180) and max is Right (0)
-        angle = (1 - (value - min_val) / (max_val - min_val)) * math.pi
+        norm_val = (value - min_val) / (max_val - min_val) if max_val > min_val else 0
         
-        center_x = width / 2
-        center_y = height + 10
+        needle_angle_deg = start_angle_deg - (norm_val * extent_deg)
+        needle_angle_rad = math.radians(needle_angle_deg)
         
-        needle_len = height - 15
-        x = center_x + needle_len * math.cos(angle)
-        y = center_y - needle_len * math.sin(angle) # Canvas Y is inverted
+        # Make needle extend into the numbers
+        needle_total_len = main_arc_radius + text_offset_from_arc - 2
+
+        x = center_x + needle_total_len * math.cos(needle_angle_rad)
+        y = center_y - needle_total_len * math.sin(needle_angle_rad)
         
-        # 4. Draw Needle (Accent Color)
         canvas.create_line(center_x, center_y, x, y, width=3, fill=accent, capstyle=tk.ROUND)
         
-        # 5. Draw Pivot (Foreground Color)
+        # --- Draw Pivot ---
         canvas.create_oval(center_x - 5, center_y - 5, center_x + 5, center_y + 5, fill=fg, outline=secondary)
