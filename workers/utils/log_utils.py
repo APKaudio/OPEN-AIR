@@ -32,7 +32,6 @@ def _get_log_args():
             
             return {
                 "file": filename,
-                "function": function_name,
                 "version": version
             }
             
