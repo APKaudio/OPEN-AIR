@@ -13,7 +13,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251226.000000.1
+# Version 20251229.1725.1
 
 from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
@@ -32,8 +32,9 @@ from workers.display.module_loader import ModuleLoader
 from workers.display.layout_parser import LayoutParser
 
 # Import logger and styling utilities
-from workers.logger.logger import  debug_logger
+# RESTORED: usage of _get_log_args to match the rest of the application protocol
 from workers.utils.log_utils import _get_log_args 
+from workers.logger.logger import debug_logger 
 from workers.styling.style import THEMES, DEFAULT_THEME
 
 # --- New MQTT and Logic Layer Imports ---
@@ -56,8 +57,10 @@ class Application(ttk.Frame):
         self._layout_cache = {}
 
         if app_constants.global_settings['debug_enabled']:
-            debug_logger( 
-                message="🖥️🚦 The grand orchestrator is waking up! Let'S get this GUI built!",                 **_get_log_args()            )
+            debug_logger(
+                message="🖥️🚦 The grand orchestrator is waking up! Let'S get this GUI built!",
+                **_get_log_args()
+            )
         
         # --- Initialize MQTT and Logic Layers (injected) ---
         self.mqtt_connection_manager = mqtt_connection_manager
@@ -73,7 +76,8 @@ class Application(ttk.Frame):
         # Initialize LayoutParser
         self.layout_parser = LayoutParser(
             current_version=app_constants.CURRENT_VERSION, 
-            debug_log_func=debug_logger
+            # Pass debug_logger directly if LayoutParser needs it
+            debug_log_func=debug_logger 
         )
         
         # Pass the state engine and subscriber router to the module loader
@@ -90,7 +94,7 @@ class Application(ttk.Frame):
 
         try:
             if app_constants.global_settings['debug_enabled']:
-                debug_logger( 
+                debug_logger(
                     message=f"🔍🔵 Applied theme: {DEFAULT_THEME}. The aesthetic enchantments are complete!",
                     **_get_log_args()
                 )
@@ -99,7 +103,7 @@ class Application(ttk.Frame):
             self._build_from_directory(path=pathlib.Path(__file__).parent, parent_widget=self)
             
             if app_constants.global_settings['debug_enabled']:
-                debug_logger( 
+                debug_logger(
                     message="🔍🔵 The architectural marvel is complete! Finished building GUI from directory structure.",
                     **_get_log_args()
                 )
@@ -121,7 +125,10 @@ class Application(ttk.Frame):
     def shutdown(self):
         """Gracefully shuts down the application."""
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message="Initiating application shutdown...", **_get_log_args())
+            debug_logger(
+                message="Initiating application shutdown...",
+                **_get_log_args()
+            )
         
         self.mqtt_connection_manager.disconnect()
         if self.visa_proxy:
@@ -130,7 +137,10 @@ class Application(ttk.Frame):
     def _trigger_initial_tab_selection(self):
         """Triggers the _on_tab_change event for the initially selected tab of each notebook."""
         if app_constants.global_settings['debug_enabled']:
-             debug_logger(message="🔍🔵 Triggering initial tab selection for all notebooks.", **_get_log_args())        
+             debug_logger(
+                 message="🔍🔵 Triggering initial tab selection for all notebooks.",
+                 **_get_log_args()
+             )
         
         notebooks_to_process = list(self._notebooks.items())
         
@@ -148,12 +158,18 @@ class Application(ttk.Frame):
                     )               
         
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message="✅ All initial tab selections triggered.", **_get_log_args())
+            debug_logger(
+                message="✅ All initial tab selections triggered.",
+                **_get_log_args()
+            )
 
     def _apply_styles(self, theme_name: str):
         """Applies the specified theme to the entire application."""
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message=f"🔍🔵 Applying styles for theme: {theme_name}.", **_get_log_args())        
+            debug_logger(
+                message=f"🔍🔵 Applying styles for theme: {theme_name}.",
+                **_get_log_args()
+            )
         
         colors = THEMES.get(theme_name, THEMES["dark"])
         style = ttk.Style(self)
@@ -168,32 +184,25 @@ class Application(ttk.Frame):
 
         style.configure('TFrame', background=colors["bg"])
 
-        # Add configurations for general TButton and custom buttons here
         # Use theme_colors for consistency. Assume "toggle" style values for custom buttons.
-        # Unselected: background=dark_grey, foreground=text_color
-        # Selected: background=selected_orange, foreground=selected_text_color
-        # Hover: background=hover_light_grey, foreground=hover_black_text
-
-        # Get relevant colors from the currently applied theme (which is dark by default, or light if changed)
-        dark_grey = colors.get("secondary", "#4e5254") # Using secondary for dark grey, or fallback
-        selected_orange = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Selected_Bg"] # Get from style.py, assuming it's #f4902c
-        selected_fg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Selected_Fg"] # Should be white
+        dark_grey = colors.get("secondary", "#4e5254") 
+        selected_orange = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Selected_Bg"]
+        selected_fg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Selected_Fg"] 
         
-        # Assuming button_style_toggle and button_style_toggler have the same hover properties
         hover_bg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Hover_Bg"]
         hover_fg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Hover_Fg"]
 
-        style.configure('TButton', background=dark_grey, foreground=colors["text"], font=('Helvetica', 10, 'bold'), anchor='center') # Generic buttons unselected
+        style.configure('TButton', background=dark_grey, foreground=colors["text"], font=('Helvetica', 10, 'bold'), anchor='center') 
         style.map('TButton',
                   background=[('active', hover_bg), ('!active', dark_grey)],
                   foreground=[('active', hover_fg), ('!active', colors["text"])])
 
-        style.configure('Custom.TButton', background=dark_grey, foreground=colors["text"], font=('Helvetica', 10, 'bold'), anchor='center') # Custom buttons unselected
+        style.configure('Custom.TButton', background=dark_grey, foreground=colors["text"], font=('Helvetica', 10, 'bold'), anchor='center') 
         style.map('Custom.TButton',
                   background=[('active', hover_bg), ('!active', dark_grey)],
                   foreground=[('active', hover_fg), ('!active', colors["text"])])
 
-        # Configure Custom.TogglerUnselected.TButton (unselected state for toggler buttons)
+        # Configure Custom.TogglerUnselected.TButton
         toggler_unselected_bg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggler_unselected"]["background"]
         toggler_unselected_fg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggler_unselected"]["foreground"]
         toggler_hover_bg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggler_unselected"]["Button_Hover_Bg"]
@@ -206,7 +215,7 @@ class Application(ttk.Frame):
 
         style.configure('Custom.Selected.TButton', background=selected_orange, foreground=selected_fg, relief="sunken", font=('Helvetica', 10, 'bold'), anchor='center')
         style.map('Custom.Selected.TButton',
-                  background=[('active', hover_bg), ('!active', selected_orange)], # Hovering over selected
+                  background=[('active', hover_bg), ('!active', selected_orange)], 
                   foreground=[('active', hover_fg), ('!active', selected_fg)])
 
         style.configure('TNotebook',
@@ -228,14 +237,10 @@ class Application(ttk.Frame):
     def _get_layout_info(self, path: pathlib.Path):
         """
         ⚡ OPTIMIZATION HELPER: Checks cache before parsing directory.
-        Reduces Disk I/O significantly during recursive builds.
         """
         path_str = str(path)
         # 1. Check RAM Cache
         if path_str in self._layout_cache:
-            # Optional: Log cache hit only in verbose debug
-            # if app_constants.global_settings['debug_enabled']: 
-            #    debug_logger(message=f"⚡ Cache Hit: {path.name}", **_get_log_args())
             return self._layout_cache[path_str]
 
         # 2. Miss: Parse and Store
@@ -249,10 +254,10 @@ class Application(ttk.Frame):
         """
         # ⚡ OPTIMIZATION: Guarded Log Call
         if app_constants.global_settings['debug_enabled']:
-             debug_logger( 
-                message=f"🏗️ _build_from_directory for path: '{path}'",
-                **_get_log_args()
-            )
+             debug_logger(
+                 message=f"🏗️ _build_from_directory for path: '{path}'",
+                 **_get_log_args()
+             )
 
         # ⚡ OPTIMIZATION: Use Cached Layout Info
         layout_info = self._get_layout_info(path)
@@ -282,11 +287,13 @@ class Application(ttk.Frame):
                     sub_dir_path = panel_info['path']
 
                     # --- 🗺️ Objective 1: Temporal Crawler ---
-                    # Before building a pane, check if it contains any valid GUI files.
                     if not self.layout_parser._scan_for_flux_capacitors(sub_dir_path):
                         if app_constants.global_settings['debug_enabled']:
-                            debug_logger(message=f"⏩ Pruning empty branch: Skipping panel '{sub_dir_path.name}' as it contains no GUI files.")
-                        continue # Prune this branch
+                            debug_logger(
+                                message=f"⏩ Pruning empty branch: Skipping panel '{sub_dir_path.name}' as it contains no GUI files.",
+                                **_get_log_args()
+                            )
+                        continue 
 
                     weight = panel_info['weight']
                     
@@ -357,6 +364,17 @@ class Application(ttk.Frame):
                     )
                     if instance:
                         instance.pack(fill=tk.BOTH, expand=True)
+                        if app_constants.global_settings['debug_enabled']:
+                            debug_logger(
+                                message=f"✅ Successfully instantiated GUI from file: {gui_file_path}",
+                                **_get_log_args()
+                            ) 
+                    else:
+                        if app_constants.global_settings['debug_enabled']:
+                            debug_logger(
+                                message=f"❌ Failed to instantiate GUI from file: {gui_file_path}",
+                                **_get_log_args()
+                            ) 
             
             else: 
                 # General Recursive Fallback
@@ -370,8 +388,25 @@ class Application(ttk.Frame):
 
                 py_files = sorted([f for f in path.iterdir() if f.is_file() and f.name.startswith("gui_") and f.suffix == '.py'])
                 for py_file in py_files:
-                    self.module_loader.load_and_instantiate_gui(path=py_file, parent_widget=parent_widget)
-            
+                    if app_constants.global_settings['debug_enabled']:
+                        debug_logger(
+                            message=f"🏗️ Attempting to instantiate GUI from file: {py_file}",
+                            **_get_log_args()
+                        ) 
+                    instance = self.module_loader.load_and_instantiate_gui(path=py_file, parent_widget=parent_widget)
+                    if instance:
+                        instance.pack(fill=tk.BOTH, expand=True)
+                        if app_constants.global_settings['debug_enabled']:
+                            debug_logger(
+                                message=f"✅ Successfully instantiated GUI from file: {py_file}",
+                                **_get_log_args()
+                            ) 
+                    else:
+                        if app_constants.global_settings['debug_enabled']:
+                            debug_logger(
+                                message=f"❌ Failed to instantiate GUI from file: {py_file}",
+                                **_get_log_args()
+                            ) 
             if self.root:
                 self.root.update()
 
@@ -394,7 +429,10 @@ class Application(ttk.Frame):
         """Logs a debug message, triggers lazy loading, and handles tab-specific actions."""
         # ⚡ OPTIMIZATION: Guarded Logging - Major Performance Gain
         if app_constants.global_settings['debug_enabled']:
-             debug_logger(message=f"▶️ _on_tab_change detected.", **_get_log_args())
+             debug_logger(
+                 message="▶️ _on_tab_change detected.",
+                 **_get_log_args()
+             )
         
         try:
             notebook = event.widget
@@ -402,7 +440,10 @@ class Application(ttk.Frame):
 
             if not selected_tab_id:
                 if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message="No tab selected in notebook, skipping _on_tab_change logic.", **_get_log_args())
+                    debug_logger(
+                        message="No tab selected in notebook, skipping _on_tab_change logic.",
+                        **_get_log_args()
+                    )
                 return
             
             selected_tab_frame = notebook.nametowidget(selected_tab_id)
@@ -413,13 +454,19 @@ class Application(ttk.Frame):
                 build_path = getattr(selected_tab_frame, "build_path", None)
                 if build_path:
                     if app_constants.global_settings['debug_enabled']:
-                        debug_logger(message=f"⚡ Lazy Loading engaged for tab: {newly_selected_tab_name}", **_get_log_args())
+                        debug_logger(
+                            message=f"⚡ Lazy Loading engaged for tab: {newly_selected_tab_name}",
+                            **_get_log_args()
+                        )
                     
                     self._build_from_directory(path=build_path, parent_widget=selected_tab_frame)
                     
                     selected_tab_frame.is_populated = True
                     if app_constants.global_settings['debug_enabled']:
-                        debug_logger(message=f"✅ Lazy Loading complete for tab: {newly_selected_tab_name}", **_get_log_args())
+                        debug_logger(
+                            message=f"✅ Lazy Loading complete for tab: {newly_selected_tab_name}",
+                            **_get_log_args()
+                        )
 
             # --- Standard Tab Change Logic ---
             self.last_selected_tab_name = newly_selected_tab_name
@@ -428,12 +475,21 @@ class Application(ttk.Frame):
                 content_widget = selected_tab_frame.winfo_children()[0]
                 if hasattr(content_widget, '_on_tab_selected') and callable(getattr(content_widget, '_on_tab_selected')):
                     if app_constants.global_settings['debug_enabled']:
-                        debug_logger(message=f"Calling _on_tab_selected for {content_widget.__class__.__name__}.", **_get_log_args())
+                        debug_logger(
+                            message=f"Calling _on_tab_selected for {content_widget.__class__.__name__}.",
+                            **_get_log_args()
+                        )
                     content_widget._on_tab_selected(event)
             
             if app_constants.global_settings['debug_enabled']:
-                debug_logger(message=f"⏹️_on_tab_change complete for '{newly_selected_tab_name}'.", **_get_log_args())
+                debug_logger(
+                    message=f"⏹️_on_tab_change complete for '{newly_selected_tab_name}'.",
+                    **_get_log_args()
+                )
 
         except Exception as e:
             if app_constants.global_settings['debug_enabled']:
-                debug_logger(message=f"❌ Error in _on_tab_change: {e}", **_get_log_args())
+                debug_logger(
+                    message=f"❌ Error in _on_tab_change: {e}",
+                    **_get_log_args()
+                )

@@ -1,7 +1,6 @@
-# gui_monitor_top.py 
+# display/right_50/bottom_90/1_scan/gui_scan.py
 #
-# A base class for common GUI components, re-written to work with the centralized orchestrator.
-# This version is simplified to only display a blank Matplotlib plot.
+# This file defines the GUI frame for the scan view, featuring a Matplotlib/Seaborn plot.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -13,147 +12,120 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251222.004400.1
+# Version 20251229.1625.1
 
-import os
-import inspect
-import datetime
 import tkinter as tk
 from tkinter import ttk
-import pathlib
-import sys
-import orjson
-
-# --- Matplotlib imports for plotting functionality ---
+import numpy as np
+import seaborn as sns
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+import pathlib
+import os
+import inspect
 
 # --- Module Imports ---
 from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
-from workers.styling.style import THEMES, DEFAULT_THEME
+from workers.setup.config_reader import Config # Import the Config class
 
-# --- Global Scope Variables ---
-CURRENT_DATE = 20251226
-CURRENT_TIME = 4400
-REVISION_NUMBER = 1
+# Globals
+app_constants = Config.get_instance() # Get the singleton instance
+current_version = "20251229.1625.1"
+current_version_hash = 32806990925 # 20251229 * 1625 * 1
 
-current_version = "20251222.004400.1" 
-# Dynamically get the file path relative to the project root
-current_file_path = pathlib.Path(__file__).resolve()
-project_root = current_file_path.parent.parent.parent
-current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
-current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME * REVISION_NUMBER)
-
-
-class MonitorTopGUIFrame(ttk.Frame):
+class ScanViewGUIFrame(ttk.Frame):
     """
-    A reusable base class for GUI frames now focused on displaying a Matplotlib plot.
+    A GUI frame that displays a live spectrum scan using Matplotlib.
     """
-    PLOT_ID = "top" 
-    
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, json_path=None, config=None, **kwargs):
         """
-        Initializes the GUI frame with a blank plot.
+        Initialize the Scan View GUI.
+
+        Args:
+            parent: The parent widget.
+            json_path (str, optional): Path to config file (caught to prevent error).
+            config (dict, optional): Configuration dictionary (caught to prevent error).
+            **kwargs: Additional keyword arguments for the frame.
         """
+        # 1. Initialize Parent Frame (Cleanly!)
+        super().__init__(parent, **kwargs)
+        
+        # 2. Store Arguments (Safe from superclass!)
+        self.json_path = json_path
+        self.config_data = config
+        
+        # 3. Setup Theme
+        self.theme_colors = {
+            "bg": "black",
+            "fg": "white",
+            "fg_alt": "gray"
+        }
+        if self.config_data and 'theme_colors' in self.config_data:
+             self.theme_colors.update(self.config_data['theme_colors'])
+
+        # 4. Initialize UI
+        self._init_ui()
+
+    def _init_ui(self):
         current_function_name = inspect.currentframe().f_code.co_name
-
-        # Extract config from kwargs first
-        config = kwargs.pop('config', {})
         
-        debug_logger(
-            message=f"🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand!",
-**_get_log_args()
-            
-
-
-        )
-        
-        try:
-            # --- Function logic goes here ---
-            super().__init__(parent, *args, **kwargs)
-
-            # Store the MQTT components, extracted from config
-            self.state_mirror_engine = config.get('state_mirror_engine')
-            self.subscriber_router = config.get('subscriber_router')
-
-            self._apply_styles(theme_name=DEFAULT_THEME)
-
-            # --- Single Plot Frame ---
-            plot_frame = ttk.Frame(self)
-            plot_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-            plot_frame.grid_columnconfigure(0, weight=1)
-            plot_frame.grid_rowconfigure(0, weight=1)
-
-            # Use theme from config if available, otherwise fallback
-            self.theme_colors = config.get("theme_colors", {
-                "bg": "#2b2b2b", "fg": "#dcdcdc", "fg_alt": "#888888", "accent": "#f4902c"
-            })
-            figure = Figure(figsize=(8, 6), dpi=100, facecolor=self.theme_colors["bg"])
-            ax = figure.add_subplot(111, facecolor=self.theme_colors["bg"])
-            ax.set_title("Top Monitor", color=self.theme_colors["fg"])
-            ax.set_xlabel("Frequency (MHz)", color=self.theme_colors["fg"])
-            ax.set_ylabel("Amplitude (dBm)", color=self.theme_colors["fg"])
-            ax.tick_params(axis='x', colors=self.theme_colors["fg"])
-            ax.tick_params(axis='y', colors=self.theme_colors["fg"])
-            ax.grid(True, linestyle='--', color=self.theme_colors["fg_alt"], alpha=0.5)
-            
-            canvas = FigureCanvasTkAgg(figure, master=plot_frame)
-            canvas_widget = canvas.get_tk_widget()
-            canvas_widget.pack(fill=tk.BOTH, expand=True)
-            
-            self.plot = {'figure': figure, 'ax': ax, 'canvas': canvas, 'widget': canvas_widget}
-
-            debug_logger(message="✅ Celebration of success!",**_get_log_args())
-
-        except Exception as e:
-            debug_logger(message=f"❌ Error in {current_function_name}: {e}")
+        if app_constants.global_settings['debug_enabled']:
             debug_logger(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-              **_get_log_args()
-                
-
-
+                message=f"🧪 Great Scott! Initializing '{current_function_name}' for the Live Scan View!",
+                **_get_log_args()
             )
 
-    def _apply_styles(self, theme_name: str):
-        """
-        Applies the specified theme to the GUI elements using ttk.Style.
-        """
-        colors = THEMES.get(theme_name, THEMES["dark"])
-        style = ttk.Style(self)
-        style.theme_use("clam")
-        
-        # General widget styling
-        style.configure('TFrame', background=colors["bg"])
-        style.configure('TLabel', background=colors["bg"], foreground=colors["fg"])
-        style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
+        try:
+            # --- 1. Create Matplotlib Figure ---
+            # Set figure background to match theme
+            self.fig = Figure(figsize=(5, 4), dpi=100, facecolor=self.theme_colors["bg"])
+            self.ax = self.fig.add_subplot(111)
+            
+            # Style the plot area
+            self.ax.set_facecolor(self.theme_colors["bg"])
+            self.ax.spines['bottom'].set_color(self.theme_colors["fg"])
+            self.ax.spines['top'].set_color(self.theme_colors["fg"])
+            self.ax.spines['left'].set_color(self.theme_colors["fg"])
+            self.ax.spines['right'].set_color(self.theme_colors["fg"])
+            self.ax.tick_params(axis='x', colors=self.theme_colors["fg"])
+            self.ax.tick_params(axis='y', colors=self.theme_colors["fg"])
+            self.ax.yaxis.label.set_color(self.theme_colors["fg"])
+            self.ax.xaxis.label.set_color(self.theme_colors["fg"])
+            self.ax.title.set_color(self.theme_colors["fg"])
 
-        # Table (Treeview) styling
-        style.configure('Custom.Treeview',
-                        background=colors["table_bg"],
-                        foreground=colors["table_fg"],
-                        fieldbackground=colors["table_bg"],
-                        bordercolor=colors["table_border"],
-                        borderwidth=colors["border_width"])
+            # Dummy Data for Initial View
+            x = np.linspace(0, 10, 100)
+            y = np.sin(x)
+            self.ax.plot(x, y, color='cyan') # Sci-Fi Cyan
 
-        style.configure('Custom.Treeview.Heading',
-                        background=colors["table_heading_bg"],
-                        foreground=colors["fg"],
-                        relief=colors["relief"],
-                        borderwidth=colors["border_width"])
+            self.ax.set_title("Live Scan View", color=self.theme_colors["fg"])
+            self.ax.set_xlabel("Frequency (MHz)", color=self.theme_colors["fg"])
+            self.ax.set_ylabel("Amplitude (dBm)", color=self.theme_colors["fg"])
+            self.ax.grid(True, linestyle='--', color=self.theme_colors["fg_alt"], alpha=0.5)
 
-        # Entry (textbox) styling
-        style.configure('Custom.TEntry',
-                        fieldbackground=colors["entry_bg"],
-                        foreground=colors["entry_fg"],
-                        bordercolor=colors["table_border"])
-        
+            # --- 2. Create Tkinter canvas and grid it ---
+            self.canvas = FigureCanvasTkAgg(self.fig, master=self)
+            self.canvas_widget = self.canvas.get_tk_widget()
+            self.canvas_widget.pack(side="top", fill="both", expand=True)
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Base Component Test with Blank Plot")
-    
-    app_frame = MonitorTopGUIFrame(parent=root)
-    
-    root.mainloop()
+            # --- 3. Add Toolbar Frame (Optional) ---
+            # Note: Toolbar usually needs a dedicated pack/grid. 
+            # For now, sticking to simple packing to ensure stability.
+            
+            self.canvas.draw()
+            
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
+                    message="✅ It works! The Matplotlib canvas has materialized!",
+                    **_get_log_args()
+                )
+
+        except Exception as e:
+            if app_constants.global_settings['debug_enabled']:
+                 debug_logger(
+                    message=f"❌ ERROR! The Scan View collapsed! Exception: {e}",
+                    **_get_log_args()
+                )
+            # Display Error on GUI
+            tk.Label(self, text=f"Plot Error: {e}", fg="red", bg="black").pack()

@@ -1,0 +1,91 @@
+{
+  "graphing_elements": {
+    "type": "OcaBlock",
+    "description": "Dynamic Graphing Elements Showcase",
+    "fields": {
+      "time_domain_graph": {
+        "type": "plot_widget",
+        "id": "time_domain_plot",
+        "plot_mode": "time_domain",
+        "title": "Oscilloscope View (Time Domain)",
+        "layout": {
+          "width": 600,
+          "height": 400
+        },
+        "axis": {
+          "x": {
+            "label": "Time (s)",
+            "scale": "linear",
+            "min": 0,
+            "max": 1,
+            "color": "white"
+          },
+          "y": {
+            "label": "Amplitude (V)",
+            "scale": "linear",
+            "min": -1.5,
+            "max": 1.5,
+            "color": "cyan"
+          }
+        },
+        "style": {
+          "background_color": "black",
+          "grid_color": "darkgrey",
+          "line_color": "lime",
+          "line_width": 2
+        },
+        "initial_csv_data": "x,y\n0.00,0.0000\n0.01,0.0628\n0.02,0.1253\n0.03,0.1874\n0.04,0.2490\n0.05,0.3097\n0.06,0.3692\n0.07,0.4272\n0.08,0.4836\n0.09,0.5381\n0.10,0.5902\n0.11,0.6397\n0.12,0.6862\n0.13,0.7295\n0.14,0.7692\n0.15,0.8051\n0.16,0.8369\n0.17,0.8643\n0.18,0.8871\n0.19,0.9051\n0.20,0.9184\n0.21,0.9268\n0.22,0.9304\n0.23,0.9292\n0.24,0.9234\n0.25,0.9130\n0.26,0.8982\n0.27,0.8791\n0.28,0.8560\n0.29,0.8291\n0.30,0.7986\n0.31,0.7648\n0.32,0.7279\n0.33,0.6881\n0.34,0.6457\n0.35,0.6009\n0.36,0.5539\n0.37,0.5050\n0.38,0.4544\n0.39,0.4025\n0.40,0.3495\n0.41,0.2957\n0.42,0.2415\n0.43,0.1870\n0.44,0.1325\n0.45,0.0782\n0.46,0.0245\n0.47,-0.0289\n0.48,-0.0818\n0.49,-0.1340\n0.50,-0.1853\n0.51,-0.2354\n0.52,-0.2842\n0.53,-0.3312\n0.54,-0.3762\n0.55,-0.4189\n0.56,-0.4590\n0.57,-0.4964\n0.58,-0.5309\n0.59,-0.5623\n0.60,-0.5902\n0.61,-0.6147\n0.62,-0.6356\n0.63,-0.6527\n0.64,-0.6660\n0.65,-0.6753\n0.66,-0.6806\n0.67,-0.6818\n0.68,-0.6788\n0.69,-0.6718\n0.70,-0.6606\n0.71,-0.6454\n0.72,-0.6263\n0.73,-0.6033\n0.74,-0.5767\n0.75,-0.5466\n0.76,-0.5132\n0.77,-0.4767\n0.78,-0.4373\n0.79,-0.3953\n0.80,-0.3508\n0.81,-0.3042\n0.82,-0.2557\n0.83,-0.2057\n0.84,-0.1544\n0.85,-0.1022\n0.86,-0.0494\n0.87,0.0036\n0.88,0.0561\n0.89,0.1077\n0.90,0.1583\n0.91,0.2075\n0.92,0.2551\n0.93,0.3009\n0.94,0.3446\n0.95,0.3861\n0.96,0.4251\n0.97,0.4615\n0.98,0.4951\n0.99,0.5258"
+      },
+      "trend_logger_graph": {
+        "type": "plot_widget",
+        "id": "trend_logger_plot",
+        "plot_mode": "trend_logger",
+        "title": "Temperature Trend Logger",
+        "buffer_size": 300,
+        "layout": {
+          "width": 600,
+          "height": 400
+        },
+        "axis": {
+          "x": {
+            "label": "Sample Number",
+            "auto_scroll": true,
+            "color": "white"
+          },
+          "y": {
+            "label": "Temperature (°C)",
+            "auto_scale": true,
+            "min": 0,
+            "max": 100,
+            "color": "orange"
+          }
+        },
+        "style": {
+          "background_color": "#202020",
+          "grid_color": "grey",
+          "line_color": "orange",
+          "line_width": 1
+        }
+      },
+      "horizontal_magnitude_meter": {
+        "type": "_HorizontalMeterWithText",
+        "id": "magnitude_meter_1",
+        "value_default": 123.456,
+        "layout": {
+          "width": 300,
+          "height": 100
+        }
+      },
+      "four_channel_vertical_meter": {
+        "type": "_VerticalMeter",
+        "id": "channel_meter_1",
+        "num_channels": 4,
+        "value_default": 0.0,
+        "layout": {
+          "width": 150,
+          "height": 200
+        }
+      }
+    }
+  }
+}

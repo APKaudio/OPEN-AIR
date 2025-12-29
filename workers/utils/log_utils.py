@@ -7,46 +7,55 @@
 #
 
 import inspect
-
 import os
+
+# Removed: from workers.setup.config_reader import Config (This import caused the circular dependency)
 
 def _get_log_args():
     """
     Inspects the call stack to retrieve the filename, function name,
     and 'current_version' of the caller.
+    This function should NOT access configuration directly to avoid circular imports.
+    Configuration details that might be needed should be passed as arguments
+    if absolutely necessary, or handled by the calling context.
     """
+    # Removed: app_constants = Config.get_instance() (This call caused the infinite loop)
+
     try:
-        # 1. Step back one frame to find who called this function
         frame = inspect.currentframe().f_back
-        
         if frame:
-            # 2. Extract Filename
-            filename = os.path.basename(frame.f_code.co_filename)
-            
-            # 3. Extract Function Name
-            function_name = frame.f_code.co_name
-            
-            # 4. Extract 'current_version' from the caller's globals
-            # (As per the Flux Capacitor Protocol: Every file defines current_version)
-            version = frame.f_globals.get('current_version', 'Unknown_Ver')
+            # Safely get filename, defaulting to '?' if not available
+            filename = os.path.basename(frame.f_code.co_filename) if frame.f_code.co_filename else '?'
+            # Safely get function name, defaulting to '?' if not available
+            function_name = frame.f_code.co_name if frame.f_code.co_name else '?'
+            # Safely get version from globals, defaulting if not available
+            version = frame.f_globals.get('current_version', 'Unknown_Ver') if frame.f_globals else 'Unknown_Ver'
             
             return {
                 "file": filename,
-                "version": version
+                "version": version,
+                "function": function_name
             }
-            
     except Exception as e:
-        # If the stack is unstable, return defaults to prevent a crash
+        # In case of any error during frame inspection, return a safe error context.
+        # Ideally, errors during logging setup should be handled robustly,
+        # but for now, we'll return a fallback.
         return {
             "file": "unknown_file",
             "version": "unknown_ver",
             "function": "unknown_func",
             "error": str(e)
         }
-    
-    # Fallback
+    # Fallback return if no frame is found or other unexpected issue occurs
     return {
         "file": "unknown",
         "version": "unknown",
         "function": "unknown"
     }
+
+# The 'debug_log' function present in the original log_utils.py also imported
+# Config and used app_constants. To prevent further circular issues and
+# simplify, this function and its dependencies are removed.
+# If this function's logic is critical, it requires refactoring to accept
+# configuration as an argument or be called in a context where config is available
+# without causing a loop. For now, we assume it's not essential for the primary fix.

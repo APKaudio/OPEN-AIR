@@ -4,9 +4,7 @@ import configparser
 import pathlib
 import threading # Import threading for thread-safe singleton
 from .config_builder import create_default_config_ini
-from workers.logger.logger import debug_logger # Import debug_logger
 from workers.utils.log_utils import _get_log_args # Import _get_log_args
-
 
 class Config:
     _instance = None
@@ -74,6 +72,7 @@ class Config:
         Reads configuration from config.ini and updates instance attributes.
         If config.ini is not found, a default one is created.
         """
+        from workers.logger.logger import debug_logger # Import debug_logger
         config = configparser.ConfigParser()
         project_root = pathlib.Path(__file__).resolve().parent.parent.parent
         config_path = project_root / 'config.ini'

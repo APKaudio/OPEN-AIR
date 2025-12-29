@@ -55,17 +55,32 @@ class ShowtimeTab(ttk.Frame):
     def __init__(self, parent, *args, **kwargs):
         current_function = inspect.currentframe().f_code.co_name
         
-        # Pop config first to prevent passing it to super().__init__ which doesn't expect it
-        config = kwargs.pop('config', {}) # Now retrieve config explicitly
-
-        super().__init__(parent, *args, **kwargs)
+        # Extract arguments intended for ShowtimeTab, not for Frame
+        module_file_path_str = None
+        config = None
         
-        self.current_file = current_file
-        self.current_version = current_version
+        # Check if 'config' was passed as a keyword argument first
+        if 'config' in kwargs:
+            config = kwargs.pop('config')
+        
+        # If not in kwargs, check positional arguments in *args
+        if not config and args:
+            # Assume the first positional argument after parent is module_file_path_str
+            module_file_path_str = args[0] if args else None
+            if len(args) > 1:
+                # Assume the second positional argument is config
+                config = args[1]
+        
+        # Call the superclass constructor with the parent and any remaining keyword arguments
+        # ttk.Frame expects master and then keyword arguments. We don't pass *args here.
+        super().__init__(parent, **kwargs)
+        
+        self.module_file_path_str = module_file_path_str
+        self.config = config
         
         # Store state_mirror_engine and subscriber_router extracted from config
-        self.state_mirror_engine = config.get('state_mirror_engine')
-        self.subscriber_router = config.get('subscriber_router')
+        self.state_mirror_engine = config.get('state_mirror_engine') if config else None
+        self.subscriber_router = config.get('subscriber_router') if config else None
         
         # State variables
         self.marker_data = []
@@ -83,10 +98,7 @@ class ShowtimeTab(ttk.Frame):
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
                 message=f"🟢️️️🟢 Initialized ShowtimeTab.",
-**_get_log_args()
-                
-
-
+                **_get_log_args()
             )
 
     def _apply_styles(self, theme_name):
@@ -164,10 +176,7 @@ class ShowtimeTab(ttk.Frame):
 
         debug_logger(
             message=f"✅ Widgets created for ShowtimeTab.",
-          **_get_log_args()
-            
-
-
+            **_get_log_args()
         )
 
     def _on_tab_selected(self, event):
@@ -180,9 +189,6 @@ class ShowtimeTab(ttk.Frame):
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function}",
-                    
-
-
                 )
             load_marker_data(self)
             process_and_sort_markers(self)
@@ -196,9 +202,6 @@ class ShowtimeTab(ttk.Frame):
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function}",
-                    
-
-
                 )
 
     # --- BUTTON CREATION METHODS ---
@@ -208,10 +211,7 @@ class ShowtimeTab(ttk.Frame):
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
                 message="🟢️️️🟢 Creating Zone buttons.",
-        **_get_log_args()
-                
-
-
+                **_get_log_args()
             )
         
         # Clear existing zone buttons
@@ -232,8 +232,7 @@ class ShowtimeTab(ttk.Frame):
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
                     message=f"✅ Created button for Zone: {zone_name}.",
-               **_get_log_args()
-
+                    **_get_log_args()
                 )
 
     def _create_group_buttons(self):
@@ -241,10 +240,7 @@ class ShowtimeTab(ttk.Frame):
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
                 message="🟢️️️🟢 Creating Group filter buttons.",
-**_get_log_args()
-                
-
-
+                **_get_log_args()
             )
         
         for widget in self.group_frame.winfo_children():
@@ -283,10 +279,7 @@ class ShowtimeTab(ttk.Frame):
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
                 message=f"✅ Group buttons updated for selected zone.",
-**_get_log_args()
-                
-
-
+                **_get_log_args()
             )
 
     def _create_device_buttons(self):
@@ -294,10 +287,7 @@ class ShowtimeTab(ttk.Frame):
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
                 message="🟢️️️🟢 Creating Device buttons.",
-**_get_log_args()
-                
-
-
+                **_get_log_args()
             )
         
         if self.selected_device_button:
@@ -313,9 +303,7 @@ class ShowtimeTab(ttk.Frame):
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
                     message=f"🔍 Showing devices for Zone: {self.selected_zone} and Group: {self.selected_group}.",
-**_get_log_args()               
-
-
+                    **_get_log_args()               
                 )
         elif self.selected_zone:
             for group_name in self.grouped_markers[self.selected_zone]:
@@ -323,18 +311,14 @@ class ShowtimeTab(ttk.Frame):
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
                     message=f"🔍 Showing all devices for selected Zone: {self.selected_zone}.",
-**_get_log_args()               
-
-
+                    **_get_log_args()               
                 )
         else:
             filtered_devices = self.marker_data
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
                     message="🔍 Showing all devices from MARKERS.csv.",
-**_get_log_args()               
-
-
+                    **_get_log_args()               
                 )
 
         for i, row_data in enumerate(filtered_devices):
@@ -361,10 +345,7 @@ class ShowtimeTab(ttk.Frame):
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
                 message=f"✅ Created {len(filtered_devices)} device buttons.",
-**_get_log_args()
-                
-
-
+                **_get_log_args()
             )
 
     # --- WRAPPER METHODS ---

@@ -1,5 +1,4 @@
-# display_gui_child_pusher.py
-
+# display/right_50/top_10/gui_start_pause_stop.py
 #
 # A GUI frame that uses the DynamicGuiBuilder to create widgets for frequency settings.
 #
@@ -13,94 +12,85 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-#
-current_version = "20251226.000000.1"
+# Version: 20251229.1622.1
 
 import os
 import inspect
 import tkinter as tk
 from tkinter import ttk
+import pathlib
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.logger.logger import  debug_logger
+from workers.logger.logger import debug_logger
+# Use the global log args helper if available, or fall back to local if needed
 from workers.utils.log_utils import _get_log_args 
-import pathlib
 from workers.setup.config_reader import Config # Import the Config class
+
+# Globals
 app_constants = Config.get_instance() # Get the singleton instance
-
-def _get_log_args():
-    """Helper to get common debug_log arguments, accounting for class methods."""
-    frame = inspect.currentframe().f_back.f_back
-    filename = os.path.basename(frame.f_code.co_filename)
-    func_name = frame.f_code.co_name
-
-    # Attempt to get the class name if called from a method
-    class_name = None
-    if 'self' in frame.f_locals:
-        class_name = frame.f_locals['self'].__class__.__name__
-    elif 'cls' in frame.f_locals:
-        class_name = frame.f_locals['cls'].__name__
-
-    if class_name:
-        function_full_name = f"{class_name}.{func_name}"
-    else:
-        function_full_name = func_name
-
-    return {
-        "file": filename,
-        "version": app_constants.CURRENT_VERSION,
-        "function": function_full_name
-    }
+current_version = "20251229.1622.1"
+current_version_hash = 32806990980 # 20251229 * 1622 * 1
 
 # --- Global Scope Variables ---
 current_file_path = pathlib.Path(__file__).resolve()
-project_root = current_file_path.parent.parent.parent
-current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
+project_root = current_file_path.parent.parent.parent.parent.parent # Adjusted for depth (display/right_50/top_10/file.py)
+# Note: Adjust parent count above if project root detection is off, or use app_constants.PROJECT_ROOT if available.
 JSON_CONFIG_FILE = current_file_path.with_suffix('.json')
-
 
 class StartPauseStopGui(ttk.Frame):
     """
     A GUI component for Start/Pause/Stop functionality, instantiating DynamicGuiBuilder.
     """
-    def __init__(self, parent, *args, **kwargs): # Add explicit args
+    def __init__(self, parent, json_path, config, **kwargs): 
         """
         Initializes the Frequency frame and the dynamic GUI builder.
+        
+        Args:
+            parent: The parent widget.
+            json_path (str): The path to the JSON configuration file (passed by ModuleLoader).
+            config (dict): The configuration dictionary (passed by ModuleLoader).
+            **kwargs: Additional keyword arguments for the Frame.
         """
-        config = kwargs.pop('config', {}) # Pop config dict from kwargs
-        super().__init__(parent, *args, **kwargs)
+        # 1. Initialize the Parent Frame (Cleanly!)
+        super().__init__(parent, **kwargs)
+
+        # 2. Absorb the Arguments (Do not let them hit the superclass!)
+        self.json_path = json_path
+        self.config_data = config
 
         # Explicitly extract state_mirror_engine and subscriber_router from config
         self.state_mirror_engine = config.get('state_mirror_engine')
         self.subscriber_router = config.get('subscriber_router')
-
-        self.config_data = config # Keep the original config data and ensure it has state/subscriber
         
         # --- Dynamic GUI Builder ---
         current_function_name = inspect.currentframe().f_code.co_name
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
-                message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to initialize the StartPauseStopGui.",
+                message=f"🧪 Great Scott! Entering '{current_function_name}'! Initializing StartPauseStopGui with json: {self.json_path}",
                 **_get_log_args()
             )
+        
         try:
+            # 3. Construct the GUI
             self.dynamic_gui = DynamicGuiBuilder(
                 parent=self,
-                json_path=JSON_CONFIG_FILE,
-                config=self.config_data # Pass the full config dictionary
+                json_path=self.json_path, # Use the path passed in, or default to global
+                config=self.config_data 
             )
-            debug_logger(
-                message="✅ The StartPauseStopGui did initialize its dynamic GUI builder.",
-                **_get_log_args()
-            )
-        except Exception as e:
-            debug_logger(
-                message=f"❌ Error in {current_function_name}: {e}",
-                **_get_log_args()
-            )
+            
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                    message="✅ It works! It works! The StartPauseStopGui dynamic builder is alive!",
                     **_get_log_args()
                 )
+
+        except Exception as e:
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
+                    message=f"❌ ERROR! The bridge is out! '{current_function_name}' crashed! Exception: {e}",
+                    **_get_log_args()
+                )
+            # Re-raise or handle gracefully depending on policy? 
+            # For now, we log the scream and let the UI show the error via ModuleLoader if it propagates.
+            raise e

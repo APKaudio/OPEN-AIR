@@ -1,7 +1,6 @@
-# display/gui_generic_wrapper.py
-#
-# A plug-and-play GUI wrapper that dynamically resolves its config. 
+#A plug-and-play GUI wrapper that dynamically resolves its config. 
 # Decoupled from MQTT requirements for initial render to prevent stalling.
+# Includes robust error handling, forced rendering, and graceful failure modes.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -13,7 +12,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251226.23580.1
+# Version 20251229.1715.1
 
 import os
 import pathlib
@@ -21,131 +20,161 @@ import orjson
 import tkinter as tk
 from tkinter import ttk
 import inspect
+import traceback # Added for detailed forensics
 
 # --- Protocol: Integration Layer ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.logger.logger import  debug_logger
+from workers.logger.logger import debug_logger
 from workers.setup.config_reader import Config # Import the Config class
-app_constants = Config.get_instance() # Get the singleton instance
 from workers.utils.log_utils import _get_log_args 
+
+# Globals
+app_constants = Config.get_instance() # Get the singleton instance
+current_version = "20251229.1715.1"
+current_version_hash = 32806991192 
 
 # --- Protocol: Global Variables ---
 current_file = f"{os.path.basename(__file__)}"
-
-# --- Fully Dynamic Resolution ---
 current_path = pathlib.Path(__file__).resolve()
-JSON_CONFIG_FILE = current_path.with_suffix('.json') 
 
 # Automatically turns 'gui_yak_bandwidth' into 'OPEN-AIR/yak/bandwidth'
 module_name = current_path.stem.replace('gui_', '')
-## MQTT_TOPIC_FILTER = f"OPEN-AIR/{module_name.replace('_', '/')}"
-
-#class GhostMqtt:
-#    """A harmless 'Mad Scientist' placeholder to satisfy legacy builder checks."""
- #   def add_subscriber(self, *args, **kwargs): pass
- #   def publish(self, *args, **kwargs): pass
 
 class GenericInstrumentGui(ttk.Frame):
     """
-    A generic container that instantiates a DynamicGuiBuilder based on its own filename.
-    Designed to render even if network utilities (MQTT) are disabled or missing.
+    A generic GUI wrapper that loads a JSON configuration to build its interface.
+    Now safely handles arguments from ModuleLoader and fails gracefully.
     """
-    def __init__(self, parent, *args, **kwargs):
-        # Protocol 2.7: Display the entire file.
-        # Consume 'config' and other non-standard keys passed by the orchestrator 
-        config = kwargs.pop('config', {}) # Ensure config is always a dict
+    def __init__(self, parent, json_path=None, config=None, **kwargs):
+        """
+        Initialize the Generic Instrument GUI.
+
+        Args:
+            parent: The parent widget.
+            json_path (str, optional): Path to the JSON config file.
+            config (dict, optional): Configuration dictionary.
+            **kwargs: Additional arguments for the Frame.
+        """
+        # 1. Initialize Parent Frame (Cleanly!)
+        super().__init__(parent, **kwargs)
+
+        # 2. Absorb Arguments (Priority: Passed Args > Global Calculation)
+        self.json_path = json_path
+        self.config_data = config if config else {}
+
+        # Fallback if json_path wasn't passed (though ModuleLoader should pass it)
+        if not self.json_path:
+             self.json_path = current_path.with_suffix('.json')
         
-        super().__init__(parent, *args, **kwargs)
+        # Ensure json_path is a Path object
+        if isinstance(self.json_path, str):
+            self.json_path = pathlib.Path(self.json_path)
+
+        # 3. Extract Core Dependencies
+        self.state_mirror_engine = self.config_data.get('state_mirror_engine')
+        self.subscriber_router = self.config_data.get('subscriber_router')
+        
+        # 4. Initialize UI
+        self._init_ui()
+
+    def _init_ui(self):
         current_function_name = inspect.currentframe().f_code.co_name
-        self.current_class_name = self.__class__.__name__
-
-        # Extract state_mirror_engine and subscriber_router from the config dictionary
-        self.state_mirror_engine = config.get('state_mirror_engine')
-        self.subscriber_router = config.get('subscriber_router')
-        self.config_data = config # Store the full config for later use if needed
-
+        
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
-                message=f"🖥️🟢 SUMMONING: Preparing to build the GUI for '{module_name}'",
+                message=f"🧪 Great Scott! Entering '{current_function_name}' for module '{module_name}'! Target JSON: {self.json_path}",
                 **_get_log_args()
             )
 
-        # Immediate visual feedback in the GUI
-        self.status_label = ttk.Label(self, text=f"Initializing {module_name}...", font=("Arial", 10, "italic"))
-        self.status_label.pack(pady=20)
+        # Create a status label for feedback during loading
+        # Make it BIG and clear so we know it's trying to do something
+        self.status_label = ttk.Label(
+            self, 
+            text=f"⏳ Initializing {module_name}...\nStand by for temporal insertion...", 
+            foreground="orange",
+            justify="center",
+            font=("Consolas", 10, "italic")
+        )
+        self.status_label.pack(fill="both", expand=True, pady=20)
 
-        try:
-            # --- Pre-Flight Path Check ---
-            abs_json_path = JSON_CONFIG_FILE.absolute()
+        # CRITICAL: Force the GUI to update NOW so the user sees the label 
+        # BEFORE we risk hanging the thread with the builder!
+        self.update_idletasks()
+
+        # Defer construction to allow the frame to render first (avoids UI freezing)
+        # This also isolates the builder crash from the main thread loop
+        if app_constants.global_settings['debug_enabled']:
+            debug_logger(
+                message=f"⏳ UI Placeholder rendered. Scheduling construction in 50ms...",
+                **_get_log_args()
+            )
             
-            if not abs_json_path.exists():
-                error_msg = f"🟡 WARNING: Sacred Scroll missing at {abs_json_path}"
+        self.after(50, self._construct_dynamic_gui)
+
+    def _construct_dynamic_gui(self):
+        try:
+            if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=error_msg,
+                    message=f"🏗️ Starting construction sequence for {module_name}...",
                     **_get_log_args()
                 )
-                self.status_label.config(text=error_msg, foreground="orange")
-                return
 
-            # --- YAK-SPECIFIC STRUCTURE NORMALIZATION ---
-            # If the JSON doesn't contain 'OcaBlock' at the root, we wrap the whole thing 
-            # in a Virtual Block so the builder knows to drill down.
-            with open(abs_json_path, 'r') as f:
-                raw_data = orjson.loads(f.read())
-            
-            # Check if root keys are widgets or if it's an 'Anonymous' block structure
-            needs_wrapping = True
-            for k, v in raw_data.items():
-                if isinstance(v, dict) and (v.get("type") == "OcaBlock" or v.get("type", "").startswith("_")):
-                    needs_wrapping = False
-                    break
-            
-            processed_path = str(abs_json_path)
-            
-            if needs_wrapping:
-                if app_constants.global_settings['debug_enabled']:
-                    debug_logger(
-                        message=f"🖥️🔍 NORMALIZING: Wrapping JSON structure for {module_name}",
-                        **_get_log_args()
-                    )
-                # Create a temporary normalized file
-                temp_path = abs_json_path.parent / f"temp_norm_{abs_json_path.name}"
-                norm_data = {
-                    "Generic_Display_Block": { # Generic name for the wrapper block
-                        "type": "OcaBlock",
-                        "description": f"Dynamic Content for {module_name}",
-                        "fields": raw_data
-                    }
-                }
-                with open(temp_path, 'w') as tf:
-                    tf.write(orjson.dumps(norm_data, indent=4).decode('utf-8'))
-                processed_path = str(temp_path)
-            
-            ## If mqtt_util is None because it was shut off in the orchestrator, 
-            ## we provide the GhostMqtt to prevent the DynamicGuiBuilder from returning early.
-            #effective_mqtt = mqtt_util if mqtt_util is not None else GhostMqtt()
+            # 1. Validate File Existence
+            if not self.json_path.exists():
+                raise FileNotFoundError(f"The Blueprint is missing! Cannot find JSON at: {self.json_path}")
 
-            # --- Presentation Layer ---
-            # Instantiate the builder.
-            #print(f"DEBUG: [Hand-off] Passing control to DynamicGuiBuilder for {module_name}")
+            processed_path = str(self.json_path)
             
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
+                    message=f"🚀 [Liftoff] Validated path. Passing control to DynamicGuiBuilder...",
+                    **_get_log_args()
+                )
+            
+            # --- The Main Event: Dynamic Builder ---
             self.dynamic_gui = DynamicGuiBuilder(
                 parent=self,
                 json_path=processed_path,
                 config=self.config_data # Pass the full config dictionary here
             )
             
-            # If we reach here, the builder at least started.
-            self.status_label.destroy()
-
-
-        except Exception as e:
-            error_msg = f"❌ CRITICAL FAILURE in Wrapper: {e}"
-            
-            self.status_label.config(text=error_msg, foreground="red")
+            # If we reach here, the builder succeeded!
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"🖥️❌ 🔴 Great Scott! The wrapper has failed to contain the builder! {e}",
+                    message=f"✅ Builder returned success! Destroying status label...",
+                    **_get_log_args()
+                )
+                
+            self.status_label.destroy()
+            
+            if app_constants.global_settings['debug_enabled']:
+                 debug_logger(
+                    message=f"✅ It works! {module_name} is online and functioning within normal parameters!",
+                    **_get_log_args()
+                )
+
+        except Exception as e:
+            # --- GRACEFUL FAILURE PROTOCOL ---
+            # 1. Capture the full forensic report (Traceback)
+            tb = traceback.format_exc()
+            
+            # 2. Display the error visually on the GUI (Red Screen of Warning)
+            error_header = f"❌ CRITICAL FAILURE in {module_name}"
+            error_body = f"{e}"
+            
+            if self.winfo_exists():
+                self.status_label.config(
+                    text=f"{error_header}\n\n{error_body}", 
+                    foreground="red", 
+                    font=("Consolas", 10, "bold"),
+                    wraplength=self.winfo_width() - 20, # Dynamic wrap
+                    justify="center"
+                )
+            
+            # 3. Log the disaster with maximum detail
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
+                    message=f"❌🔴 Great Scott! The wrapper has failed to contain the builder! {e}\n\n🕵️ FORENSIC TRACE:\n{tb}",
                     **_get_log_args()
                 )
 
@@ -161,6 +190,5 @@ class GenericInstrumentGui(ttk.Frame):
                 message=f"🖥️🔵 Tab '{module_name}' activated! Stand back, I'm checking the data flow!",
                 **_get_log_args()
             )
-        
         # Add logic here if specific refresh actions are needed on tab focus
         pass
