@@ -413,13 +413,13 @@ class Application(ttk.Frame):
                 build_path = getattr(selected_tab_frame, "build_path", None)
                 if build_path:
                     if app_constants.global_settings['debug_enabled']:
-                        debug_logger(f"⚡ Lazy Loading engaged for tab: {newly_selected_tab_name}")
+                        debug_logger(message=f"⚡ Lazy Loading engaged for tab: {newly_selected_tab_name}", **_get_log_args())
                     
                     self._build_from_directory(path=build_path, parent_widget=selected_tab_frame)
                     
                     selected_tab_frame.is_populated = True
                     if app_constants.global_settings['debug_enabled']:
-                        debug_logger(f"✅ Lazy Loading complete for tab: {newly_selected_tab_name}")
+                        debug_logger(message=f"✅ Lazy Loading complete for tab: {newly_selected_tab_name}", **_get_log_args())
 
             # --- Standard Tab Change Logic ---
             self.last_selected_tab_name = newly_selected_tab_name

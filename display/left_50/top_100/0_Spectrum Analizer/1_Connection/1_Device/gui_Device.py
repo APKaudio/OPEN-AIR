@@ -21,13 +21,15 @@ import orjson
 import tkinter as tk
 from tkinter import ttk
 import inspect
+from workers.logger.logger import debug_logger
+from workers.utils.log_utils import _get_log_args
+
+debug_logger(message="DEBUG: gui_Device.py is being loaded!", **_get_log_args())
 
 # --- Protocol: Integration Layer ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.logger.logger import  debug_logger
 from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
-from workers.utils.log_utils import _get_log_args 
 
 # --- Protocol: Global Variables ---
 current_file = f"{os.path.basename(__file__)}"
