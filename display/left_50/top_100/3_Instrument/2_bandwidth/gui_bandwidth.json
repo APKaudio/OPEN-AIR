@@ -2,6 +2,7 @@
   "Resolution Bandwidth": {
     "type": "OcaBlock",
     "description": "Resolution Bandwidth (RBW) settings.",
+    "layout": { "sticky": "ew" },
     "fields": {
       "RBW": {
         "label_active": "Resolution Bandwidth",
@@ -20,7 +21,8 @@
         "value": "0",
         "min": "1",
         "max": "1",
-        "units": "MHz"
+        "units": "MHz",
+        "layout": { "sticky": "ew" }
       },
       "Resolution Band Width": {
         "type": "_GuiButtonToggler",
@@ -34,6 +36,7 @@
           "input_name": "hz_value",
           "converter": "mhz_to_hz"
         },
+        "layout": { "height": 30, "max_cols": 5, "sticky": "ew" },
         "options": {
           "1": {
             "value": "1",
@@ -114,6 +117,7 @@
   "Video Bandwidth": {
     "type": "OcaBlock",
     "description": "Video Bandwidth (VBW) settings.",
+    "layout": { "sticky": "ew" },
     "fields": {
       "vbw_MHz": {
         "label_active": "Video Bandwidth",
@@ -132,7 +136,8 @@
         "value": "0",
         "min": "0",
         "max": "1",
-        "units": "MHz"
+        "units": "MHz",
+        "layout": { "sticky": "ew" }
       },
       "Video Band Width ": {
         "type": "_GuiButtonToggler",
@@ -146,6 +151,7 @@
           "input_name": "hz_value",
           "converter": "mhz_to_hz"
         },
+        "layout": { "height": 30, "max_cols": 5, "sticky": "ew" },
         "options": {
           "1": {
             "value": "1",
@@ -275,6 +281,7 @@
           "input_name": "state_bool",
           "converter": "bool_to_int"
         },
+        "layout": { "height": 30, "sticky": "" },
         "options": {
           "ON": {
             "label_active": "Auto ON",
@@ -293,6 +300,7 @@
   "Sweep Time": {
     "type": "OcaBlock",
     "description": "Video Bandwidth (VBW) settings.",
+    "layout": { "sticky": "ew" },
     "fields": {
       "label_active": "Sweep Time",
       "label_inactive": "Sweep Time",
@@ -310,7 +318,8 @@
       "value": "0",
       "min": "1",
       "max": "50",
-      "units": "s"
+      "units": "s",
+      "layout": { "sticky": "ew" }
     }
   }
 }

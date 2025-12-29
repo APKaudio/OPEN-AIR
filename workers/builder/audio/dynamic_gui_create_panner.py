@@ -131,19 +131,31 @@ class PannerCreatorMixin:
 
         panner_value_var = tk.DoubleVar(value=value_default)
         
-        def on_drag_or_click_callback(event):
-            delta = 0
-            if hasattr(self, '_last_drag_y_panner'): # Use a unique name to avoid conflicts
-                delta = self._last_drag_y_panner - event.y
-            self._last_drag_y_panner = event.y
-            
-            new_val = panner_value_var.get() + (delta * (max_val - min_val) / 100)
+        drag_state = {'start_y': None, 'start_value': None}
+
+        def on_panner_press(event):
+            """Stores the starting Y-position and value when the panner is clicked."""
+            drag_state['start_y'] = event.y
+            drag_state['start_value'] = panner_value_var.get()
+
+        def on_panner_drag(event):
+            """Calculates the new value based on the vertical distance dragged."""
+            if drag_state['start_y'] is None:
+                return
+
+            dy = drag_state['start_y'] - event.y
+            sensitivity = (max_val - min_val) / 100.0
+            new_val = drag_state['start_value'] + (dy * sensitivity)
             new_val = max(min_val, min(max_val, new_val))
-            
-            # Update the StringVar, which will trigger the trace for visual update
-            if panner_value_var.get() != new_val: # Only update if value changed to prevent unnecessary MQTT messages
+
+            if panner_value_var.get() != new_val:
                 panner_value_var.set(new_val)
-                state_mirror_engine.broadcast_gui_change_to_mqtt(path) # Use state_mirror_engine directly
+                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
+
+        def on_panner_release(event):
+            """Clears the drag state when the mouse button is released."""
+            drag_state['start_y'] = None
+            drag_state['start_value'] = None
 
         frame = CustomPannerFrame(
             parent_frame,
@@ -153,7 +165,7 @@ class PannerCreatorMixin:
             reff_point=reff_point,
             path=path,
             state_mirror_engine=state_mirror_engine,
-            command=on_drag_or_click_callback # Pass the callback
+            command=None # Command is handled by the press/drag/release events now
         )
 
         if label:
@@ -187,8 +199,9 @@ class PannerCreatorMixin:
             update_panner_visuals()
 
             # Drag Interaction
-            canvas.bind("<Button-1>", on_drag_or_click_callback)
-            canvas.bind("<B1-Motion>", on_drag_or_click_callback)
+            canvas.bind("<Button-1>", on_panner_press)
+            canvas.bind("<B1-Motion>", on_panner_drag)
+            canvas.bind("<ButtonRelease-1>", on_panner_release)
 
             # --- Bind Special Keys for Quantum Jump and Precise Entry ---
             canvas.bind("<Control-Button-1>", frame._jump_to_reff_point)
@@ -224,9 +237,12 @@ class PannerCreatorMixin:
         - Negative (<0): WHITE spreading to the left
         """
         canvas.delete("all")
+        active_color = neutral_color  # Initialize with a default
+        
+        # Center circle
+        cx, cy = width / 2, height / 2
         
         # 1. Geometry Constants
-        cx, cy = width / 2, height / 2
         radius = min(width, height) / 2 - 5
         start_angle = 135
         end_angle = 45
@@ -241,9 +257,6 @@ class PannerCreatorMixin:
             style=tk.ARC, outline=secondary, width=4
         )
 
-        # 3. Calculate Normalized Value (-1.0 to 1.0)
-        # Assuming min_val is like -64 and max_val is 64
-        # If value is 0, norm_val is 0.
         # 3. Calculate Normalized Value (-1.0 to 1.0)
         # Assuming min_val is like -64 and max_val is 64
         # If value is 0, norm_val is 0.
@@ -305,5 +318,7 @@ class PannerCreatorMixin:
                     start=center_angle_tk, extent=extent,
                     style=tk.ARC, outline=active_color, width=4
                 )
-        # Update the label's color
+        
+        # Draw center oval and update label color now that active_color is set
+        canvas.create_oval(cx-5, cy-6, cx+6, cy+6, fill=active_color, outline=active_color)
         value_label.config(foreground=active_color)

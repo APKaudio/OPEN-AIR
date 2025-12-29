@@ -32,8 +32,7 @@ def _get_log_args():
             
             return {
                 "file": filename,
-                "version": version,
-                "function": function_name
+                "version": version
             }
             
     except Exception as e:

@@ -3,6 +3,7 @@
     "type": "OcaBlock",
     "AES70": "OcaFrequencyActuator",
     "description": "A block for managing all frequency-related settings.",
+    "layout": { "sticky": "ew" },
     "fields": {
       "center_freq_MHz": {
         "label_active": "Center Frequency",
@@ -22,7 +23,8 @@
         "min": "0",
         "max": "6000",
         "step": "0.005",
-        "units": "MHz"
+        "units": "MHz",
+        "layout": { "sticky": "ew" }
       },
       "span_freq_MHz": {
         "label_active": "Frequency Span",
@@ -42,7 +44,8 @@
         "min": "0",
         "max": "1000",
         "step": "0.005",
-        "units": "MHz"
+        "units": "MHz",
+        "layout": { "sticky": "ew" }
       },
       "start_freq_MHz": {
         "label_active": "Start Frequency",
@@ -62,7 +65,8 @@
         "min": "0",
         "max": "5999",
         "step": "0.005",
-        "units": "MHz"
+        "units": "MHz",
+        "layout": { "sticky": "ew" }
       },
       "stop_freq_MHz": {
         "label_active": "Stop Frequency",
@@ -82,7 +86,8 @@
         "min": "1",
         "max": "6000",
         "step": "0.005",
-        "units": "MHz"
+        "units": "MHz",
+        "layout": { "sticky": "ew" }
       }
     }
   },
@@ -90,6 +95,7 @@
     "type": "OcaBlock",
     "AES70": "OcaFrequencyActuator",
     "description": "A block for managing all frequency-related presets.",
+    "layout": { "sticky": "ew" },
     "fields": {
       "SPAN": {
         "type": "_GuiButtonToggler",
@@ -103,6 +109,7 @@
           "input_name": "hz_value",
           "converter": "mhz_to_hz"
         },
+        "layout": { "height": 30, "sticky": "ew", "max_cols": 5 },
         "options": {
           "1": {
             "value": "0.01",

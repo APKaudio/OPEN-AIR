@@ -12,7 +12,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":CALCulate:MARKer1:Y?;:CALCulate:MARKer2:Y?;:CALCulate:MARKer3:Y?;:CALCulate:MARKer4:Y?;:CALCulate:MARKer5:Y?;:CALCulate:MARKer6:Y?;:CALCulate:MARKer1:X?;:CALCulate:MARKer2:X?;:CALCulate:MARKer3:X?;:CALCulate:MARKer4:X?;:CALCulate:MARKer5:X?;:CALCulate:MARKer6:X?"
+            "message": ":CALCulate:MARKer1:Y?;:CALCulate:MARKer2:Y?;:CALCulate:MARKer3:Y?;:CALCulate:MARKer4:Y?;:CALCulate:MARKer5:Y?;:CALCulate:MARKer6:Y?;:CALCulate:MARKer1:X?;:CALCulate:MARKer2:X?;:CALCulate:MARKer3:X?;:CALCulate:MARKer4:X?;:CALCulate:MARKer5:X?;:CALCulate:MARKer6:X?",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_outputs": {
             "type": "OcaBlock",
@@ -85,7 +86,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":CALCulate:MARKer<marker_number>:STATe ON"
+            "message": ":CALCulate:MARKer<marker_number>:STATe ON",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -107,7 +109,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":CALCulate:MARKer<marker_number>:STATe OFF"
+            "message": ":CALCulate:MARKer<marker_number>:STATe OFF",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -129,7 +132,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":CALCulate:MARKer<marker_number>:X <x_value>"
+            "message": ":CALCulate:MARKer<marker_number>:X <x_value>",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_inputs": {
             "type": "OcaBlock",

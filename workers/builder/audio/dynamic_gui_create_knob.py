@@ -132,20 +132,32 @@ class KnobCreatorMixin:
         value_default = float(config.get("value_default", 0.0)) # Ensure float
 
         knob_value_var = tk.DoubleVar(value=value_default)
-        
-        def on_drag_or_click_callback(event):
-            delta = 0
-            if hasattr(self, '_last_drag_y_knob'): # Use a unique name to avoid conflicts
-                delta = self._last_drag_y_knob - event.y
-            self._last_drag_y_knob = event.y
-            
-            new_val = knob_value_var.get() + (delta * (max_val - min_val) / 100)
+
+        drag_state = {'start_y': None, 'start_value': None}
+
+        def on_knob_press(event):
+            """Stores the starting Y-position and value when the knob is clicked."""
+            drag_state['start_y'] = event.y
+            drag_state['start_value'] = knob_value_var.get()
+
+        def on_knob_drag(event):
+            """Calculates the new value based on the vertical distance dragged."""
+            if drag_state['start_y'] is None:
+                return
+
+            dy = drag_state['start_y'] - event.y
+            sensitivity = (max_val - min_val) / 100.0
+            new_val = drag_state['start_value'] + (dy * sensitivity)
             new_val = max(min_val, min(max_val, new_val))
-            
-            # Update the StringVar, which will trigger the trace for visual update
-            if knob_value_var.get() != new_val: # Only update if value changed to prevent unnecessary MQTT messages
+
+            if knob_value_var.get() != new_val:
                 knob_value_var.set(new_val)
-                state_mirror_engine.broadcast_gui_change_to_mqtt(path) # Use state_mirror_engine directly
+                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
+
+        def on_knob_release(event):
+            """Clears the drag state when the mouse button is released."""
+            drag_state['start_y'] = None
+            drag_state['start_value'] = None
 
         frame = CustomKnobFrame(
             parent_frame,
@@ -155,7 +167,7 @@ class KnobCreatorMixin:
             reff_point=reff_point,
             path=path,
             state_mirror_engine=state_mirror_engine,
-            command=on_drag_or_click_callback # Pass the callback
+            command=None  # Command is handled by the press/drag/release events now
         )
 
         if label:
@@ -189,8 +201,9 @@ class KnobCreatorMixin:
             update_knob_visuals()
 
             # Drag Interaction
-            canvas.bind("<Button-1>", on_drag_or_click_callback)
-            canvas.bind("<B1-Motion>", on_drag_or_click_callback)
+            canvas.bind("<Button-1>", on_knob_press)
+            canvas.bind("<B1-Motion>", on_knob_drag)
+            canvas.bind("<ButtonRelease-1>", on_knob_release)
 
             # --- Bind Special Keys for Quantum Jump and Precise Entry ---
             canvas.bind("<Control-Button-1>", frame._jump_to_reff_point)
@@ -232,7 +245,7 @@ class KnobCreatorMixin:
         norm_val_0_1 = (value - min_val) / (max_val - min_val) if max_val > min_val else 0
 
         # Map to -1.0 to 1.0 for Polarity Pan-Pot logic if center is 0
-        norm_val = (norm_val_0_1 * 2) - 1 if (min_val <= 0 and max_val >= 0) else norm_val_0_1
+        norm_val = (norm_val_0_1 * 2) - 1 if (min_val < 0 and max_val >= 0) else norm_val_0_1
         
         # 3. Determine Dynamic Color & Arc Extent
         start_angle_active = 240 # Same start as background for the active arc
@@ -257,6 +270,9 @@ class KnobCreatorMixin:
         px = cx + radius * math.cos(angle_rad)
         py = cy - radius * math.sin(angle_rad) # Canvas Y is inverted
         canvas.create_line(cx, cy, px, py, fill=indicator_color, width=2, capstyle=tk.ROUND)
+        
+        # Center circle
+        canvas.create_oval(cx-4, cy-4, cx+4, cy+4, fill=active_color, outline=active_color)
         
         # Update the label's color
         # This line is now redundant as it's handled in the if/else block above

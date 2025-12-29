@@ -68,6 +68,13 @@ class GuiActuatorCreatorMixin:
         try:
             # Create a frame to hold the label and button
             sub_frame = ttk.Frame(parent_frame)
+            sub_frame.grid_rowconfigure(0, weight=1)
+            sub_frame.grid_columnconfigure(0, weight=1)
+
+            layout = config.get('layout', {})
+            button_height = layout.get('height', 30)
+            button_sticky = layout.get('sticky', 'ew')
+            ipady = (button_height - 20) // 2 if button_height > 20 else 5
 
             button_text = config.get('label', config.get('label_active', config.get('label_inactive', label)))
 
@@ -76,7 +83,10 @@ class GuiActuatorCreatorMixin:
                 text=button_text,
                 style='Custom.TButton' 
             )
-            button.pack(side=tk.LEFT, padx=DEFAULT_PAD_X)
+            button.grid(row=0, column=0, sticky=button_sticky, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, ipady=ipady)
+            
+            # The sub_frame needs to be returned to be placed by the DynamicGuiBuilder's grid.
+            # Its packing/gridding is handled by the caller.
 
             def on_press(event):
                 action_path = f"{path}/trigger"

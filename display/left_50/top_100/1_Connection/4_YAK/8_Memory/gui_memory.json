@@ -12,7 +12,8 @@
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "trigger": false,
-                "message": ":MMEMory:CATalog? \"<preset_path>\" "
+                "message": ":MMEMory:CATalog? \"<preset_path>\" ",
+                "layout": { "height": 30, "sticky": "" }
               },
               "scpi_inputs": {
                 "type": "OcaBlock",
@@ -49,7 +50,8 @@
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "trigger": false,
-                "message": ":MMEMory:LOAD STA,\"<preset_path><preset_fileName>\" "
+                "message": ":MMEMory:LOAD STA,\"<preset_path><preset_fileName>\" ",
+                "layout": { "height": 30, "sticky": "" }
               },
               "scpi_inputs": {
                 "type": "OcaBlock",
@@ -75,7 +77,8 @@
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "trigger": false,
-                "message": ":MMEMory:LOAD:STATe"
+                "message": ":MMEMory:LOAD:STATe",
+                "layout": { "height": 30, "sticky": "" }
               },
               "scpi_inputs": {
                 "type": "OcaBlock",
@@ -92,7 +95,8 @@
                 "active": true,
                 "label_active": "LoadPreset",
                 "label_inactive": "LoadPreset",
-                "trigger": 0
+                "trigger": 0,
+                "layout": { "height": 30, "sticky": "" }
               }
             }
           }

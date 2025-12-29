@@ -4,6 +4,11 @@
     "AES70": "OcaTransportActuator",
     "description": "START PAUSE STOP BUTTONS",
     "handler": "handle_transport_state",
+    "layout": {
+      "sticky": "ew",
+      "max_cols": 3,
+      "height": 40
+    },
     "options": {
       "START": {
         "label_active": "START",

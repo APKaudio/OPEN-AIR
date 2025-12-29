@@ -12,7 +12,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":SYSTem:ERRor?"
+            "message": ":SYSTem:ERRor?",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_outputs": {
             "type": "OcaBlock",
@@ -34,7 +35,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "value": "*IDN?"
+            "value": "*IDN?",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_outputs": {
             "type": "OcaBlock",
@@ -58,6 +60,7 @@
             "AES70": "OcaBooleanActuator",
  "active": true,
         "label_inactive": "Update Display",
+        "layout": { "height": 30, "sticky": "" },
         "Generic_Model": {
           "trigger": false,
           "message": ":SYSTem:DISPlay:UPDate"
@@ -72,6 +75,7 @@
             "AES70": "OcaBooleanActuator",
  "active": true,
             "label_inactive": "Clear Status (*CLS)",
+            "layout": { "height": 30, "sticky": "" },
             "Generic_Model": {
               "trigger": false,
               "value": "*CLS"
@@ -82,6 +86,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "Reset Device (*RST)",
+            "layout": { "height": 30, "sticky": "" },
             "Generic_Model": {
               "trigger": false,
               "value": "*RST"
@@ -92,6 +97,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "Power Cycle",
+            "layout": { "height": 30, "sticky": "" },
             "Generic_Model": {
               "trigger": false,
               "message": ":SYSTem:POWer:RESet"

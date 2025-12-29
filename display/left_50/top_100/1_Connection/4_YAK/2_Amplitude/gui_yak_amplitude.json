@@ -12,7 +12,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":DISPlay:WINDow:TRACe:Y:RLEVel?;:POWer:ATTenuation?;:POWer:GAIN?"
+            "message": ":DISPlay:WINDow:TRACe:Y:RLEVel?;:POWer:ATTenuation?;:POWer:GAIN?",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_outputs": {
             "type": "OcaBlock",
@@ -49,7 +50,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":DISPlay:WINDow:TRACe:Y:RLEVel <Ref_Level_dBm>;:POWer:RF:ATTenuation <Attenuation_dB>;:POWer:GAIN <Preamp_On>"
+            "message": ":DISPlay:WINDow:TRACe:Y:RLEVel <Ref_Level_dBm>;:POWer:RF:ATTenuation <Attenuation_dB>;:POWer:GAIN <Preamp_On>",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -87,7 +89,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":DISPlay:WINDow:TRACe:Y:RLEVel?"
+            "message": ":DISPlay:WINDow:TRACe:Y:RLEVel?",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_outputs": {
             "type": "OcaBlock",
@@ -108,7 +111,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":POWer:RF:ATTenuation?"
+            "message": ":POWer:RF:ATTenuation?",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_outputs": {
             "type": "OcaBlock",
@@ -129,7 +133,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":SENSE:POWer:RF:GAIN:STATe?"
+            "message": ":SENSE:POWer:RF:GAIN:STATe?",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_outputs": {
             "type": "OcaBlock",
@@ -156,7 +161,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":DISPlay:WINDow:TRACe:Y:RLEVel <Ref_Level_dBm>"
+            "message": ":DISPlay:WINDow:TRACe:Y:RLEVel <Ref_Level_dBm>",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -177,7 +183,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":POWer:ATTenuation <Power_Attenuation>"
+            "message": ":POWer:ATTenuation <Power_Attenuation>",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -198,8 +205,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "Auto Atten ON",
+            "layout": { "height": 30, "sticky": "" },
             "Generic_Model": {
-              "trigger": false,
               "message": ":POWer:ATTenuation:AUTO ON"
             }
           },
@@ -208,8 +215,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "Auto Atten OFF",
+            "layout": { "height": 30, "sticky": "" },
             "Generic_Model": {
-              "trigger": false,
               "message": ":POWer:ATTenuation:AUTO OFF"
             }
           }
@@ -223,8 +230,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "Preamp ON",
+            "layout": { "height": 30, "sticky": "" },
             "Generic_Model": {
-              "trigger": false,
               "message": ":POWer:GAIN ON"
             }
           },
@@ -233,6 +240,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "Preamp OFF",
+            "layout": { "height": 30, "sticky": "" },
             "Generic_Model": {
               "trigger": false,
               "message": ":POWer:GAIN OFF"
@@ -249,6 +257,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "High Sensitivity ON",
+            "layout": { "height": 30, "sticky": "" },
             "N9340B": {
               "trigger": false,
               "message": ":DISPlay:WINDow:TRACe:Y:RLEVel -50; :POWer:ATTenuation 0; :POWer:GAIN ON"
@@ -259,6 +268,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "High Sensitivity ON",
+            "layout": { "height": 30, "sticky": "" },
             "N9342CN": {
               "trigger": false,
               "message": ":POWer:HSENsitive ON"
@@ -269,6 +279,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "High Sensitivity OFF",
+            "layout": { "height": 30, "sticky": "" },
             "N9340B": {
               "trigger": false,
               "message": ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF"
@@ -279,6 +290,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "High Sensitivity OFF",
+            "layout": { "height": 30, "sticky": "" },
             "N9342CN": {
               "trigger": false,
               "message": ":POWer:HSENsitive OFF"

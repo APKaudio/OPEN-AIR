@@ -64,7 +64,7 @@ def set_log_directory(directory):
 def debug_logger(message: str, **kwargs):
     """
     Public function to log debug messages.
-    Receives 'message' and unpacked dictionary from _get_log_args() (file, function, version) in kwargs.
+    Receives 'message' and optionally unpacked dictionary from _get_log_args() (file, version) in kwargs.
     """
     config_instance = _get_config_instance() # Get the Config instance
 
@@ -73,30 +73,38 @@ def debug_logger(message: str, **kwargs):
         return
     
     # Generate timestamp immediately so screen and file (if unbuffered) are close
-    # Note: The buffer logic generates its own timestamp, but for screen printing we need one now.
     current_ts = f"{time.time():.6f}"
     
     is_error = "ERROR" in message or "❌" in message
     level = "❌" if is_error else "🦆"
 
+    # Get caller's frame for accurate file/function/version info
+    import inspect
+    frame = inspect.currentframe().f_back
+    caller_file = os.path.basename(frame.f_code.co_filename) if frame else '?'
+    caller_func = frame.f_code.co_name if frame else '?'
+    caller_version = frame.f_globals.get('current_version', 'Unknown_Ver') if frame else 'Unknown_Ver'
+
+    # Prepare context_data, prioritizing explicit kwargs over derived caller info
+    context_data_for_log = {
+        'file': kwargs.get('file', caller_file),
+        'function': kwargs.get('function', caller_func),
+        'version': kwargs.get('version', caller_version)
+    }
+    # Add any other kwargs that might have been passed
+    context_data_for_log.update({k: v for k, v in kwargs.items() if k not in ['file', 'function', 'version']})
+
     # 1. TERMINAL OUTPUT (Immediate & Formatted)
     if config_instance.global_settings['debug_to_terminal']: # Use config_instance
-        # Extract context
-        c_file = kwargs.get('file', '?')
-        c_func = kwargs.get('function', '?')
-        
-        # Clean the name (remove .py, remove _, remove brackets)
-        clean_context = _clean_context_string(c_file, c_func)
-        
-        # Format: Timestamp Icon CleanContext Message
+        clean_context = _clean_context_string(context_data_for_log['file'], context_data_for_log['function'])
         print(f"{current_ts} {message} {level} {clean_context}")
     
     # 2. FILE/BUFFER OUTPUT
-    _process_and_buffer_log_message(f"{level} ", message, kwargs)
+    _process_and_buffer_log_message(f"{level} ", message, context_data_for_log)
     
     # 3. WRITE TO ERROR LOG
     if is_error:
-        _write_to_error_log(current_ts, level, message, kwargs)
+        _write_to_error_log(current_ts, level, message, context_data_for_log)
 
 def console_log(message: str):
     """
@@ -155,6 +163,10 @@ def _clean_context_string(c_file, c_func):
 
 def _write_to_file(timestamp, level, message, context_data):
     """Helper to actually write to the disk."""
+    # Filter out Watchdog/Heartbeat messages from the file log
+    if "Watchdog" in message or "System Heartbeat" in message:
+        return
+
     try:
         config_instance = _get_config_instance()
         if not config_instance.global_settings.get('debug_to_file', False):

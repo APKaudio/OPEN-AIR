@@ -22,6 +22,7 @@ from workers.styling.style import THEMES, DEFAULT_THEME
 from workers.builder.input.dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
 from workers.setup.config_reader import Config # Import the Config class                                                                          
 from workers.setup.path_initializer import GLOBAL_PROJECT_ROOT # Import GLOBAL_PROJECT_ROOT
+from workers.mqtt.mqtt_publisher_service import publish_payload
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.utils.topic_utils import get_topic, generate_topic_path_from_filepath, TOPIC_DELIMITER
@@ -51,6 +52,7 @@ from .input.dynamic_gui_create_directional_buttons import DirectionalButtonsCrea
 from .audio.dynamic_gui_create_custom_fader import CustomFaderCreatorMixin
 from .audio.dynamic_gui_create_needle_vu_meter import NeedleVUMeterCreatorMixin
 from .audio.dynamic_gui_create_panner import PannerCreatorMixin
+from .audio.dynamic_gui_create_custom_horizontal_fader import CustomHorizontalFaderCreatorMixin
 
 # --- Protocol Global Variables ---
 CURRENT_DATE = 20251223
@@ -86,7 +88,8 @@ class DynamicGuiBuilder(
     DirectionalButtonsCreatorMixin,
     CustomFaderCreatorMixin,
     NeedleVUMeterCreatorMixin,
-    PannerCreatorMixin
+    PannerCreatorMixin,
+    CustomHorizontalFaderCreatorMixin
 ):
     def __init__(self, parent, json_path=None, tab_name=None, *args, **kwargs):
         config = kwargs.pop('config', {})
@@ -158,6 +161,7 @@ class DynamicGuiBuilder(
             "_IncDecButtons": self._create_inc_dec_buttons,
             "_DirectionalButtons": self._create_directional_buttons,
             "_CustomFader": self._create_custom_fader,
+            "_CustomHorizontalFader": self._create_custom_horizontal_fader,
             "_NeedleVUMeter": self._create_needle_vu_meter,
             "_Panner": self._create_panner
         }
@@ -294,35 +298,32 @@ class DynamicGuiBuilder(
                         debug_logger(message=f"   - No converter applied. Payload: {payload}", **_get_log_args())
 
                 # 3. Publish to MQTT
-                if self.state_mirror_engine and self.state_mirror_engine.mqtt_client:
-                    if not handler_cfg.get("trigger_only") and input_topic and payload is not None:
-                        try:
-                            yak_info_payload = {
-                                "value": payload,
-                                "yak_handler_config": handler_cfg,
-                                "gui_path": current_path
-                            }
-                            self.state_mirror_engine.mqtt_client.publish(input_topic, orjson.dumps(yak_info_payload), retain=True)
-                            debug_logger(message=f"   - Published enriched input to '{input_topic}' with payload: {yak_info_payload}", **_get_log_args())
-                        except Exception as e:
-                            debug_logger(message=f"❌ Error publishing input for '{current_path}': {e}", **_get_log_args())
-                    
-                    # Fire Trigger (True -> False pulse)
-                    if trigger_topic:
-                        try:
-                            # Use unique instance_id for trigger if available in state_mirror_engine
-                            instance_id = getattr(self.state_mirror_engine, 'instance_id', None)
-                            trigger_payload_true = {"value": True, "instance_id": instance_id}
-                            trigger_payload_false = {"value": False, "instance_id": instance_id}
-
-                            self.state_mirror_engine.mqtt_client.publish(trigger_topic, orjson.dumps(trigger_payload_true))
-                            self.state_mirror_engine.mqtt_client.publish(trigger_topic, orjson.dumps(trigger_payload_false))
-                            debug_logger(message=f"   - Fired trigger for '{trigger_topic}'", **_get_log_args())
-                        except Exception as e:
-                            debug_logger(message=f"❌ Error firing trigger for '{current_path}': {e}", **_get_log_args())
-                else:
-                    debug_logger(message=f"⚠️ MQTT client not available in state_mirror_engine for '{current_path}'. Cannot publish.", **_get_log_args())
+                if not handler_cfg.get("trigger_only") and input_topic and payload is not None:
+                    try:
+                        yak_info_payload = {
+                            "value": payload,
+                            "yak_handler_config": handler_cfg,
+                            "gui_path": current_path
+                        }
+                        publish_payload(input_topic, orjson.dumps(yak_info_payload), retain=True)
+                        debug_logger(message=f"   - Published enriched input to '{input_topic}' with payload: {yak_info_payload}", **_get_log_args())
+                    except Exception as e:
+                        debug_logger(message=f"❌ Error publishing input for '{current_path}': {e}", **_get_log_args())
                 
+                # Fire Trigger (True -> False pulse)
+                if trigger_topic:
+                    try:
+                        # Use unique instance_id for trigger if available in state_mirror_engine
+                        instance_id = getattr(self.state_mirror_engine, 'instance_id', None)
+                        trigger_payload_true = {"value": True, "instance_id": instance_id}
+                        trigger_payload_false = {"value": False, "instance_id": instance_id}
+
+                        publish_payload(trigger_topic, orjson.dumps(trigger_payload_true))
+                        publish_payload(trigger_topic, orjson.dumps(trigger_payload_false))
+                        debug_logger(message=f"   - Fired trigger for '{trigger_topic}'", **_get_log_args())
+                    except Exception as e:
+                        debug_logger(message=f"❌ Error firing trigger for '{current_path}': {e}", **_get_log_args())
+
                 debug_logger(message=f"✅ yak_bridge_callback completed for '{current_path}'", **_get_log_args())
 
             # 3. Bind the Event

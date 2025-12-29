@@ -2,6 +2,7 @@
   "Trace 1": {
     "type": "OcaBlock",
     "description": "Settings for Trace 1 Mode",
+    "layout": { "sticky": "ew" },
     "fields": {
       "TRACE_MODE_1": {
         "type": "_GuiDropDownOption",
@@ -16,6 +17,7 @@
           "converter": "string",
           "trace_number": 1
         },
+        "layout": { "height": 30, "sticky": "ew", "max_cols": 5 },
         "options": {
           "WRITE": {
             "label_active": "LIVE REALTIME",
@@ -64,6 +66,7 @@
   "Trace 2": {
     "type": "OcaBlock",
     "description": "Settings for Trace 2 Mode",
+    "layout": { "sticky": "ew" },
     "fields": {
       "TRACE_MODE_2": {
         "type": "_GuiDropDownOption",
@@ -78,6 +81,7 @@
           "converter": "string",
           "trace_number": 2
         },
+        "layout": { "height": 30, "sticky": "ew", "max_cols": 5 },
         "options": {
           "WRITE": {
             "label_active": "LIVE REALTIME",
@@ -126,6 +130,7 @@
   "Trace 3": {
     "type": "OcaBlock",
     "description": "Settings for Trace 3 Mode",
+    "layout": { "sticky": "ew" },
     "fields": {
       "TRACE_MODE_3": {
         "type": "_GuiDropDownOption",
@@ -140,6 +145,7 @@
           "converter": "string",
           "trace_number": 3
         },
+        "layout": { "height": 30, "sticky": "ew", "max_cols": 5 },
         "options": {
           "WRITE": {
             "label_active": "LIVE REALTIME",
@@ -188,6 +194,7 @@
   "Trace 4": {
     "type": "OcaBlock",
     "description": "Settings for Trace 4 Mode",
+    "layout": { "sticky": "ew" },
     "fields": {
       "TRACE_MODE_4": {
         "type": "_GuiDropDownOption",
@@ -202,6 +209,7 @@
           "converter": "string",
           "trace_number": 4
         },
+        "layout": { "height": 30, "sticky": "ew", "max_cols": 5 },
         "options": {
           "WRITE": {
             "label_active": "LIVE REALTIME",
@@ -251,6 +259,7 @@
     "type": "OcaBlock",
     "AES70": "OcaTraceManager",
     "description": "A block for managing the continuous sweep settings.",
+    "layout": { "sticky": "ew" },
     "fields": {
       "CONTINUOUS_MODE": {
         "type": "_GuiButtonToggle",
@@ -264,6 +273,7 @@
           "input_name": "state_bool",
           "converter": "bool_to_int"
         },
+        "layout": { "height": 30, "sticky": "" },
         "options": {
           "ON": {
             "label_active": "CONTINUOUS ON",
@@ -292,7 +302,8 @@
           "command": "Do_Initiate_Continuous",
           "trigger_only": true
         },
-        "trigger": "0"
+        "trigger": "0",
+        "layout": { "height": 30, "sticky": "" }
       }
     }
   },
@@ -300,6 +311,7 @@
     "type": "OcaBlock",
     "AES70": "OcaTraceManager",
     "description": "A block for managing trace averaging settings.",
+    "layout": { "sticky": "ew" },
     "fields": {
       "AVERAGING": {
         "type": "_GuiButtonToggler",
@@ -313,6 +325,7 @@
           "input_name": "count_int",
           "converter": "int"
         },
+        "layout": { "height": 30, "sticky": "ew" },
         "options": {
           "0": {
             "label_active": "Off",

@@ -269,6 +269,29 @@ class CustomFaderCreatorMixin:
             return None
 
 
+    def _draw_rounded_rectangle(self, canvas, x1, y1, x2, y2, radius, **kwargs):
+        points = [x1 + radius, y1,
+                x1 + radius, y1,
+                x2 - radius, y1,
+                x2 - radius, y1,
+                x2, y1,
+                x2, y1 + radius,
+                x2, y1 + radius,
+                x2, y2 - radius,
+                x2, y2 - radius,
+                x2, y2,
+                x2 - radius, y2,
+                x2 - radius, y2,
+                x1 + radius, y2,
+                x1 + radius, y2,
+                x1, y2,
+                x1, y2 - radius,
+                x1, y2 - radius,
+                x1, y1 + radius,
+                x1, y1 + radius,
+                x1, y1]
+        return canvas.create_polygon(points, **kwargs, smooth=True)
+
     def _draw_fader(self, frame_instance, canvas, width, height, value):
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
@@ -321,7 +344,7 @@ class CustomFaderCreatorMixin:
             
             tick_values = range(int(start_tick), int(end_tick) + 1, int(step))
 
-        for tick_value in tick_values:
+        for i, tick_value in enumerate(tick_values):
             # Calculate linear normalized position for the tick value
             linear_tick_norm = (tick_value - frame_instance.min_val) / (frame_instance.max_val - frame_instance.min_val) if (frame_instance.max_val - frame_instance.min_val) != 0 else 0
             linear_tick_norm = max(0.0, min(1.0, linear_tick_norm)) # Clamp for safety
@@ -344,8 +367,9 @@ class CustomFaderCreatorMixin:
             # Draw a short line for the tick mark
             canvas.create_line(cx - tick_length_half, tick_y_pos, cx + tick_length_half, tick_y_pos, fill=tick_color, width=1)
             
-            # Draw tick value label
-            canvas.create_text(cx + 15, tick_y_pos, text=str(int(tick_value)), fill=tick_color, anchor="w")
+            # Draw tick value label for every other tick
+            if i % 2 == 0:
+                canvas.create_text(cx + 15, tick_y_pos, text=str(int(tick_value)), fill=tick_color, anchor="w")
         
         # Determine active_color based on norm_value (using the actual norm_value, not display_norm_pos)
         if abs(norm_value) < 0.01:
@@ -356,19 +380,21 @@ class CustomFaderCreatorMixin:
             active_color = "white"
 
         # Handle (Fader Cap)
-        # Make it look like a real fader cap
         cap_width = width * 0.7 # Make cap width 70% of the canvas width
         cap_height = 30
-        canvas.create_rectangle(
-            cx - cap_width/2, handle_y - cap_height/2, 
-            cx + cap_width/2, handle_y + cap_height/2, 
+        self._draw_rounded_rectangle(
+            canvas,
+            cx - cap_width/2, handle_y - cap_height/2,
+            cx + cap_width/2, handle_y + cap_height/2,
+            radius=10,
             fill=frame_instance.handle_col, outline=frame_instance.track_col
         )
-        # Main center line on the cap
-        line_length_half = cap_width * 0.4 # Roughly 80% of current cap_width
-        line_offset = 6 # Vertical offset for the small lines
-        canvas.create_line(cx - line_length_half, handle_y, cx + line_length_half, handle_y, fill=frame_instance.track_col, width=2)
-        # Additional smaller lines above and below
-        small_line_length_half = line_length_half * 0.6 # 60% of the main line's half length
-        canvas.create_line(cx - small_line_length_half, handle_y - line_offset, cx + small_line_length_half, handle_y - line_offset, fill=frame_instance.track_col, width=1)
-        canvas.create_line(cx - small_line_length_half, handle_y + line_offset, cx + small_line_length_half, handle_y + line_offset, fill=frame_instance.track_col, width=1)
+        # Center line
+        center_line_length = cap_width * 0.9
+        canvas.create_line(cx - center_line_length/2, handle_y, cx + center_line_length/2, handle_y, fill=frame_instance.track_col, width=2)
+        
+        # 60% lines at 25% and 75% of height
+        side_line_length = cap_width * 0.6
+        y_offset = cap_height * 0.25
+        canvas.create_line(cx - side_line_length/2, handle_y - y_offset, cx + side_line_length/2, handle_y - y_offset, fill=frame_instance.track_col, width=1)
+        canvas.create_line(cx - side_line_length/2, handle_y + y_offset, cx + side_line_length/2, handle_y + y_offset, fill=frame_instance.track_col, width=1)

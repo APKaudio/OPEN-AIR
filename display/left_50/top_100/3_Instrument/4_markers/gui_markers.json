@@ -3,6 +3,7 @@
     "type": "OcaBlock",
     "AES70": "OcaMarkerManager",
     "description": "A block for managing global marker settings.",
+    "layout": { "sticky": "ew" },
     "fields": {
       "All_Markers_On": {
         "label_active": "All Markers ON",
@@ -18,6 +19,7 @@
           "input_name": "state_bool",
           "converter": "bool_to_int"
         },
+        "layout": { "height": 30, "sticky": "" },
         "options": {
           "ON": {
             "label_active": "All Markers ON",
@@ -36,6 +38,7 @@
   "Marker 1": {
     "type": "OcaBlock",
     "description": "Settings for Marker 1",
+    "layout": { "sticky": "ew" },
     "fields": {
       "Active": {
         "label_active": "Active",
@@ -52,7 +55,8 @@
           "converter": "bool_to_int",
           "marker_number": 1
         },
-        "value": false
+        "value": false,
+        "layout": { "height": 30 }
       },
       "X_MHz": {
         "label_active": "X",
@@ -85,6 +89,7 @@
   "Marker 2": {
     "type": "OcaBlock",
     "description": "Settings for Marker 2",
+    "layout": { "sticky": "ew" },
     "fields": {
       "Active": {
         "label_active": "Active",
@@ -101,7 +106,8 @@
           "converter": "bool_to_int",
           "marker_number": 2
         },
-        "value": false
+        "value": false,
+        "layout": { "height": 30 }
       },
       "X_MHz": {
         "label_active": "X",
@@ -134,6 +140,7 @@
   "Marker 3": {
     "type": "OcaBlock",
     "description": "Settings for Marker 3",
+    "layout": { "sticky": "ew" },
     "fields": {
       "Active": {
         "label_active": "Active",
@@ -150,7 +157,8 @@
           "converter": "bool_to_int",
           "marker_number": 3
         },
-        "value": false
+        "value": false,
+        "layout": { "height": 30 }
       },
       "X_MHz": {
         "label_active": "X",
@@ -183,6 +191,7 @@
   "Marker 4": {
     "type": "OcaBlock",
     "description": "Settings for Marker 4",
+    "layout": { "sticky": "ew" },
     "fields": {
       "Active": {
         "label_active": "Active",
@@ -199,7 +208,8 @@
           "converter": "bool_to_int",
           "marker_number": 4
         },
-        "value": false
+        "value": false,
+        "layout": { "height": 30 }
       },
       "X_MHz": {
         "label_active": "X",
@@ -232,6 +242,7 @@
   "Marker 5": {
     "type": "OcaBlock",
     "description": "Settings for Marker 5",
+    "layout": { "sticky": "ew" },
     "fields": {
       "Active": {
         "label_active": "Active",
@@ -248,7 +259,8 @@
           "converter": "bool_to_int",
           "marker_number": 5
         },
-        "value": false
+        "value": false,
+        "layout": { "height": 30 }
       },
       "X_MHz": {
         "label_active": "X",
@@ -281,6 +293,7 @@
   "Marker 6": {
     "type": "OcaBlock",
     "description": "Settings for Marker 6",
+    "layout": { "sticky": "ew" },
     "fields": {
       "Active": {
         "label_active": "Active",
@@ -297,7 +310,8 @@
           "converter": "bool_to_int",
           "marker_number": 6
         },
-        "value": false
+        "value": false,
+        "layout": { "height": 30 }
       },
       "X_MHz": {
         "label_active": "X",

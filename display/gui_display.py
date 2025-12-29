@@ -183,12 +183,12 @@ class Application(ttk.Frame):
         hover_bg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Hover_Bg"]
         hover_fg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggle"]["Button_Hover_Fg"]
 
-        style.configure('TButton', background=dark_grey, foreground=colors["text"]) # Generic buttons unselected
+        style.configure('TButton', background=dark_grey, foreground=colors["text"], font=('Helvetica', 10, 'bold'), anchor='center') # Generic buttons unselected
         style.map('TButton',
                   background=[('active', hover_bg), ('!active', dark_grey)],
                   foreground=[('active', hover_fg), ('!active', colors["text"])])
 
-        style.configure('Custom.TButton', background=dark_grey, foreground=colors["text"]) # Custom buttons unselected
+        style.configure('Custom.TButton', background=dark_grey, foreground=colors["text"], font=('Helvetica', 10, 'bold'), anchor='center') # Custom buttons unselected
         style.map('Custom.TButton',
                   background=[('active', hover_bg), ('!active', dark_grey)],
                   foreground=[('active', hover_fg), ('!active', colors["text"])])
@@ -199,12 +199,12 @@ class Application(ttk.Frame):
         toggler_hover_bg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggler_unselected"]["Button_Hover_Bg"]
         toggler_hover_fg = THEMES[theme_name if theme_name in THEMES else DEFAULT_THEME]["button_style_toggler_unselected"]["Button_Hover_Fg"]
 
-        style.configure('Custom.TogglerUnselected.TButton', background=toggler_unselected_bg, foreground=toggler_unselected_fg)
+        style.configure('Custom.TogglerUnselected.TButton', background=toggler_unselected_bg, foreground=toggler_unselected_fg, font=('Helvetica', 10, 'bold'), anchor='center')
         style.map('Custom.TogglerUnselected.TButton',
                   background=[('active', toggler_hover_bg), ('!active', toggler_unselected_bg)],
                   foreground=[('active', toggler_hover_fg), ('!active', toggler_unselected_fg)])
 
-        style.configure('Custom.Selected.TButton', background=selected_orange, foreground=selected_fg, relief="sunken")
+        style.configure('Custom.Selected.TButton', background=selected_orange, foreground=selected_fg, relief="sunken", font=('Helvetica', 10, 'bold'), anchor='center')
         style.map('Custom.Selected.TButton',
                   background=[('active', hover_bg), ('!active', selected_orange)], # Hovering over selected
                   foreground=[('active', hover_fg), ('!active', selected_fg)])

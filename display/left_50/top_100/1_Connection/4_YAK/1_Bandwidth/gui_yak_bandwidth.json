@@ -12,7 +12,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SENSe:SWEep:TIME?"
+            "message": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SENSe:SWEep:TIME?",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_outputs": {
             "type": "OcaBlock",
@@ -57,7 +58,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":SENSe:BANDwidth:RESolution <rbw_hz_value>;:SENSe:BANDwidth:VIDeo <vbw_hz_value>"
+            "message": ":SENSe:BANDwidth:RESolution <rbw_hz_value>;:SENSe:BANDwidth:VIDeo <vbw_hz_value>",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -90,7 +92,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":SENSe:SWEep:TIME <sweep_time_s>"
+            "message": ":SENSe:SWEep:TIME <sweep_time_s>",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -111,7 +114,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":SENSe:BANDwidth:VIDeo <hz_value>"
+            "message": ":SENSe:BANDwidth:VIDeo <hz_value>",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -132,7 +136,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":SENSe:BANDwidth:RESolution <hz_value>"
+            "message": ":SENSe:BANDwidth:RESolution <hz_value>",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -159,6 +164,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "Sweep Auto ON",
+            "layout": { "height": 30, "sticky": "" },
             "Generic_Model": {
               "message": ":SENSe:SWEep:TIME:AUTO ON"
             }
@@ -168,6 +174,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "Sweep Auto OFF",
+            "layout": { "height": 30, "sticky": "" },
             "Generic_Model": {
               "message": ":SENSe:SWEep:TIME:AUTO OFF"
             }
@@ -182,6 +189,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "VBW Auto ON",
+            "layout": { "height": 30, "sticky": "" },
             "Generic_Model": {
               "message": ":SENSe:BANDwidth:VIDeo:AUTO ON"
             }
@@ -191,6 +199,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "VBW Auto OFF",
+            "layout": { "height": 30, "sticky": "" },
             "Generic_Model": {
               "message": ":SENSe:BANDwidth:VIDeo:AUTO OFF"
             }
@@ -205,6 +214,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "RBW Auto ON",
+            "layout": { "height": 30, "sticky": "" },
             "Generic_Model": {
               "message": ":SENSe:BANDwidth:RESolution:AUTO ON"
             }
@@ -214,6 +224,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "RBW Auto OFF",
+            "layout": { "height": 30, "sticky": "" },
             "Generic_Model": {
               "message": ":SENSe:BANDwidth:RESolution:AUTO OFF"
             }

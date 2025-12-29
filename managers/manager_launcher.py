@@ -15,7 +15,7 @@ from managers.yak.yak_translator import YakTranslator # Import YakTranslator
 from managers.yak.manager_yak_rx import YakRxManager # Import YakRxManager
 
 
-def launch_managers(app, splash): # Removed scpi_dispatcher
+def launch_managers(app, splash, root): # Removed scpi_dispatcher
     current_function_name = inspect.currentframe().f_code.co_name
     debug_logger(message=f"🟢️️️🟢 Entering '{current_function_name}'. Preparing to launch a fleet of managers!", **_get_log_args())
     splash.set_status("Initializing managers...")
@@ -24,7 +24,7 @@ def launch_managers(app, splash): # Removed scpi_dispatcher
         # 1. Initialize MQTT Core Components
         mqtt_connection_manager = MqttConnectionManager()
         subscriber_router = MqttSubscriberRouter()
-        state_mirror_engine = StateMirrorEngine(base_topic="OPEN-AIR", subscriber_router=subscriber_router)
+        state_mirror_engine = StateMirrorEngine(base_topic="OPEN-AIR", subscriber_router=subscriber_router, root=root)
         
         # Connect MQTT Client (if not already connected by Application)
         mqtt_connection_manager.connect_to_broker(

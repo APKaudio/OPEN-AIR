@@ -112,7 +112,11 @@ class GuiButtonTogglerCreatorMixin:
                     selected_var.set(key)
                 return command
 
-            max_cols = 5
+            layout = config.get('layout', {})
+            max_cols = layout.get('max_cols', 3)
+            button_height = layout.get('height', 30)
+            button_sticky = layout.get('sticky', 'ew')
+            ipady = (button_height - 20) // 2 if button_height > 20 else 5
             row_num = 0
             col_num = 0
 
@@ -121,7 +125,7 @@ class GuiButtonTogglerCreatorMixin:
                     button_container,
                     command=create_command(option_key)
                 )
-                button.grid(row=row_num, column=col_num, padx=2, pady=2, sticky="ew")
+                button.grid(row=row_num, column=col_num, padx=2, pady=2, sticky=button_sticky, ipady=ipady)
                 button_container.grid_columnconfigure(col_num, weight=1)
                 buttons[option_key] = button
 

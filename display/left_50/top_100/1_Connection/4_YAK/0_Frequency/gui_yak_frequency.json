@@ -12,7 +12,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":FREQuency:STARt?;:FREQuency:STOP?;:FREQuency:CENTer?;:FREQuency:SPAN?"
+            "message": ":FREQuency:STARt?;:FREQuency:STOP?;:FREQuency:CENTer?;:FREQuency:SPAN?",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_outputs": {
             "type": "OcaBlock",
@@ -52,7 +53,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>"
+            "message": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -77,7 +79,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":FREQuency:SPAN <hz_value>"
+            "message": ":FREQuency:SPAN <hz_value>",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -98,7 +101,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":FREQuency:STARt <hz_value>"
+            "message": ":FREQuency:STARt <hz_value>",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_inputs": {
             "type": "OcaBlock",
@@ -119,7 +123,8 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "trigger": false,
-            "message": ":FREQuency:STOP <hz_value>"
+            "message": ":FREQuency:STOP <hz_value>",
+            "layout": { "height": 30, "sticky": "" }
           },
           "scpi_inputs": {
             "type": "OcaBlock",

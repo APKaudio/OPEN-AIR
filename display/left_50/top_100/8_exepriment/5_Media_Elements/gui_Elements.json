@@ -22,7 +22,8 @@
             "vu_meter": { "type": "_VUMeter", "label_active": "Digital VU", "value_default": -10, "min": -40, "max": 0, "layout": {"width": 60, "height": 200} },
             "knob_example": { "type": "_Knob", "label_active": "Knob Control", "value_default": 0.5, "min": 0.0, "max": 1.0, "resolution": 0.01, "size": 100 },
             "panner_example": { "type": "_Panner", "label_active": "Panner Control", "value_default": 0, "min": -100, "max": 100, "size": 100 },
-            "custom_fader": { "type": "_CustomFader", "label_active": "Custom Fader", "value_default": 75, "layout": {"height": 200, "width": 60} }
+            "custom_fader": { "type": "_CustomFader", "label_active": "Custom Fader", "value_default": 75, "layout": {"height": 200, "width": 60} },
+            "custom_horizontal_fader": { "type": "_CustomHorizontalFader", "label_active": "Custom Horizontal Fader", "value_default": 50, "layout": {"width": 200, "height": 60} }
         }
       }
     }

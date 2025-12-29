@@ -152,7 +152,7 @@ def main():
     splash.set_status("Initialization complete. Loading UI...")
     
     # Launch managers
-    managers = launch_managers(app=None, splash=splash) # Pass app=None for now, will be updated.
+    managers = launch_managers(app=None, splash=splash, root=root) # Pass app=None for now, will be updated.
     
     if managers is None:
         debug_logger(message="❌ Manager launch failed. Exiting application.", **_get_log_args())
