@@ -1,110 +1,146 @@
 {
   "nab": {
     "type": "OcaBlock",
-    "description": "Rigol Measurements",
+    "description": "Oscilloscope Measurements & Status",
     "fields": {
-      "Measurements_CH1": {
+      "Read_Measurements_CH1": {
         "type": "OcaBlock",
-        "description": "Channel 1 Stats",
+        "description": "Channel 1 Measurements",
         "fields": {
-          "Get_Stats_CH1": {
+          "Get_Voltage_Stats_CH1": {
             "type": "OcaBlock",
             "fields": {
               "Generic_Model": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
-                "message": ":MEASure:VPP? CHANnel1;:MEASure:VRMS? CHANnel1;:MEASure:FREQuency? CHANnel1;:MEASure:PDUTy? CHANnel1",
+                "message": ":MEASure:SOURce <source>;:MEASure:VPP?;:MEASure:VRMS?;:MEASure:VMAX?;:MEASure:VMIN?",
                 "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "source": { "value": "CHANnel1", "type": "_Value", "description": "CHAN1, CHAN2, MATH" }
+                }
               },
               "scpi_outputs": {
                 "type": "OcaBlock",
                 "fields": {
-                  "Vpp": { "value": "Vpp", "type": "_Value" },
-                  "Vrms": { "value": "Vrms", "type": "_Value" },
-                  "Freq": { "value": "Freq", "type": "_Value" },
-                  "Duty": { "value": "Duty %", "type": "_Value" }
+                  "vpp": { "value": "Vpp Value", "type": "_Value" },
+                  "vrms": { "value": "Vrms Value", "type": "_Value" },
+                  "vmax": { "value": "Vmax Value", "type": "_Value" },
+                  "vmin": { "value": "Vmin Value", "type": "_Value" }
+                }
+              }
+            }
+          },
+          "Get_Time_Stats_CH1": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":MEASure:SOURce <source>;:MEASure:FREQuency?;:MEASure:PERiod?;:MEASure:DUTYcycle?;:MEASure:RISetime?",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "source": { "value": "CHANnel1", "type": "_Value" }
                 }
               }
             }
           }
         }
       },
-      "Measurements_CH2": {
+      "Read_Measurements_CH2": {
         "type": "OcaBlock",
-        "description": "Channel 2 Stats",
+        "description": "Channel 2 Measurements",
         "fields": {
-          "Get_Stats_CH2": {
+          "Get_Voltage_Stats_CH2": {
             "type": "OcaBlock",
             "fields": {
               "Generic_Model": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
-                "message": ":MEASure:VPP? CHANnel2;:MEASure:VRMS? CHANnel2;:MEASure:FREQuency? CHANnel2;:MEASure:PDUTy? CHANnel2",
+                "message": ":MEASure:SOURce <source>;:MEASure:VPP?;:MEASure:VRMS?;:MEASure:VMAX?;:MEASure:VMIN?",
                 "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "source": { "value": "CHANnel2", "type": "_Value", "description": "CHAN1, CHAN2, MATH" }
+                }
               },
               "scpi_outputs": {
                 "type": "OcaBlock",
                 "fields": {
-                  "Vpp": { "value": "Vpp", "type": "_Value" },
-                  "Vrms": { "value": "Vrms", "type": "_Value" },
-                  "Freq": { "value": "Freq", "type": "_Value" },
-                  "Duty": { "value": "Duty %", "type": "_Value" }
+                  "vpp": { "value": "Vpp Value", "type": "_Value" },
+                  "vrms": { "value": "Vrms Value", "type": "_Value" },
+                  "vmax": { "value": "Vmax Value", "type": "_Value" },
+                  "vmin": { "value": "Vmin Value", "type": "_Value" }
+                }
+              }
+            }
+          },
+          "Get_Time_Stats_CH2": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":MEASure:SOURce <source>;:MEASure:FREQuency?;:MEASure:PERiod?;:MEASure:DUTYcycle?;:MEASure:RISetime?",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "source": { "value": "CHANnel2", "type": "_Value" }
                 }
               }
             }
           }
         }
       },
-      "Measurements_CH3": {
+      "System_Health": {
         "type": "OcaBlock",
-        "description": "Channel 3 Stats",
+        "description": "Errors and ID",
         "fields": {
-          "Get_Stats_CH3": {
+          "Read_IDN": {
             "type": "OcaBlock",
             "fields": {
               "Generic_Model": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
-                "message": ":MEASure:VPP? CHANnel3;:MEASure:VRMS? CHANnel3;:MEASure:FREQuency? CHANnel3;:MEASure:PDUTy? CHANnel3",
+                "message": "*IDN?",
                 "layout": { "height": 30, "sticky": "" }
               },
               "scpi_outputs": {
                 "type": "OcaBlock",
                 "fields": {
-                  "Vpp": { "value": "Vpp", "type": "_Value" },
-                  "Vrms": { "value": "Vrms", "type": "_Value" },
-                  "Freq": { "value": "Freq", "type": "_Value" },
-                  "Duty": { "value": "Duty %", "type": "_Value" }
+                  "idn_string": { "value": "Device ID", "type": "_Value" }
                 }
               }
             }
-          }
-        }
-      },
-      "Measurements_CH4": {
-        "type": "OcaBlock",
-        "description": "Channel 4 Stats",
-        "fields": {
-          "Get_Stats_CH4": {
+          },
+          "Read_Error": {
             "type": "OcaBlock",
             "fields": {
               "Generic_Model": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
-                "message": ":MEASure:VPP? CHANnel4;:MEASure:VRMS? CHANnel4;:MEASure:FREQuency? CHANnel4;:MEASure:PDUTy? CHANnel4",
+                "message": ":SYSTem:ERRor?",
                 "layout": { "height": 30, "sticky": "" }
               },
               "scpi_outputs": {
                 "type": "OcaBlock",
                 "fields": {
-                  "Vpp": { "value": "Vpp", "type": "_Value" },
-                  "Vrms": { "value": "Vrms", "type": "_Value" },
-                  "Freq": { "value": "Freq", "type": "_Value" },
-                  "Duty": { "value": "Duty %", "type": "_Value" }
+                  "error_msg": { "value": "Error Message", "type": "_Value" }
                 }
               }
             }
@@ -117,9 +153,177 @@
     "type": "OcaBlock",
     "description": "Scope Configuration",
     "fields": {
-      "Config_CH1": {
+      "Acquisition_Setup": {
         "type": "OcaBlock",
-        "description": "Channel 1 Vertical",
+        "description": "Acquire Mode & Averaging",
+        "fields": {
+          "Set_Acquire_Mode": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":ACQuire:TYPE <type>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "type": { "value": "NORMal", "type": "_Value", "description": "NORMal, AVERage, PEAK, HRESolution" }
+                }
+              }
+            }
+          },
+          "Set_Averaging_Count": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":ACQuire:COUNt <count>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "count": { "value": "8", "type": "_Value", "description": "2 to 65536" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Timebase_Setup": {
+        "type": "OcaBlock",
+        "description": "Horizontal Controls",
+        "fields": {
+          "Set_Timebase_Scale": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":TIMebase:SCALe <scale>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "scale": { "value": "0.001", "type": "_Value", "description": "Seconds per division" }
+                }
+              }
+            }
+          },
+          "Set_Timebase_Position": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":TIMebase:POSition <position>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "position": { "value": "0.0", "type": "_Value", "description": "Offset in seconds" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Trigger_Setup": {
+        "type": "OcaBlock",
+        "description": "Trigger Configuration",
+        "fields": {
+          "Set_Trigger_Mode": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":TRIGger:MODE <mode>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "mode": { "value": "EDGE", "type": "_Value", "description": "EDGE, GLITch, PATTern, TV, DELay" }
+                }
+              }
+            }
+          },
+          "Set_Trigger_Sweep": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":TRIGger:SWEep <sweep>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "sweep": { "value": "AUTO", "type": "_Value", "description": "AUTO or NORMal" }
+                }
+              }
+            }
+          },
+          "Set_Edge_Source": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":TRIGger:EDGE:SOURce <source>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "source": { "value": "CHAN1", "type": "_Value", "description": "CHAN1, CHAN2, EXT, LINE" }
+                }
+              }
+            }
+          },
+          "Set_Trigger_Level": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":TRIGger:EDGE:LEVel <level>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "level": { "value": "0.0", "type": "_Value", "description": "Level in Volts" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "set": {
+    "type": "OcaBlock",
+    "description": "Channel Settings",
+    "fields": {
+      "Configure_Channel_1": {
+        "type": "OcaBlock",
+        "description": "Vertical Setup CH1",
         "fields": {
           "CH1_Scale": {
             "type": "OcaBlock",
@@ -133,7 +337,7 @@
               },
               "scpi_inputs": {
                 "type": "OcaBlock",
-                "fields": { "scale": { "value": "1.0", "type": "_Value" } }
+                "fields": { "scale": { "value": "1.0", "type": "_Value", "description": "Volts/Div" } }
               }
             }
           },
@@ -149,7 +353,7 @@
               },
               "scpi_inputs": {
                 "type": "OcaBlock",
-                "fields": { "offset": { "value": "0.0", "type": "_Value" } }
+                "fields": { "offset": { "value": "0.0", "type": "_Value", "description": "Volts" } }
               }
             }
           },
@@ -176,12 +380,28 @@
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
-                "message": ":CHANnel1:PROBe <atten>",
+                "message": ":CHANnel1:PROBe <attenuation>",
                 "layout": { "height": 30, "sticky": "" }
               },
               "scpi_inputs": {
                 "type": "OcaBlock",
-                "fields": { "atten": { "value": "10", "type": "_Value", "description": "1, 10, 100" } }
+                "fields": { "attenuation": { "value": "10", "type": "_Value" } }
+              }
+            }
+          },
+          "CH1_Label": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":CHANnel1:LABel <string>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": { "string": { "value": "\"SIG1\"", "type": "_Value" } }
               }
             }
           },
@@ -192,20 +412,36 @@
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
-                "message": ":CHANnel1:BWLimit <limit>",
+                "message": ":CHANnel1:BWLimit <state>",
                 "layout": { "height": 30, "sticky": "" }
               },
               "scpi_inputs": {
                 "type": "OcaBlock",
-                "fields": { "limit": { "value": "20M", "type": "_Value", "description": "20M or OFF" } }
+                "fields": { "state": { "value": "ON", "type": "_Value", "description": "ON or OFF" } }
+              }
+            }
+          },
+          "CH1_Invert": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":CHANnel1:INVert <state>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": { "state": { "value": "OFF", "type": "_Value", "description": "ON or OFF" } }
               }
             }
           }
         }
       },
-      "Config_CH2": {
+      "Configure_Channel_2": {
         "type": "OcaBlock",
-        "description": "Channel 2 Vertical",
+        "description": "Vertical Setup CH2",
         "fields": {
           "CH2_Scale": {
             "type": "OcaBlock",
@@ -262,12 +498,28 @@
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
-                "message": ":CHANnel2:PROBe <atten>",
+                "message": ":CHANnel2:PROBe <attenuation>",
                 "layout": { "height": 30, "sticky": "" }
               },
               "scpi_inputs": {
                 "type": "OcaBlock",
-                "fields": { "atten": { "value": "10", "type": "_Value" } }
+                "fields": { "attenuation": { "value": "10", "type": "_Value" } }
+              }
+            }
+          },
+          "CH2_Label": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":CHANnel2:LABel <string>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": { "string": { "value": "\"SIG2\"", "type": "_Value" } }
               }
             }
           },
@@ -278,276 +530,28 @@
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
-                "message": ":CHANnel2:BWLimit <limit>",
+                "message": ":CHANnel2:BWLimit <state>",
                 "layout": { "height": 30, "sticky": "" }
               },
               "scpi_inputs": {
                 "type": "OcaBlock",
-                "fields": { "limit": { "value": "20M", "type": "_Value", "description": "20M or OFF" } }
-              }
-            }
-          }
-        }
-      },
-      "Config_CH3": {
-        "type": "OcaBlock",
-        "description": "Channel 3 Vertical",
-        "fields": {
-          "CH3_Scale": {
-            "type": "OcaBlock",
-            "fields": {
-              "Generic_Model": {
-                "type": "_GuiActuator",
-                "AES70": "OcaBooleanActuator",
-                "active": true,
-                "message": ":CHANnel3:SCALe <scale>",
-                "layout": { "height": 30, "sticky": "" }
-              },
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "scale": { "value": "1.0", "type": "_Value" } }
+                "fields": { "state": { "value": "ON", "type": "_Value" } }
               }
             }
           },
-          "CH3_Offset": {
+          "CH2_Invert": {
             "type": "OcaBlock",
             "fields": {
               "Generic_Model": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
-                "message": ":CHANnel3:OFFSet <offset>",
+                "message": ":CHANnel2:INVert <state>",
                 "layout": { "height": 30, "sticky": "" }
               },
               "scpi_inputs": {
                 "type": "OcaBlock",
-                "fields": { "offset": { "value": "0.0", "type": "_Value" } }
-              }
-            }
-          },
-          "CH3_Coupling": {
-            "type": "OcaBlock",
-            "fields": {
-              "Generic_Model": {
-                "type": "_GuiActuator",
-                "AES70": "OcaBooleanActuator",
-                "active": true,
-                "message": ":CHANnel3:COUPling <coupling>",
-                "layout": { "height": 30, "sticky": "" }
-              },
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "coupling": { "value": "DC", "type": "_Value" } }
-              }
-            }
-          },
-          "CH3_Probe": {
-            "type": "OcaBlock",
-            "fields": {
-              "Generic_Model": {
-                "type": "_GuiActuator",
-                "AES70": "OcaBooleanActuator",
-                "active": true,
-                "message": ":CHANnel3:PROBe <atten>",
-                "layout": { "height": 30, "sticky": "" }
-              },
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "atten": { "value": "10", "type": "_Value" } }
-              }
-            }
-          },
-          "CH3_BWLimit": {
-            "type": "OcaBlock",
-            "fields": {
-              "Generic_Model": {
-                "type": "_GuiActuator",
-                "AES70": "OcaBooleanActuator",
-                "active": true,
-                "message": ":CHANnel3:BWLimit <limit>",
-                "layout": { "height": 30, "sticky": "" }
-              },
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "limit": { "value": "20M", "type": "_Value" } }
-              }
-            }
-          }
-        }
-      },
-      "Config_CH4": {
-        "type": "OcaBlock",
-        "description": "Channel 4 Vertical",
-        "fields": {
-          "CH4_Scale": {
-            "type": "OcaBlock",
-            "fields": {
-              "Generic_Model": {
-                "type": "_GuiActuator",
-                "AES70": "OcaBooleanActuator",
-                "active": true,
-                "message": ":CHANnel4:SCALe <scale>",
-                "layout": { "height": 30, "sticky": "" }
-              },
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "scale": { "value": "1.0", "type": "_Value" } }
-              }
-            }
-          },
-          "CH4_Offset": {
-            "type": "OcaBlock",
-            "fields": {
-              "Generic_Model": {
-                "type": "_GuiActuator",
-                "AES70": "OcaBooleanActuator",
-                "active": true,
-                "message": ":CHANnel4:OFFSet <offset>",
-                "layout": { "height": 30, "sticky": "" }
-              },
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "offset": { "value": "0.0", "type": "_Value" } }
-              }
-            }
-          },
-          "CH4_Coupling": {
-            "type": "OcaBlock",
-            "fields": {
-              "Generic_Model": {
-                "type": "_GuiActuator",
-                "AES70": "OcaBooleanActuator",
-                "active": true,
-                "message": ":CHANnel4:COUPling <coupling>",
-                "layout": { "height": 30, "sticky": "" }
-              },
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "coupling": { "value": "DC", "type": "_Value" } }
-              }
-            }
-          },
-          "CH4_Probe": {
-            "type": "OcaBlock",
-            "fields": {
-              "Generic_Model": {
-                "type": "_GuiActuator",
-                "AES70": "OcaBooleanActuator",
-                "active": true,
-                "message": ":CHANnel4:PROBe <atten>",
-                "layout": { "height": 30, "sticky": "" }
-              },
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "atten": { "value": "10", "type": "_Value" } }
-              }
-            }
-          },
-          "CH4_BWLimit": {
-            "type": "OcaBlock",
-            "fields": {
-              "Generic_Model": {
-                "type": "_GuiActuator",
-                "AES70": "OcaBooleanActuator",
-                "active": true,
-                "message": ":CHANnel4:BWLimit <limit>",
-                "layout": { "height": 30, "sticky": "" }
-              },
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "limit": { "value": "20M", "type": "_Value" } }
-              }
-            }
-          }
-        }
-      },
-      "Trigger_Settings": {
-        "type": "OcaBlock",
-        "description": "Trigger System",
-        "fields": {
-          "Trigger_Source": {
-            "type": "OcaBlock",
-            "fields": {
-              "Generic_Model": {
-                "type": "_GuiActuator",
-                "AES70": "OcaBooleanActuator",
-                "active": true,
-                "message": ":TRIGger:EDGe:SOURce <source>",
-                "layout": { "height": 30, "sticky": "" }
-              },
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "source": { "value": "CHAN1", "type": "_Value", "description": "CHAN1, CHAN2, CHAN3, CHAN4" } }
-              }
-            }
-          },
-          "Trigger_Level": {
-            "type": "OcaBlock",
-            "fields": {
-              "Generic_Model": {
-                "type": "_GuiActuator",
-                "AES70": "OcaBooleanActuator",
-                "active": true,
-                "message": ":TRIGger:EDGe:LEVel <level>",
-                "layout": { "height": 30, "sticky": "" }
-              },
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "level": { "value": "0.0", "type": "_Value" } }
-              }
-            }
-          },
-          "Trigger_Sweep": {
-            "type": "OcaBlock",
-            "fields": {
-              "Generic_Model": {
-                "type": "_GuiActuator",
-                "AES70": "OcaBooleanActuator",
-                "active": true,
-                "message": ":TRIGger:SWEep <sweep>",
-                "layout": { "height": 30, "sticky": "" }
-              },
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "sweep": { "value": "AUTO", "type": "_Value", "description": "AUTO or NORMal" } }
-              }
-            }
-          }
-        }
-      },
-      "Horizontal_Settings": {
-        "type": "OcaBlock",
-        "description": "Timebase",
-        "fields": {
-          "Time_Scale": {
-            "type": "OcaBlock",
-            "fields": {
-              "Generic_Model": {
-                "type": "_GuiActuator",
-                "AES70": "OcaBooleanActuator",
-                "active": true,
-                "message": ":TIMebase:MAIN:SCALe <scale>",
-                "layout": { "height": 30, "sticky": "" }
-              },
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "scale": { "value": "0.001", "type": "_Value" } }
-              }
-            }
-          },
-          "Time_Offset": {
-            "type": "OcaBlock",
-            "fields": {
-              "Generic_Model": {
-                "type": "_GuiActuator",
-                "AES70": "OcaBooleanActuator",
-                "active": true,
-                "message": ":TIMebase:MAIN:OFFSet <offset>",
-                "layout": { "height": 30, "sticky": "" }
-              },
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "offset": { "value": "0.0", "type": "_Value" } }
+                "fields": { "state": { "value": "OFF", "type": "_Value" } }
               }
             }
           }
@@ -562,103 +566,92 @@
       "Run_Control": {
         "type": "OcaBlock",
         "fields": {
-          "Run": {
+          "Do_Run": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "RUN",
             "Generic_Model": { "message": ":RUN" }
           },
-          "Stop": {
+          "Do_Stop": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "STOP",
             "Generic_Model": { "message": ":STOP" }
           },
-          "Single": {
+          "Do_Single": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "SINGLE",
             "Generic_Model": { "message": ":SINGle" }
           },
-          "Auto_Scale": {
+          "Do_Autoscale": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
             "active": true,
-            "label_inactive": "AUTO",
+            "label_inactive": "AUTOSCALE",
             "Generic_Model": { "message": ":AUToscale" }
           }
         }
       },
-      "Channel_Display_Control": {
+      "Display_Control": {
         "type": "OcaBlock",
         "fields": {
-          "CH1_ON": {
+          "Do_Clear_Display": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "Clear Display",
+            "Generic_Model": { "message": ":DISPlay:CLEar" }
+          },
+          "Do_CH1_ON": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
             "label_inactive": "CH1 ON",
             "Generic_Model": { "message": ":CHANnel1:DISPlay ON" }
           },
-          "CH1_OFF": {
+          "Do_CH1_OFF": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
+            "active": true,
             "label_inactive": "CH1 OFF",
             "Generic_Model": { "message": ":CHANnel1:DISPlay OFF" }
           },
-          "CH2_ON": {
+          "Do_CH2_ON": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
+            "active": true,
             "label_inactive": "CH2 ON",
             "Generic_Model": { "message": ":CHANnel2:DISPlay ON" }
           },
-          "CH2_OFF": {
+          "Do_CH2_OFF": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
+            "active": true,
             "label_inactive": "CH2 OFF",
             "Generic_Model": { "message": ":CHANnel2:DISPlay OFF" }
-          },
-          "CH3_ON": {
-            "type": "_GuiActuator",
-            "AES70": "OcaBooleanActuator",
-            "label_inactive": "CH3 ON",
-            "Generic_Model": { "message": ":CHANnel3:DISPlay ON" }
-          },
-          "CH3_OFF": {
-            "type": "_GuiActuator",
-            "AES70": "OcaBooleanActuator",
-            "label_inactive": "CH3 OFF",
-            "Generic_Model": { "message": ":CHANnel3:DISPlay OFF" }
-          },
-          "CH4_ON": {
-            "type": "_GuiActuator",
-            "AES70": "OcaBooleanActuator",
-            "label_inactive": "CH4 ON",
-            "Generic_Model": { "message": ":CHANnel4:DISPlay ON" }
-          },
-          "CH4_OFF": {
-            "type": "_GuiActuator",
-            "AES70": "OcaBooleanActuator",
-            "label_inactive": "CH4 OFF",
-            "Generic_Model": { "message": ":CHANnel4:DISPlay OFF" }
           }
         }
       },
       "System_Actions": {
         "type": "OcaBlock",
         "fields": {
-          "Clear": {
+          "Do_Clear_Status": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
-            "label_inactive": "Clear",
-            "Generic_Model": { "message": ":CLEar" }
+            "active": true,
+            "label_inactive": "CLS",
+            "Generic_Model": { "message": "*CLS" }
           },
-          "Force_Trigger": {
+          "Do_Reset": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
-            "label_inactive": "Force",
-            "Generic_Model": { "message": ":TFORce" }
+            "active": true,
+            "label_inactive": "Reset (*RST)",
+            "Generic_Model": { "message": "*RST" }
           }
         }
       }

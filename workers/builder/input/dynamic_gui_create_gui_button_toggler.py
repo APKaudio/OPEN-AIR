@@ -72,32 +72,27 @@ class GuiButtonTogglerCreatorMixin:
             button_container.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
 
             options_data = config.get('options', {})
-            # Ensure options_data is a dictionary
             if isinstance(options_data, list):
                 debug_logger(message=f"⚠️ WARNING: 'options' for '{label}' in config is a list, expected a dictionary. Falling back to empty dict.", **_get_log_args())
-                options_data = {} # Fallback to empty dict to prevent crash
+                options_data = {}
             
             buttons = {}
 
-            selected_key = next((key for key, opt in options_data.items() if str(opt.get('selected', 'no')).lower() in ['yes', 'true']), None)
-            selected_var = tk.StringVar(value=selected_key)
+            initial_selected_key = next((key for key, opt in options_data.items() if str(opt.get('selected', 'no')).lower() in ['yes', 'true']), None)
+            selected_keys_var = tk.StringVar(value=initial_selected_key if initial_selected_key else "")
 
             def update_button_styles(*args):
-                current_selection = selected_var.get()
+                selected_keys = selected_keys_var.get().split(',') if selected_keys_var.get() else []
                 for key, button_widget in buttons.items():
                     option_data = options_data.get(key, {})
                     
-                    # Determine the text and style for the button based on its state
-                    if key == current_selection:
-                        # Correct logic: The selected button uses the 'Selected' style.
+                    if key in selected_keys:
                         button_text = option_data.get('label_active', option_data.get('label', ''))
                         button_widget.config(style='Custom.Selected.TButton')
                     else:
-                        # All other buttons use the default 'TButton' style.
                         button_text = option_data.get('label_inactive', option_data.get('label', ''))
                         button_widget.config(style='Custom.TogglerUnselected.TButton')
 
-                    # Add value and units on separate lines if they exist
                     value = option_data.get('value')
                     units = option_data.get('units')
                     if value is not None:
@@ -107,10 +102,24 @@ class GuiButtonTogglerCreatorMixin:
                     
                     button_widget.config(text=button_text)
 
-            def create_command(key):
-                def command():
-                    selected_var.set(key)
-                return command
+            def on_button_click(event, key):
+                current_selected_keys = selected_keys_var.get().split(',') if selected_keys_var.get() else []
+                
+                # Ctrl key is bit 4 of the state mask
+                is_ctrl_pressed = (event.state & 0x0004) != 0
+
+                if is_ctrl_pressed:
+                    if key in current_selected_keys:
+                        current_selected_keys.remove(key)
+                    else:
+                        current_selected_keys.append(key)
+                else:
+                    if key in current_selected_keys and len(current_selected_keys) == 1:
+                        current_selected_keys = []
+                    else:
+                        current_selected_keys = [key]
+                
+                selected_keys_var.set(','.join(current_selected_keys))
 
             layout = config.get('layout', {})
             max_cols = layout.get('max_cols', 3)
@@ -122,9 +131,9 @@ class GuiButtonTogglerCreatorMixin:
 
             for option_key, option_data in options_data.items():
                 button = ttk.Button(
-                    button_container,
-                    command=create_command(option_key)
+                    button_container
                 )
+                button.bind("<Button-1>", lambda event, key=option_key: on_button_click(event, key))
                 button.grid(row=row_num, column=col_num, padx=2, pady=2, sticky=button_sticky, ipady=ipady)
                 button_container.grid_columnconfigure(col_num, weight=1)
                 buttons[option_key] = button
@@ -137,32 +146,26 @@ class GuiButtonTogglerCreatorMixin:
             update_button_styles()
 
             if path:
-                self.topic_widgets[path] = (selected_var, update_button_styles)
+                self.topic_widgets[path] = (selected_keys_var, update_button_styles)
                 
-                # --- New MQTT Wiring ---
                 widget_id = path
                 
-                # 1. Register widget
-                state_mirror_engine.register_widget(widget_id, selected_var, base_mqtt_topic_from_path, config)
+                state_mirror_engine.register_widget(widget_id, selected_keys_var, base_mqtt_topic_from_path, config)
 
-                # 2. Bind variable trace for outgoing messages
                 callback = lambda: state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
-                bind_variable_trace(selected_var, callback)
+                bind_variable_trace(selected_keys_var, callback)
 
-                # 3. Also trace changes to update the button state
-                selected_var.trace_add("write", update_button_styles)
+                selected_keys_var.trace_add("write", update_button_styles)
 
-                # 4. Subscribe to topic for incoming messages
                 topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
                 subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
 
-                # 5. Broadcast initial state
                 state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
 
 
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"✅ SUCCESS! The button toggler '{label}' is fully operational!",
+                    message=f"✅ SUCCESS! The button toggler '{label}' is fully operational with multi-select!",
                     **_get_log_args()
                 )
             return group_frame

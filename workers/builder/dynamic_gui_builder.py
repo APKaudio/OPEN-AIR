@@ -59,6 +59,8 @@ from .audio.dynamic_gui_create_panner import PannerCreatorMixin
 from .audio.dynamic_gui_create_custom_horizontal_fader import CustomHorizontalFaderCreatorMixin
 from .audio.dynamic_gui_create_trapezoid_button import TrapezoidButtonCreatorMixin
 from .audio.dynamic_gui_create_trapezoid_toggler import TrapezoidButtonTogglerCreatorMixin
+from .Data_graphing.dynamic_gui_create_plot_widget import PlotWidgetCreatorMixin
+from .Data_graphing.dynamic_gui_create_meter_widgets import MeterWidgetsCreatorMixin
 from .Data_graphing.dynamic_graph import FluxPlotter
 from .Data_graphing.Meter_to_display_units import HorizontalMeterWithText, VerticalMeter
 
@@ -98,7 +100,9 @@ class DynamicGuiBuilder(
     NeedleVUMeterCreatorMixin,
     PannerCreatorMixin,
     CustomHorizontalFaderCreatorMixin,
-    TrapezoidButtonTogglerCreatorMixin
+    TrapezoidButtonTogglerCreatorMixin,
+    PlotWidgetCreatorMixin,
+    MeterWidgetsCreatorMixin
 ):
     def __init__(self, parent, json_path=None, tab_name=None, *args, **kwargs):
         config = kwargs.pop('config', {})
@@ -205,121 +209,6 @@ class DynamicGuiBuilder(
         except Exception as e:
             debug_logger(message=f"❌ Error in __init__: {e}", **_get_log_args())
 
-    def _create_plot_widget(self, parent_frame, label: str, config: dict, path: str, base_mqtt_topic_from_path: str, state_mirror_engine, subscriber_router) -> FluxPlotter:
-        """
-        Factory method for creating a FluxPlotter (graph) widget.
-        """
-        current_function_name = "_create_plot_widget"
-        if app_constants.global_settings['debug_enabled']:
-            debug_logger(
-                message=f"📊 Creating FluxPlotter: {label} ({path})",
-                **_get_log_args()
-            )
-        
-        # Ensure FluxPlotter is instantiated safely
-        try:
-            plot_widget = FluxPlotter(parent_frame, 
-                                      config=config,
-                                      base_mqtt_topic_from_path=base_mqtt_topic_from_path,
-                                      widget_id=path,
-                                      subscriber_router=subscriber_router)
-        except Exception as e:
-            debug_logger(message=f"❌ Failed to initialize FluxPlotter: {e}", **_get_log_args())
-            raise e # Re-raise to be caught by the batch processor
-
-        data_source_id = config.get("data_source")
-        if data_source_id and subscriber_router:
-            def plot_update_callback(topic, payload):
-                try:
-                    data = orjson.loads(payload)
-                    x = data.get('x_data')
-                    y = data.get('y_data')
-                    if x is not None and y is not None:
-                        plot_widget.update_plot(x, y)
-                except Exception as e:
-                    debug_logger(message=f"❌ Error updating plot '{path}': {e}", **_get_log_args())
-
-            topic_to_subscribe = f"{app_constants.get_mqtt_base_topic()}/data/{data_source_id.replace('.', '/')}"
-            subscriber_router.add_subscription(topic_to_subscribe, plot_update_callback)
-            
-            if app_constants.global_settings['debug_enabled']:
-                debug_logger(
-                    message=f"🔗 Subscribed FluxPlotter '{path}' to MQTT topic: {topic_to_subscribe}",
-                    **_get_log_args()
-                )
-
-        return plot_widget
-
-    def _create_horizontal_meter(self, parent_frame, label: str, config: dict, path: str, base_mqtt_topic_from_path: str, state_mirror_engine, subscriber_router) -> HorizontalMeterWithText:
-        """
-        Factory method for creating a HorizontalMeterWithText widget.
-        """
-        meter_widget = HorizontalMeterWithText(parent_frame, 
-                                               config=config,
-                                               subscriber_router=subscriber_router,
-                                               base_mqtt_topic_from_path=base_mqtt_topic_from_path,
-                                               widget_id=path)
-        # MQTT subscription logic can be added here if the meter needs to update dynamically
-        # For now, it's a static display.
-        return meter_widget
-
-    def _create_vertical_meter(self, parent_frame, label: str, config: dict, path: str, base_mqtt_topic_from_path: str, state_mirror_engine, subscriber_router) -> VerticalMeter:
-        """
-        Factory method for creating a VerticalMeter widget.
-        """
-        meter_widget = VerticalMeter(parent_frame, 
-                                           config=config,
-                                           subscriber_router=subscriber_router,
-                                           base_mqtt_topic_from_path=base_mqtt_topic_from_path,
-                                           widget_id=path)
-        # MQTT subscription logic can be added here if the meter needs to update dynamically
-        return meter_widget
-
-    def _publish_widget_config(self, widget_config: Dict[str, Any], current_path: str):
-        """
-        Publishes the configuration of a newly created widget to MQTT.
-        """
-        if not app_constants.ENABLE_BUILDER_STATUS_PUBLISH: # Check a new constant for enabling/disabling
-            return
-
-        try:
-            if self.state_mirror_engine and self.state_mirror_engine.instance_id:
-                # Construct topic: base_mqtt_topic_from_path/widget_type/widget_id/config
-                # Use current_path for more specific topic if available
-                # Fallback to widget ID if current_path is too generic for the topic hierarchy
-                
-                widget_id = widget_config.get("id", widget_config.get("label_active", "unknown_widget")).replace(" ", "_").lower()
-                topic_elements = [self.base_mqtt_topic_from_path, "build_config", widget_config.get("type", "generic"), widget_id]
-                
-                # Clean topic elements for MQTT standard
-                cleaned_topic_elements = [elem.replace("/", "_").replace("\\", "_").replace(" ", "_") for elem in topic_elements if elem]
-                
-                config_topic = "/".join(cleaned_topic_elements)
-
-                payload = {
-                    "config": widget_config,
-                    "gui_path": current_path,
-                    "instance_id": self.state_mirror_engine.instance_id,
-                    "timestamp": time.time()
-                }
-                publish_payload(config_topic, orjson.dumps(payload), retain=True)
-
-                if app_constants.global_settings['debug_enabled']:
-                    debug_logger(
-                        message=f"MQTT: Published build config for '{current_path}' to '{config_topic}'",
-                        **_get_log_args()
-                    )
-            elif app_constants.global_settings['debug_enabled']:
-                debug_logger(
-                    message=f"MQTT: Skipping config publish for '{current_path}'. State mirror engine not available or PUBLISH_GUI_BUILD_CONFIG_TO_MQTT is False.",
-                    **_get_log_args()
-                )
-        except Exception as e:
-            debug_logger(
-                message=f"❌ Error publishing widget config for '{current_path}': {e}",
-                **_get_log_args()
-            )
-
     def _apply_styles(self, theme_name):
         style = ttk.Style()
         colors = THEMES.get(theme_name, THEMES["dark"]) # Fallback to dark theme
@@ -372,122 +261,6 @@ class DynamicGuiBuilder(
                   background=[('selected', accent), ('!selected', colors.get("secondary", bg))], # Orange when selected
                   foreground=[('selected', fg), ('!selected', fg)]) # White text for both selected/unselected tabs
 
-    def _process_yak_handler(self, widget_instance, widget_config, current_path, tk_variable_or_get_func):
-        """
-        Processes the 'yak_handler' configuration for a widget, setting up dynamic MQTT
-        topics and binding a callback for communication with the YAK backend.
-        Includes extensive debugging.
-        """
-        if not app_constants.global_settings['debug_enabled']:
-            return # Skip if debug is not enabled
-
-        handler_cfg = widget_config.get("yak_handler", {})
-        if not handler_cfg or not handler_cfg.get("enable"):
-            return
-
-        debug_logger(message=f"⚙️ Processing yak_handler for '{current_path}' with config: {handler_cfg}", **_get_log_args())
-
-        try:
-            # 1. Construct the Topics dynamically
-            sub_path = handler_cfg.get("sub_path")
-            yak_type = handler_cfg.get("yak_type") # e.g., "set", "rig", "nab", "do"
-            command = handler_cfg.get("command")
-            input_name = handler_cfg.get("input_name")
-            
-            if not all([sub_path, yak_type, command]):
-                debug_logger(message=f"❌ Incomplete yak_handler config for '{current_path}'. Missing sub_path, yak_type, or command.", **_get_log_args())
-                return
-
-            base_yak = f"{app_constants.get_mqtt_base_topic()}/yak/{sub_path}/{yak_type}/{command}"
-            input_topic = f"{base_yak}/scpi_inputs/{input_name}/value" if input_name else None
-            trigger_topic = f"{base_yak}/scpi_details/generic_model/trigger"
-
-            # 2. Define the Bridge Function
-            def yak_bridge_callback(event=None):
-                debug_logger(message=f"⚡ yak_bridge_callback triggered for '{current_path}'", **_get_log_args())
-                
-                payload = None
-                if not handler_cfg.get("trigger_only"):
-                    # Get value from GUI variable or passed function
-                    if tk_variable_or_get_func:
-                        if callable(tk_variable_or_get_func):
-                            raw_value = tk_variable_or_get_func()
-                        else: # Assume it's a tk.Variable
-                            raw_value = tk_variable_or_get_func.get()
-                    else:
-                        try:
-                            raw_value = widget_instance.get() # Common for Entry, Slider, etc.
-                        except AttributeError:
-                            raw_value = None # No direct get method
-                    
-                    # Apply Converter (if defined)
-                    converter = handler_cfg.get("converter")
-                    if converter == "mhz_to_hz":
-                        try:
-                            payload = float(raw_value) * 1_000_000
-                        except (ValueError, TypeError):
-                            payload = raw_value
-                    elif converter == "bool_to_int":
-                        payload = 1 if raw_value in (True, 'True', '1') else 0
-                    elif converter == "float":
-                        try:
-                            payload = float(raw_value)
-                        except (ValueError, TypeError):
-                            payload = raw_value
-                    elif converter == "int":
-                        try:
-                            payload = int(float(raw_value)) 
-                        except (ValueError, TypeError):
-                            payload = raw_value
-                    elif converter == "string":
-                        payload = str(raw_value)
-                    else:
-                        payload = raw_value
-
-                # 3. Publish to MQTT
-                if not handler_cfg.get("trigger_only") and input_topic and payload is not None:
-                    try:
-                        yak_info_payload = {
-                            "value": payload,
-                            "yak_handler_config": handler_cfg,
-                            "gui_path": current_path
-                        }
-                        publish_payload(input_topic, orjson.dumps(yak_info_payload), retain=True)
-                    except Exception as e:
-                        debug_logger(message=f"❌ Error publishing input for '{current_path}': {e}", **_get_log_args())
-                
-                # Fire Trigger (True -> False pulse)
-                if trigger_topic:
-                    try:
-                        # Use unique instance_id for trigger if available in state_mirror_engine
-                        instance_id = getattr(self.state_mirror_engine, 'instance_id', None)
-                        trigger_payload_true = {"value": True, "instance_id": instance_id}
-                        trigger_payload_false = {"value": False, "instance_id": instance_id}
-
-                        publish_payload(trigger_topic, orjson.dumps(trigger_payload_true))
-                        publish_payload(trigger_topic, orjson.dumps(trigger_payload_false))
-                    except Exception as e:
-                        debug_logger(message=f"❌ Error firing trigger for '{current_path}': {e}", **_get_log_args())
-
-            # 3. Bind the Event
-            widget_type = widget_config.get("type")
-            if widget_type == "_sliderValue":
-                widget_instance.bind("<ButtonRelease-1>", yak_bridge_callback)
-            elif widget_type in ["_GuiButtonToggle", "_GuiButtonToggler", "_GuiDropDownOption", "_GuiActuator", "_GuiCheckbox"]:
-                if tk_variable_or_get_func and not callable(tk_variable_or_get_func): # if it's a tk.Variable
-                    tk_variable_or_get_func.trace_add('write', lambda *args: yak_bridge_callback())
-                else:
-                    if hasattr(widget_instance, 'config'):
-                        if 'command' in inspect.signature(widget_instance.config).parameters:
-                            widget_instance.config(command=yak_bridge_callback)
-                    elif hasattr(widget_instance, 'bind'):
-                        widget_instance.bind("<Button-1>", yak_bridge_callback)
-            else:
-                pass # No binding
-
-        except Exception as e:
-            debug_logger(message=f"❌ Error setting up yak_handler for '{current_path}': {e}", **_get_log_args())
-
     def _transmit_command(self, widget_name: str, value):
         if self.state_mirror_engine:
             if self.state_mirror_engine.is_widget_registered(widget_name):
@@ -503,6 +276,9 @@ class DynamicGuiBuilder(
                 self.state_mirror_engine.publish_command(topic, orjson.dumps(payload))
         elif app_constants.global_settings['debug_enabled']:
             debug_logger(message=f"[DUMMY] _transmit_command called for {widget_name} with value {value}", **_get_log_args())
+                         
+
+
 
     def _on_frame_configure(self, event=None):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
@@ -623,11 +399,9 @@ class DynamicGuiBuilder(
                     if target_frame:
                         tk_var = self.tk_vars.get(current_path)
 
-                        if value.get("yak_handler"):
-                            self._process_yak_handler(target_frame, value, current_path, tk_var)
+                  #     '' if value.get("yak_handler"):
+                 #    '#'       self._process_yak_handler(target_frame, value, current_path, tk_var)
                         
-                        self._publish_widget_config(value, current_path) # Publish widget config here
-
                         target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)
                         col += col_span
                         if col >= max_cols:
@@ -647,16 +421,6 @@ class DynamicGuiBuilder(
                 
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(message="✅ Batch processing complete! All widgets built.", **_get_log_args())
-
-                if app_constants.ENABLE_FULL_CONFIG_MQTT_DUMP:
-                    if self.state_mirror_engine:
-                        config_topic = get_topic(
-                            self.state_mirror_engine.base_topic, 
-                            self.base_mqtt_topic_from_path, 
-                            'Config', 'Finished'
-                        )
-                        payload = orjson.dumps(self.config_data)
-                        self.state_mirror_engine.publish_command(config_topic, payload)
 
         except Exception as e:
             # 🚨 THE QUANTUM SHIELD 🚨
@@ -721,10 +485,8 @@ class DynamicGuiBuilder(
                     if target_frame:
                         tk_var = self.tk_vars.get(current_path)
 
-                        if value.get("yak_handler"):
-                            self._process_yak_handler(target_frame, value, current_path, tk_var)
-
-                        self._publish_widget_config(value, current_path) # Publish widget config here
+                   #     if value.get("yak_handler"):
+                   #         self._process_yak_handler(target_frame, value, current_path, tk_var)
 
                         target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)
                         col += col_span

@@ -1,322 +1,191 @@
 {
-
-    "nab": {
-      "type": "OcaBlock",
-      "description": "State Queries & ID",
-      "fields": {
-        "Channel_Status": {
-          "type": "OcaBlock",
-          "description": "Query specific relay state",
-          "fields": {
-            "Generic_Model": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "CLOSE? <channel>",
-              "layout": { "height": 30, "sticky": "" }
-            },
-            "scpi_inputs": {
-              "type": "OcaBlock",
-              "fields": {
-                "channel": { "value": "100", "type": "_Value", "description": "Format: esnn (e=extender, s=slot, nn=channel)" }
-              }
-            },
-            "scpi_outputs": {
-              "type": "OcaBlock",
-              "fields": {
-                "state": { "value": "0=Open, 1=Closed", "type": "_Value" }
-              }
-            }
-          }
-        },
-        "System_Info": {
-          "type": "OcaBlock",
-          "description": "Hardware Identification",
-          "fields": {
-            "Query_ID": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "ID? <slot>",
+  "nab": {
+    "type": "OcaBlock",
+    "description": "State Queries & ID",
+    "fields": {
+      "Channel_Status": {
+        "type": "OcaBlock",
+        "description": "Query specific relay state",
+        "fields": {
+          "Query_Channel_State": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": "CLOSE? <channel>",
+                "layout": { "height": 30, "sticky": "" }
+              },
               "scpi_inputs": {
                 "type": "OcaBlock",
-                "fields": { "slot": { "value": "100", "type": "_Value" } }
+                "fields": {
+                  "channel": { "value": "100", "type": "_Value", "description": "Format: esnn (e=extender, s=slot, nn=channel)" }
+                }
               },
               "scpi_outputs": {
                 "type": "OcaBlock",
-                "fields": { "model_string": { "value": "Module Model Info", "type": "_Value" } }
+                "fields": {
+                  "state": { "value": "0=Open, 1=Closed", "type": "_Value" }
+                }
               }
-            },
-            "Query_Module_Type": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "CTYPE? <slot>",
+            }
+          }
+        }
+      },
+      "System_Info": {
+        "type": "OcaBlock",
+        "description": "Hardware Identification",
+        "fields": {
+          "Query_Slot_ID": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": "ID? <slot>",
+                "layout": { "height": 30, "sticky": "" }
+              },
               "scpi_inputs": {
                 "type": "OcaBlock",
-                "fields": { "slot": { "value": "100", "type": "_Value" } }
+                "fields": {
+                  "slot": { "value": "100", "type": "_Value", "description": "Slot Number (e.g., 100)" }
+                }
               },
               "scpi_outputs": {
                 "type": "OcaBlock",
-                "fields": { "type_code": { "value": "Module Type Integer", "type": "_Value" } }
-              }
-            },
-            "Query_Fixture_State": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "FIXTURE?",
-              "scpi_outputs": {
-                "type": "OcaBlock",
-                "fields": { "is_closed": { "value": "0=Open/NoFixture, 1=Closed", "type": "_Value" } }
-              }
-            }
-          }
-        },
-        "Error_Reading": {
-          "type": "OcaBlock",
-          "fields": {
-            "Read_Error_String": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "ERRSTR?",
-              "scpi_outputs": {
-                "type": "OcaBlock",
-                "fields": { "error_msg": { "value": "Code, Description", "type": "_Value" } }
-              }
-            }
-          }
-        }
-      }
-    },
-    "rig": {
-      "type": "OcaBlock",
-      "description": "Path Configuration & Interlocks",
-      "fields": {
-        "High_Level_Routing": {
-          "type": "OcaBlock",
-          "description": "Intelligent Pathfinding",
-          "fields": {
-            "Connect_Path": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "CONNECT <term1>,<term2>",
-              "scpi_inputs": {
-                "type": "OcaBlock",
                 "fields": {
-                  "term1": { "value": "100", "type": "_Value", "description": "Channel or Row/Col" },
-                  "term2": { "value": "AB0", "type": "_Value", "description": "Analog Bus (ABn) or Row/Col" }
+                  "id_string": { "value": "Card ID String", "type": "_Value" }
                 }
               }
-            },
-            "Connect_Only": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "CONNECT ONLY,<term1>,<term2>",
-              "description": "Opens all other relays on module before connecting.",
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": {
-                  "term1": { "value": "100", "type": "_Value" },
-                  "term2": { "value": "AB0", "type": "_Value" }
-                }
-              }
-            },
-            "Disconnect_Path": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "DISCONN <term1>,<term2>",
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": {
-                  "term1": { "value": "100", "type": "_Value" },
-                  "term2": { "value": "AB0", "type": "_Value" }
-                }
-              }
-            }
-          }
-        },
-        "Safety_Interlocks": {
-          "type": "OcaBlock",
-          "description": "Prohibit/Allow Closures",
-          "fields": {
-            "Prohibit_Closure": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "PROHIBIT <condition>,<channel_list>",
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": {
-                  "condition": { "value": "ALLOF", "type": "_Value", "description": "ANYOF, TWOOF, ALLOF" },
-                  "channel_list": { "value": "100,101", "type": "_Value" }
-                }
-              }
-            },
-            "Allow_Closure": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "ALLOW <condition>,<channel_list>",
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": {
-                  "condition": { "value": "ALLOF", "type": "_Value" },
-                  "channel_list": { "value": "100,101", "type": "_Value" }
-                }
-              }
-            },
-            "Clear_All_Prohibits": {
-              "type": "_GuiActuator",
-              "label_inactive": "ALLOW ALL",
-              "Generic_Model": { "message": "ALLOW ALL" }
-            }
-          }
-        },
-        "Power_Fail_States": {
-          "type": "OcaBlock",
-          "description": "Relay behavior on power loss",
-          "fields": {
-            "Set_PF_Close": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "PFCLOSE <channel_list>",
-              "scpi_inputs": { "type": "OcaBlock", "fields": { "channel_list": { "value": "100", "type": "_Value" } } }
-            },
-            "Set_PF_Open": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "PFOPEN <channel_list>",
-              "scpi_inputs": { "type": "OcaBlock", "fields": { "channel_list": { "value": "100", "type": "_Value" } } }
-            }
-          }
-        },
-        "Scan_Configuration": {
-          "type": "OcaBlock",
-          "description": "Scanning Triggers",
-          "fields": {
-            "Set_Scan_Trigger": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "STRIG <source>",
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "source": { "value": "AUTO", "type": "_Value", "description": "AUTO, EXTIN, TB0, TB1, HOLD, SGL" } }
-              }
-            },
-            "Set_Scan_Advance": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "SADV <source>",
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "source": { "value": "AUTO", "type": "_Value", "description": "AUTO, EXTIN, TB0, TB1, HOLD, SGL" } }
-              }
-            }
-          }
-        }
-      }
-    },
-    "set": {
-      "type": "OcaBlock",
-      "description": "System Settings",
-      "fields": {
-        "Target_Module": {
-          "type": "OcaBlock",
-          "fields": {
-            "Set_Use_Slot": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "USE <slot>",
-              "description": "Targets DMM, Source, or DIO commands to specific slot.",
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "slot": { "value": "800", "type": "_Value" } }
-              }
-            }
-          }
-        },
-        "Front_Panel": {
-          "type": "OcaBlock",
-          "fields": {
-            "Write_Display": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "DISP '<string>'",
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "string": { "value": "HELLO", "type": "_Value" } }
-              }
-            },
-            "Keyboard_Lock": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "LOCK <state>",
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "state": { "value": "ON", "type": "_Value", "description": "ON or OFF" } }
-              }
-            }
-          }
-        }
-      }
-    },
-    "Do": {
-      "type": "OcaBlock",
-      "description": "Direct Relay Control",
-      "fields": {
-        "Relay_Actions": {
-          "type": "OcaBlock",
-          "fields": {
-            "Close_Channels": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "CLOSE <channel_list>",
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "channel_list": { "value": "100-103", "type": "_Value" } }
-              }
-            },
-            "Open_Channels": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "OPEN <channel_list>",
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "channel_list": { "value": "100-103", "type": "_Value" } }
-              }
-            },
-            "Select_Channel": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "SELECT <channel>",
-              "description": "Break-Before-Make: Opens all others in bank, then closes target.",
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "channel": { "value": "100", "type": "_Value" } }
-              }
-            }
-          }
-        },
-        "System_Reset": {
-          "type": "OcaBlock",
-          "fields": {
-            "Reset_All": {
-              "type": "_GuiActuator",
-              "label_inactive": "RESET System",
-              "Generic_Model": { "message": "RESET" }
-            },
-            "Reset_Module": {
-              "type": "_GuiActuator",
-              "active": true,
-              "message": "CRESET <slot>",
-              "label_inactive": "Card Reset",
-              "scpi_inputs": {
-                "type": "OcaBlock",
-                "fields": { "slot": { "value": "100", "type": "_Value" } }
-              }
-            },
-            "Clear_State": {
-              "type": "_GuiActuator",
-              "label_inactive": "Clear (CLR)",
-              "Generic_Model": { "message": "CLR" }
             }
           }
         }
       }
     }
+  },
+  "rig": {
+    "type": "OcaBlock",
+    "description": "Switching Commands",
+    "fields": {
+      "Connect_Paths": {
+        "type": "OcaBlock",
+        "description": "Close Relays",
+        "fields": {
+          "Close_Channels": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": "CLOSE <channel_list>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "channel_list": { "value": "100,101", "type": "_Value", "description": "List of channels to close" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Disconnect_Paths": {
+        "type": "OcaBlock",
+        "description": "Open Relays",
+        "fields": {
+          "Open_Channels": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": "OPEN <channel_list>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "channel_list": { "value": "100-103", "type": "_Value", "description": "List of channels to open" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Exclusive_Switching": {
+        "type": "OcaBlock",
+        "description": "Break-Before-Make",
+        "fields": {
+          "Select_Channel": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": "SELECT <channel>",
+                "layout": { "height": 30, "sticky": "" },
+                "description": "Opens all others in bank, then closes target."
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "channel": { "value": "100", "type": "_Value", "description": "Target Channel" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "set": {
+    "type": "OcaBlock",
+    "description": "System Reset & Control",
+    "fields": {
+      "System_Reset": {
+        "type": "OcaBlock",
+        "fields": {
+          "Reset_System": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "RESET System",
+            "Generic_Model": { "message": "RESET" }
+          },
+          "Card_Reset": {
+            "type": "OcaBlock",
+            "fields": {
+              "Generic_Model": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": "CRESET <slot>",
+                "label_inactive": "Card Reset",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "scpi_inputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "slot": { "value": "100", "type": "_Value", "description": "Slot to reset" }
+                }
+              }
+            }
+          },
+          "Clear_State": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "Clear (CLR)",
+            "Generic_Model": { "message": "CLR" }
+          }
+        }
+      }
+    }
   }
+}

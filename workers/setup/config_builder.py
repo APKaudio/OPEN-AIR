@@ -40,10 +40,5 @@ def create_default_config_ini(config_path: pathlib.Path, silent: bool = False):
         'MQTT_RETAIN_BEHAVIOR': 'True'
     }
 
-    config['Protocols'] = {
-        'ENABLE_FULL_CONFIG_MQTT_DUMP': 'False',
-        'ENABLE_BUILDER_STATUS_PUBLISH': 'False'
-    }
-
     with open(config_path, 'w') as configfile:
         config.write(configfile)

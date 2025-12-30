@@ -74,6 +74,76 @@
             "selected": true
           }
         }
+      },"Bus_AB2_Right_Out": {
+        "type": "_GuiButtonToggler",
+        "AES70": "OcaSwitch",
+        "handler": "set_snake_out_right_c7",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Routing",
+          "command": "Set_Relay_Card7",
+          "input_name": "relay_id",
+          "converter": "int"
+        },
+        "layout": { "height": 30, "max_cols": 3, "sticky": "ew" },
+        "options": {
+          "1": {
+            "value": "721",
+            "label_active": "Test Patch",
+            "label_inactive": "Test Patch",
+            "description": "Test Patch Panel OUT to Bus AB2"
+          },
+          "2": {
+            "value": "722",
+            "label_active": "Bench AP",
+            "label_inactive": "Bench AP",
+            "description": "Left Bench AP OUT to Bus AB2"
+          },
+          "3": {
+            "value": "723",
+            "label_active": "Bench Neutrik",
+            "label_inactive": "Bench Neutrik",
+            "description": "Left Bench Neutrik RM-1 OUT to Bus AB2"
+          },
+          "4": {
+            "value": "724",
+            "label_active": "Music Src",
+            "label_inactive": "Music Src",
+            "description": "Balanced Music Source to Bus AB2"
+          },
+          "5": {
+            "value": "725",
+            "label_active": "Snk 2 XLR",
+            "label_inactive": "Snk 2 XLR",
+            "description": "Snake 2 Balanced XLR-M OUT to Bus AB2"
+          },
+          "6": {
+            "value": "726",
+            "label_active": "Snk 4 XLR",
+            "label_inactive": "Snk 4 XLR",
+            "description": "Snake 4 Balanced XLR-M OUT to Bus AB2"
+          },
+          "7": {
+            "value": "727",
+            "label_active": "Snk 6 XLR",
+            "label_inactive": "Snk 6 XLR",
+            "description": "Snake 6 Balanced XLR-M OUT to Bus AB2"
+          },
+          "8": {
+            "value": "728",
+            "label_active": "Snk 8 XLR",
+            "label_inactive": "Snk 8 XLR",
+            "description": "Snake 8 Balanced XLR-M OUT to Bus AB2"
+          },
+          "UNSELECTED": {
+            "value": "NONE",
+            "label_active": "None",
+            "label_inactive": "None",
+            "description": "No active route on Bus AB2",
+            "selected": true
+          }
+        }
       },
       "Bus_AB1_Left_In": {
         "type": "_GuiButtonToggler",
@@ -146,77 +216,7 @@
           }
         }
       },
-      "Bus_AB2_Right_Out": {
-        "type": "_GuiButtonToggler",
-        "AES70": "OcaSwitch",
-        "handler": "set_snake_out_right_c7",
-        "yak_handler": {
-          "enable": true,
-          "yak_type": "set",
-          "sub_path": "Routing",
-          "command": "Set_Relay_Card7",
-          "input_name": "relay_id",
-          "converter": "int"
-        },
-        "layout": { "height": 30, "max_cols": 3, "sticky": "ew" },
-        "options": {
-          "1": {
-            "value": "721",
-            "label_active": "Test Patch",
-            "label_inactive": "Test Patch",
-            "description": "Test Patch Panel OUT to Bus AB2"
-          },
-          "2": {
-            "value": "722",
-            "label_active": "Bench AP",
-            "label_inactive": "Bench AP",
-            "description": "Left Bench AP OUT to Bus AB2"
-          },
-          "3": {
-            "value": "723",
-            "label_active": "Bench Neutrik",
-            "label_inactive": "Bench Neutrik",
-            "description": "Left Bench Neutrik RM-1 OUT to Bus AB2"
-          },
-          "4": {
-            "value": "724",
-            "label_active": "Music Src",
-            "label_inactive": "Music Src",
-            "description": "Balanced Music Source to Bus AB2"
-          },
-          "5": {
-            "value": "725",
-            "label_active": "Snk 2 XLR",
-            "label_inactive": "Snk 2 XLR",
-            "description": "Snake 2 Balanced XLR-M OUT to Bus AB2"
-          },
-          "6": {
-            "value": "726",
-            "label_active": "Snk 4 XLR",
-            "label_inactive": "Snk 4 XLR",
-            "description": "Snake 4 Balanced XLR-M OUT to Bus AB2"
-          },
-          "7": {
-            "value": "727",
-            "label_active": "Snk 6 XLR",
-            "label_inactive": "Snk 6 XLR",
-            "description": "Snake 6 Balanced XLR-M OUT to Bus AB2"
-          },
-          "8": {
-            "value": "728",
-            "label_active": "Snk 8 XLR",
-            "label_inactive": "Snk 8 XLR",
-            "description": "Snake 8 Balanced XLR-M OUT to Bus AB2"
-          },
-          "UNSELECTED": {
-            "value": "NONE",
-            "label_active": "None",
-            "label_inactive": "None",
-            "description": "No active route on Bus AB2",
-            "selected": true
-          }
-        }
-      },
+      
       "Bus_AB3_Right_In": {
         "type": "_GuiButtonToggler",
         "AES70": "OcaSwitch",

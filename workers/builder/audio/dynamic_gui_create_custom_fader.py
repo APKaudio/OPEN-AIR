@@ -256,7 +256,7 @@ class CustomFaderCreatorMixin:
                 state_mirror_engine.broadcast_gui_change_to_mqtt(path)            
             
             subscriber_router.subscribe_to_topic(f"{base_mqtt_topic_from_path}/set", lambda msg: fader_value_var.set(float(msg.payload.decode())))
-            state_mirror_engine.publish_command(f"BUILDER/{base_mqtt_topic_from_path}/BUILD_STATUS", "True")
+         #
 
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(

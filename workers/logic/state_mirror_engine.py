@@ -86,7 +86,7 @@ class StateMirrorEngine:
         Registers a widget to be tracked by the engine.
         Now also stores the full config dictionary for the widget.
         """
-        full_topic = topic_utils.get_topic(self.base_topic, widget_id)
+        full_topic = topic_utils.get_topic(self.base_topic, tab_name, widget_id)
         self.registered_widgets[full_topic] = {
             "var": tk_variable,
             "tab": tab_name,

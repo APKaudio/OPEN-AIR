@@ -27,8 +27,6 @@ class Config:
     MQTT_USERNAME = None
     MQTT_PASSWORD = None
     MQTT_RETAIN_BEHAVIOR = False # New default value
-    ENABLE_FULL_CONFIG_MQTT_DUMP = False # New default value
-    ENABLE_BUILDER_STATUS_PUBLISH = False # New default value
     MQTT_BASE_TOPIC = "OPEN-AIR" # New default value
 
     def __init__(self):
@@ -114,8 +112,7 @@ class Config:
             self.MQTT_BASE_TOPIC = config['MQTT'].get('MQTT_BASE_TOPIC', self.MQTT_BASE_TOPIC)
         
         if 'Protocols' in config:
-            self.ENABLE_FULL_CONFIG_MQTT_DUMP = config['Protocols'].getboolean('ENABLE_FULL_CONFIG_MQTT_DUMP', self.ENABLE_FULL_CONFIG_MQTT_DUMP)
-            self.ENABLE_BUILDER_STATUS_PUBLISH = config['Protocols'].getboolean('ENABLE_BUILDER_STATUS_PUBLISH', self.ENABLE_BUILDER_STATUS_PUBLISH)
+            pass
         
         debug_logger(message="--- Loaded Debug Settings ---", **_get_log_args())
         debug_logger(message=f"ENABLE_DEBUG_MODE: {self.ENABLE_DEBUG_MODE}", **_get_log_args())

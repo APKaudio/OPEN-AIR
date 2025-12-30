@@ -1,61 +1,55 @@
 {
-  "Card_6_Snake_Interface": {
+  "Card_5_Snake_Interface": {
     "type": "OcaBlock",
-    "description": "Card 6 - Snake Channel Routing",
+    "description": "Card 5 - Snake Channel Routing",
     "layout": { "sticky": "ew" },
     "fields": {
       "Bus_AB0_Left_Out": {
         "type": "_GuiButtonToggler",
         "AES70": "OcaSwitch",
-        "handler": "set_snake_out_left_c6",
+        "handler": "set_snake_out_left_c5",
         "yak_handler": {
           "enable": true,
           "yak_type": "set",
           "sub_path": "Routing",
-          "command": "Set_Relay_Card6",
+          "command": "Set_Relay_Card5",
           "input_name": "relay_id",
           "converter": "int"
         },
-        "layout": { "height": 30, "max_cols": 4, "sticky": "ew" },
+        "layout": { "height": 30, "max_cols": 3, "sticky": "ew" },
         "options": {
-          "0": {
-            "value": "600",
-            "label_active": "Grass OUT",
-            "label_inactive": "Grass OUT",
-            "description": "Grass Signal OUT to Bus AB0"
-          },
           "1": {
-            "value": "601",
+            "value": "501",
             "label_active": "Ch 1 (L)",
             "label_inactive": "Ch 1 (L)",
             "description": "Snake Ch 1 Left/Odd OUT to Bus AB0"
           },
           "2": {
-            "value": "602",
+            "value": "502",
             "label_active": "Ch 3 (L)",
             "label_inactive": "Ch 3 (L)",
             "description": "Snake Ch 3 Left/Odd OUT to Bus AB0"
           },
           "3": {
-            "value": "603",
+            "value": "503",
             "label_active": "Ch 5 (L)",
             "label_inactive": "Ch 5 (L)",
             "description": "Snake Ch 5 Left/Odd OUT to Bus AB0"
           },
           "4": {
-            "value": "604",
+            "value": "504",
             "label_active": "Ch 7 (L)",
             "label_inactive": "Ch 7 (L)",
             "description": "Snake Ch 7 Left/Odd OUT to Bus AB0"
           },
           "5": {
-            "value": "605",
+            "value": "505",
             "label_active": "Ch 9 (L)",
             "label_inactive": "Ch 9 (L)",
             "description": "Snake Ch 9 Left/Odd OUT to Bus AB0"
           },
           "6": {
-            "value": "606",
+            "value": "506",
             "label_active": "Ch 11 (L)",
             "label_inactive": "Ch 11 (L)",
             "description": "Snake Ch 11 Left/Odd OUT to Bus AB0"
@@ -69,111 +63,52 @@
           }
         }
       },
-      "Bus_AB1_Left_In": {
-        "type": "_GuiButtonToggler",
-        "AES70": "OcaSwitch",
-        "handler": "set_snake_in_left_c6",
-        "yak_handler": {
-          "enable": true,
-          "yak_type": "set",
-          "sub_path": "Routing",
-          "command": "Set_Relay_Card6",
-          "input_name": "relay_id",
-          "converter": "int"
-        },
-        "layout": { "height": 30, "max_cols": 3, "sticky": "ew" },
-        "options": {
-          "1": {
-            "value": "611",
-            "label_active": "Ch 13 (L)",
-            "label_inactive": "Ch 13 (L)",
-            "description": "Snake Ch 13 Left/Odd IN from Bus AB1"
-          },
-          "2": {
-            "value": "612",
-            "label_active": "Ch 15 (L)",
-            "label_inactive": "Ch 15 (L)",
-            "description": "Snake Ch 15 Left/Odd IN from Bus AB1"
-          },
-          "3": {
-            "value": "613",
-            "label_active": "Ch 17 (L)",
-            "label_inactive": "Ch 17 (L)",
-            "description": "Snake Ch 17 Left/Odd IN from Bus AB1"
-          },
-          "4": {
-            "value": "614",
-            "label_active": "Ch 19 (L)",
-            "label_inactive": "Ch 19 (L)",
-            "description": "Snake Ch 19 Left/Odd IN from Bus AB1"
-          },
-          "5": {
-            "value": "615",
-            "label_active": "Ch 21 (L)",
-            "label_inactive": "Ch 21 (L)",
-            "description": "Snake Ch 21 Left/Odd IN from Bus AB1"
-          },
-          "6": {
-            "value": "616",
-            "label_active": "Ch 23 (L)",
-            "label_inactive": "Ch 23 (L)",
-            "description": "Snake Ch 23 Left/Odd IN from Bus AB1"
-          },
-          "UNSELECTED": {
-            "value": "NONE",
-            "label_active": "None",
-            "label_inactive": "None",
-            "description": "No active route on Bus AB1",
-            "selected": true
-          }
-        }
-      },
       "Bus_AB2_Right_Out": {
         "type": "_GuiButtonToggler",
         "AES70": "OcaSwitch",
-        "handler": "set_snake_out_right_c6",
+        "handler": "set_snake_out_right_c5",
         "yak_handler": {
           "enable": true,
           "yak_type": "set",
           "sub_path": "Routing",
-          "command": "Set_Relay_Card6",
+          "command": "Set_Relay_Card5",
           "input_name": "relay_id",
           "converter": "int"
         },
         "layout": { "height": 30, "max_cols": 3, "sticky": "ew" },
         "options": {
           "1": {
-            "value": "621",
+            "value": "521",
             "label_active": "Ch 2 (R)",
             "label_inactive": "Ch 2 (R)",
             "description": "Snake Ch 2 Right/Even OUT to Bus AB2"
           },
           "2": {
-            "value": "622",
+            "value": "522",
             "label_active": "Ch 4 (R)",
             "label_inactive": "Ch 4 (R)",
             "description": "Snake Ch 4 Right/Even OUT to Bus AB2"
           },
           "3": {
-            "value": "623",
+            "value": "523",
             "label_active": "Ch 6 (R)",
             "label_inactive": "Ch 6 (R)",
             "description": "Snake Ch 6 Right/Even OUT to Bus AB2"
           },
           "4": {
-            "value": "624",
+            "value": "524",
             "label_active": "Ch 8 (R)",
             "label_inactive": "Ch 8 (R)",
             "description": "Snake Ch 8 Right/Even OUT to Bus AB2"
           },
           "5": {
-            "value": "625",
+            "value": "525",
             "label_active": "Ch 10 (R)",
             "label_inactive": "Ch 10 (R)",
             "description": "Snake Ch 10 Right/Even OUT to Bus AB2"
           },
           "6": {
-            "value": "626",
+            "value": "526",
             "label_active": "Ch 12 (R)",
             "label_inactive": "Ch 12 (R)",
             "description": "Snake Ch 12 Right/Even OUT to Bus AB2"
@@ -187,52 +122,112 @@
           }
         }
       },
-      "Bus_AB3_Right_In": {
+      "Bus_AB1_Left_In": {
         "type": "_GuiButtonToggler",
         "AES70": "OcaSwitch",
-        "handler": "set_snake_in_right_c6",
+        "handler": "set_snake_in_left_c5",
         "yak_handler": {
           "enable": true,
           "yak_type": "set",
           "sub_path": "Routing",
-          "command": "Set_Relay_Card6",
+          "command": "Set_Relay_Card5",
           "input_name": "relay_id",
           "converter": "int"
         },
         "layout": { "height": 30, "max_cols": 3, "sticky": "ew" },
         "options": {
           "1": {
-            "value": "631",
+            "value": "511",
+            "label_active": "Ch 13 (L)",
+            "label_inactive": "Ch 13 (L)",
+            "description": "Snake Ch 13 Left/Odd IN from Bus AB1"
+          },
+          "2": {
+            "value": "512",
+            "label_active": "Ch 15 (L)",
+            "label_inactive": "Ch 15 (L)",
+            "description": "Snake Ch 15 Left/Odd IN from Bus AB1"
+          },
+          "3": {
+            "value": "513",
+            "label_active": "Ch 17 (L)",
+            "label_inactive": "Ch 17 (L)",
+            "description": "Snake Ch 17 Left/Odd IN from Bus AB1"
+          },
+          "4": {
+            "value": "514",
+            "label_active": "Ch 19 (L)",
+            "label_inactive": "Ch 19 (L)",
+            "description": "Snake Ch 19 Left/Odd IN from Bus AB1"
+          },
+          "5": {
+            "value": "515",
+            "label_active": "Ch 21 (L)",
+            "label_inactive": "Ch 21 (L)",
+            "description": "Snake Ch 21 Left/Odd IN from Bus AB1"
+          },
+          "6": {
+            "value": "516",
+            "label_active": "Ch 23 (L)",
+            "label_inactive": "Ch 23 (L)",
+            "description": "Snake Ch 23 Left/Odd IN from Bus AB1"
+          },
+          "UNSELECTED": {
+            "value": "NONE",
+            "label_active": "None",
+            "label_inactive": "None",
+            "description": "No active route on Bus AB1",
+            "selected": true
+          }
+        }
+      },
+      
+      "Bus_AB3_Right_In": {
+        "type": "_GuiButtonToggler",
+        "AES70": "OcaSwitch",
+        "handler": "set_snake_in_right_c5",
+        "yak_handler": {
+          "enable": true,
+          "yak_type": "set",
+          "sub_path": "Routing",
+          "command": "Set_Relay_Card5",
+          "input_name": "relay_id",
+          "converter": "int"
+        },
+        "layout": { "height": 30, "max_cols": 3, "sticky": "ew" },
+        "options": {
+          "1": {
+            "value": "531",
             "label_active": "Ch 14 (R)",
             "label_inactive": "Ch 14 (R)",
             "description": "Snake Ch 14 Right/Even IN from Bus AB3"
           },
           "2": {
-            "value": "632",
+            "value": "532",
             "label_active": "Ch 16 (R)",
             "label_inactive": "Ch 16 (R)",
             "description": "Snake Ch 16 Right/Even IN from Bus AB3"
           },
           "3": {
-            "value": "633",
+            "value": "533",
             "label_active": "Ch 18 (R)",
             "label_inactive": "Ch 18 (R)",
             "description": "Snake Ch 18 Right/Even IN from Bus AB3"
           },
           "4": {
-            "value": "634",
+            "value": "534",
             "label_active": "Ch 20 (R)",
             "label_inactive": "Ch 20 (R)",
             "description": "Snake Ch 20 Right/Even IN from Bus AB3"
           },
           "5": {
-            "value": "635",
+            "value": "535",
             "label_active": "Ch 22 (R)",
             "label_inactive": "Ch 22 (R)",
             "description": "Snake Ch 22 Right/Even IN from Bus AB3"
           },
           "6": {
-            "value": "636",
+            "value": "536",
             "label_active": "Ch 24 (R)",
             "label_inactive": "Ch 24 (R)",
             "description": "Snake Ch 24 Right/Even IN from Bus AB3"
