@@ -148,7 +148,7 @@ class YakTranslator:
             # Store command context for YakRxManager
             self.command_context_store[correlation_id] = {
                 "path_parts": yak_command_path, 
-                "command_details": command_declaration.get("scpi_outputs", {}) 
+                "command_details": command_declaration.get("Outputs", {}) 
             }
 
             # Publish to VisaProxy's Tx_Inbox

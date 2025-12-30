@@ -35,7 +35,7 @@ class YakTxManager:
     def __init__(self, dispatcher_instance):
         self.dispatcher = dispatcher_instance
 
-    def execute_command(self, command_type, command_string):
+    def Execute Command(self, command_type, command_string):
         """
         Executes a command based on the presence of a '?' to determine if it is a query.
         """

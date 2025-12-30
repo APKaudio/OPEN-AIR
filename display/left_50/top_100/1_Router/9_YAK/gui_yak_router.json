@@ -10,20 +10,20 @@
           "Query_Channel_State": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "CLOSE? <channel>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "channel": { "value": "100", "type": "_Value", "description": "Format: esnn (e=extender, s=slot, nn=channel)" }
                 }
               },
-              "scpi_outputs": {
+              "Outputs": {
                 "type": "OcaBlock",
                 "fields": {
                   "state": { "value": "0=Open, 1=Closed", "type": "_Value" }
@@ -40,20 +40,20 @@
           "Query_Slot_ID": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "ID? <slot>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "slot": { "value": "100", "type": "_Value", "description": "Slot Number (e.g., 100)" }
                 }
               },
-              "scpi_outputs": {
+              "Outputs": {
                 "type": "OcaBlock",
                 "fields": {
                   "id_string": { "value": "Card ID String", "type": "_Value" }
@@ -76,14 +76,14 @@
           "Close_Channels": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "CLOSE <channel_list>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "channel_list": { "value": "100,101", "type": "_Value", "description": "List of channels to close" }
@@ -100,14 +100,14 @@
           "Open_Channels": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "OPEN <channel_list>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "channel_list": { "value": "100-103", "type": "_Value", "description": "List of channels to open" }
@@ -124,7 +124,7 @@
           "Select_Channel": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
@@ -132,7 +132,7 @@
                 "layout": { "height": 30, "sticky": "" },
                 "description": "Opens all others in bank, then closes target."
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "channel": { "value": "100", "type": "_Value", "description": "Target Channel" }
@@ -156,12 +156,12 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "RESET System",
-            "Generic_Model": { "message": "RESET" }
+            "Execute Command": { "message": "RESET" }
           },
           "Card_Reset": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
@@ -169,7 +169,7 @@
                 "label_inactive": "Card Reset",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "slot": { "value": "100", "type": "_Value", "description": "Slot to reset" }
@@ -182,7 +182,7 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "Clear (CLR)",
-            "Generic_Model": { "message": "CLR" }
+            "Execute Command": { "message": "CLR" }
           }
         }
       }

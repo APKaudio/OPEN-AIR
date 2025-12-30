@@ -31,7 +31,7 @@ LOCAL_DEBUG_ENABLE = False
 
 
 
-def fill_scpi_placeholders(scpi_command_template: str, scpi_inputs: dict):
+def fill_scpi_placeholders(scpi_command_template: str, Input: dict):
     """
     Takes an SCPI command template and replaces placeholders with values from inputs.
     """
@@ -42,8 +42,8 @@ def fill_scpi_placeholders(scpi_command_template: str, scpi_inputs: dict):
               
     filled_command = scpi_command_template
     
-    if scpi_inputs:
-        for key, details in scpi_inputs.items():
+    if Input:
+        for key, details in Input.items():
             placeholder = f"<{key}>"
             value_to_substitute = str(details.get("value", ""))
             

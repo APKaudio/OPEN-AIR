@@ -40,7 +40,7 @@ class YakRxManager:
         self.mqtt_util = mqtt_connection_manager
         self.subscriber_router = subscriber_router
         self.yak_translator = yak_translator
-        self.NAB_BANDWIDTH_TRIGGER_PATH = ['yak', 'Bandwidth', 'nab', 'NAB_bandwidth_settings', 'scpi_details', 'generic_model', 'trigger']
+        self.NAB_BANDWIDTH_TRIGGER_PATH = ['yak', 'Bandwidth', 'nab', 'NAB_bandwidth_settings', 'scpi_details', 'Execute Command', 'trigger']
         self._setup_mqtt_subscriptions()
 
     def _setup_mqtt_subscriptions(self):
@@ -67,7 +67,7 @@ class YakRxManager:
                     command_details = command_context.get("command_details") # This would be the 'outputs' part
                     
                     if path_parts and command_details:
-                        self.process_response(path_parts, {"scpi_outputs": command_details}, response_value)
+                        self.process_response(path_parts, {"Outputs": command_details}, response_value)
                     else:
                         debug_logger(message=f"❌ Incomplete command context retrieved for correlation_id: {correlation_id}", **_get_log_args(), level="ERROR")
                 else:
@@ -92,7 +92,7 @@ class YakRxManager:
 
             )
 
-        outputs = command_details.get("scpi_outputs", {})
+        outputs = command_details.get("Outputs", {})
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
                 message=f"ℹ️ YakRxManager received a response from the device.",
@@ -188,10 +188,10 @@ class YakRxManager:
                 return
 
             # FIX: Correctly rebuild the base topic by joining the initial path parts
-            # The base output topic should be constructed up to '/scpi_outputs'
-            # path_parts looks like: ['yak', 'Bandwidth', 'nab', 'NAB_bandwidth_settings', 'scpi_details', 'generic_model', 'trigger']
-            # We want: OPEN-AIR/repository/yak/Bandwidth/nab/NAB_bandwidth_settings/scpi_outputs
-            base_output_topic_parts = ['OPEN-AIR', 'yak'] + path_parts[:4] + ['scpi_outputs']
+            # The base output topic should be constructed up to '/Outputs'
+            # path_parts looks like: ['yak', 'Bandwidth', 'nab', 'NAB_bandwidth_settings', 'scpi_details', 'Execute Command', 'trigger']
+            # We want: OPEN-AIR/repository/yak/Bandwidth/nab/NAB_bandwidth_settings/Outputs
+            base_output_topic_parts = ['OPEN-AIR', 'yak'] + path_parts[:4] + ['Outputs']
             base_output_topic = '/'.join(base_output_topic_parts)
             
             # Match and publish each part of the response

@@ -1,0 +1,80 @@
+{
+  "nab": {
+    "type": "OcaBlock",
+    "description": "ESA Memory Monitor",
+    "fields": {
+      "Memory_Catalog": {
+        "type": "OcaBlock",
+        "description": "View Files",
+        "fields": {
+          "Get_Catalog": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":MMEM:CAT? <dir>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "dir": { "value": "STATE", "type": "_Value", "description": "STATE, TRACE, etc." } }
+              },
+              "Outputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "file_list": { "value": "File List", "type": "_Value" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "rig": {
+    "type": "OcaBlock",
+    "description": "ESA Memory Actions",
+    "fields": {
+      "State_Operations": {
+        "type": "OcaBlock",
+        "description": "Save/Recall Registers",
+        "fields": {
+          "Save_State": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":MMEM:STOR:STAT <reg>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "reg": { "value": "1", "type": "_Value", "description": "Register 1-9" } }
+              }
+            }
+          },
+          "Recall_State": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":MMEM:LOAD:STAT <reg>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "reg": { "value": "1", "type": "_Value", "description": "Register 1-9" } }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

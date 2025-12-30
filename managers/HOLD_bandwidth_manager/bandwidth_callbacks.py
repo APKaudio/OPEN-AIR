@@ -68,13 +68,13 @@ class BandwidthCallbacks:
     ##         self.mqtt_controller.add_subscriber(topic_filter=topic, callback_func=self.on_message)
             
     ##     for yak_suffix in self.yak_communicator.YAK_NAB_OUTPUTS.keys():
-    ##         yak_topic = f"{self.yak_communicator.YAK_BASE}/nab/NAB_bandwidth_settings/scpi_outputs/{yak_suffix}"
+    ##         yak_topic = f"{self.yak_communicator.YAK_BASE}/nab/NAB_bandwidth_settings/Outputs/{yak_suffix}"
     ##         self.mqtt_controller.add_subscriber(topic_filter=yak_topic, callback_func=self.on_message)
 
     ##     self.yak_communicator.update_all_from_device()
 
     def on_message(self, topic, payload):
-        ## if topic.startswith(f"{self.yak_communicator.YAK_BASE}/nab/NAB_bandwidth_settings/scpi_outputs"):
+        ## if topic.startswith(f"{self.yak_communicator.YAK_BASE}/nab/NAB_bandwidth_settings/Outputs"):
         ##     self.yak_communicator.process_yak_output(topic, payload)
         ##     return
         

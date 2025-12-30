@@ -9,14 +9,14 @@
           "Get_Values_S1": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 1;MEAS:VOLT?;MEAS:CURR?",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_outputs": {
+              "Outputs": {
                 "type": "OcaBlock",
                 "fields": {
                   "volts": { "value": "V", "type": "_Value" },
@@ -33,14 +33,14 @@
           "Get_Values_S2": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 2;MEAS:VOLT?;MEAS:CURR?",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_outputs": {
+              "Outputs": {
                 "type": "OcaBlock",
                 "fields": {
                   "volts": { "value": "V", "type": "_Value" },
@@ -57,14 +57,14 @@
           "Get_Values_S3": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 3;MEAS:VOLT?;MEAS:CURR?",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_outputs": {
+              "Outputs": {
                 "type": "OcaBlock",
                 "fields": {
                   "volts": { "value": "V", "type": "_Value" },
@@ -81,14 +81,14 @@
           "Get_Values_S4": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 4;MEAS:VOLT?;MEAS:CURR?",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_outputs": {
+              "Outputs": {
                 "type": "OcaBlock",
                 "fields": {
                   "volts": { "value": "V", "type": "_Value" },
@@ -105,14 +105,14 @@
           "Get_Values_S5": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 5;MEAS:VOLT?;MEAS:CURR?",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_outputs": {
+              "Outputs": {
                 "type": "OcaBlock",
                 "fields": {
                   "volts": { "value": "V", "type": "_Value" },
@@ -129,14 +129,14 @@
           "Get_Values_S6": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 6;MEAS:VOLT?;MEAS:CURR?",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_outputs": {
+              "Outputs": {
                 "type": "OcaBlock",
                 "fields": {
                   "volts": { "value": "V", "type": "_Value" },
@@ -153,14 +153,14 @@
           "Get_Values_S7": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 7;MEAS:VOLT?;MEAS:CURR?",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_outputs": {
+              "Outputs": {
                 "type": "OcaBlock",
                 "fields": {
                   "volts": { "value": "V", "type": "_Value" },
@@ -177,14 +177,14 @@
           "Get_Values_S8": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 8;MEAS:VOLT?;MEAS:CURR?",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_outputs": {
+              "Outputs": {
                 "type": "OcaBlock",
                 "fields": {
                   "volts": { "value": "V", "type": "_Value" },
@@ -207,14 +207,14 @@
           "Set_S1_Levels": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 1;VOLT <volt>;CURR <curr>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "volt": { "value": "5.0", "type": "_Value" },
@@ -231,14 +231,14 @@
           "Set_S2_Levels": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 2;VOLT <volt>;CURR <curr>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "volt": { "value": "5.0", "type": "_Value" },
@@ -255,14 +255,14 @@
           "Set_S3_Levels": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 3;VOLT <volt>;CURR <curr>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "volt": { "value": "5.0", "type": "_Value" },
@@ -279,14 +279,14 @@
           "Set_S4_Levels": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 4;VOLT <volt>;CURR <curr>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "volt": { "value": "5.0", "type": "_Value" },
@@ -303,14 +303,14 @@
           "Set_S5_Levels": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 5;VOLT <volt>;CURR <curr>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "volt": { "value": "5.0", "type": "_Value" },
@@ -327,14 +327,14 @@
           "Set_S6_Levels": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 6;VOLT <volt>;CURR <curr>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "volt": { "value": "5.0", "type": "_Value" },
@@ -351,14 +351,14 @@
           "Set_S7_Levels": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 7;VOLT <volt>;CURR <curr>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "volt": { "value": "5.0", "type": "_Value" },
@@ -375,14 +375,14 @@
           "Set_S8_Levels": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "INST:NSEL 8;VOLT <volt>;CURR <curr>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "volt": { "value": "5.0", "type": "_Value" },
@@ -410,13 +410,13 @@
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S1 ON",
-                "Generic_Model": { "message": "INST:NSEL 1;OUTP ON" }
+                "Execute Command": { "message": "INST:NSEL 1;OUTP ON" }
               },
               "S1_OFF": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S1 OFF",
-                "Generic_Model": { "message": "INST:NSEL 1;OUTP OFF" }
+                "Execute Command": { "message": "INST:NSEL 1;OUTP OFF" }
               }
             }
           },
@@ -427,13 +427,13 @@
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S2 ON",
-                "Generic_Model": { "message": "INST:NSEL 2;OUTP ON" }
+                "Execute Command": { "message": "INST:NSEL 2;OUTP ON" }
               },
               "S2_OFF": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S2 OFF",
-                "Generic_Model": { "message": "INST:NSEL 2;OUTP OFF" }
+                "Execute Command": { "message": "INST:NSEL 2;OUTP OFF" }
               }
             }
           },
@@ -444,13 +444,13 @@
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S3 ON",
-                "Generic_Model": { "message": "INST:NSEL 3;OUTP ON" }
+                "Execute Command": { "message": "INST:NSEL 3;OUTP ON" }
               },
               "S3_OFF": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S3 OFF",
-                "Generic_Model": { "message": "INST:NSEL 3;OUTP OFF" }
+                "Execute Command": { "message": "INST:NSEL 3;OUTP OFF" }
               }
             }
           },
@@ -461,13 +461,13 @@
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S4 ON",
-                "Generic_Model": { "message": "INST:NSEL 4;OUTP ON" }
+                "Execute Command": { "message": "INST:NSEL 4;OUTP ON" }
               },
               "S4_OFF": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S4 OFF",
-                "Generic_Model": { "message": "INST:NSEL 4;OUTP OFF" }
+                "Execute Command": { "message": "INST:NSEL 4;OUTP OFF" }
               }
             }
           },
@@ -478,13 +478,13 @@
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S5 ON",
-                "Generic_Model": { "message": "INST:NSEL 5;OUTP ON" }
+                "Execute Command": { "message": "INST:NSEL 5;OUTP ON" }
               },
               "S5_OFF": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S5 OFF",
-                "Generic_Model": { "message": "INST:NSEL 5;OUTP OFF" }
+                "Execute Command": { "message": "INST:NSEL 5;OUTP OFF" }
               }
             }
           },
@@ -495,13 +495,13 @@
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S6 ON",
-                "Generic_Model": { "message": "INST:NSEL 6;OUTP ON" }
+                "Execute Command": { "message": "INST:NSEL 6;OUTP ON" }
               },
               "S6_OFF": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S6 OFF",
-                "Generic_Model": { "message": "INST:NSEL 6;OUTP OFF" }
+                "Execute Command": { "message": "INST:NSEL 6;OUTP OFF" }
               }
             }
           },
@@ -512,13 +512,13 @@
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S7 ON",
-                "Generic_Model": { "message": "INST:NSEL 7;OUTP ON" }
+                "Execute Command": { "message": "INST:NSEL 7;OUTP ON" }
               },
               "S7_OFF": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S7 OFF",
-                "Generic_Model": { "message": "INST:NSEL 7;OUTP OFF" }
+                "Execute Command": { "message": "INST:NSEL 7;OUTP OFF" }
               }
             }
           },
@@ -529,13 +529,13 @@
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S8 ON",
-                "Generic_Model": { "message": "INST:NSEL 8;OUTP ON" }
+                "Execute Command": { "message": "INST:NSEL 8;OUTP ON" }
               },
               "S8_OFF": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "label_inactive": "S8 OFF",
-                "Generic_Model": { "message": "INST:NSEL 8;OUTP OFF" }
+                "Execute Command": { "message": "INST:NSEL 8;OUTP OFF" }
               }
             }
           }
@@ -550,7 +550,7 @@
             "active": true,
             "label_inactive": "⛔ KILL ALL ⛔",
             "layout": { "height": 50, "sticky": "" },
-            "Generic_Model": {
+            "Execute Command": {
               "message": "INST:NSEL 1;OUTP OFF;INST:NSEL 2;OUTP OFF;INST:NSEL 3;OUTP OFF;INST:NSEL 4;OUTP OFF;INST:NSEL 5;OUTP OFF;INST:NSEL 6;OUTP OFF;INST:NSEL 7;OUTP OFF;INST:NSEL 8;OUTP OFF"
             }
           }
@@ -564,14 +564,14 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "Reset (*RST)",
-            "Generic_Model": { "message": "*RST" }
+            "Execute Command": { "message": "*RST" }
           },
           "Clear_Status": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "Clear (*CLS)",
-            "Generic_Model": { "message": "*CLS" }
+            "Execute Command": { "message": "*CLS" }
           }
         }
       }

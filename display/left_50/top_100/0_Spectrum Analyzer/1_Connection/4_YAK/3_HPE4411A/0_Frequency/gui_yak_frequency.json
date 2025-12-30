@@ -1,0 +1,122 @@
+{
+  "nab": {
+    "type": "OcaBlock",
+    "description": "ESA Frequency Readbacks",
+    "fields": {
+      "Monitor_Frequency": {
+        "type": "OcaBlock",
+        "description": "Read Current Settings",
+        "fields": {
+          "Get_Freq_Settings": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":SENS:FREQ:STAR?;:SENS:FREQ:STOP?;:SENS:FREQ:CENT?;:SENS:FREQ:SPAN?",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Outputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "start_freq": { "value": "Start Hz", "type": "_Value" },
+                  "stop_freq": { "value": "Stop Hz", "type": "_Value" },
+                  "center_freq": { "value": "Center Hz", "type": "_Value" },
+                  "span_freq": { "value": "Span Hz", "type": "_Value" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "rig": {
+    "type": "OcaBlock",
+    "description": "ESA Frequency Control",
+    "fields": {
+      "Center_Span_Control": {
+        "type": "OcaBlock",
+        "fields": {
+          "Set_Center_Freq": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":SENS:FREQ:CENT <freq>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "freq": { "value": "750 MHZ", "type": "_Value" } }
+              }
+            }
+          },
+          "Set_Span_Freq": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":SENS:FREQ:SPAN <freq>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "freq": { "value": "1.5 GHZ", "type": "_Value" } }
+              }
+            }
+          },
+          "Set_Full_Span": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "Full Span",
+            "Execute Command": { "message": ":SENS:FREQ:SPAN:FULL" }
+          }
+        }
+      },
+      "Start_Stop_Control": {
+        "type": "OcaBlock",
+        "fields": {
+          "Set_Start_Freq": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":SENS:FREQ:STAR <freq>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "freq": { "value": "0 Hz", "type": "_Value" } }
+              }
+            }
+          },
+          "Set_Stop_Freq": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":SENS:FREQ:STOP <freq>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "freq": { "value": "1.5 GHZ", "type": "_Value" } }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

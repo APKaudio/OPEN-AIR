@@ -51,8 +51,8 @@ LOCAL_DEBUG_ENABLE = False
 
 # --- Constants (No Magic Numbers) ---
 # FIX: Using the single-level wildcard '+' to match the dynamic 'Marker_X' or 'Marker_X_freq' segment.
-TOPIC_MARKER_PEAK_WILDCARD = "OPEN-AIR/yak/Markers/nab/NAB_all_marker_settings/scpi_outputs/+/value"
-TOPIC_MARKER_FREQ_WILDCARD = "OPEN-AIR/yak/Markers/nab/NAB_all_marker_settings/scpi_outputs/+/value"
+TOPIC_MARKER_PEAK_WILDCARD = "OPEN-AIR/yak/Markers/nab/NAB_all_marker_settings/Outputs/+/value"
+TOPIC_MARKER_FREQ_WILDCARD = "OPEN-AIR/yak/Markers/nab/NAB_all_marker_settings/Outputs/+/value"
 TOPIC_MEASUREMENTS_ROOT = "OPEN-AIR/measurements"
 TOPIC_DELIMITER = "/"
 

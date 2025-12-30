@@ -52,8 +52,8 @@ LOCAL_DEBUG_ENABLE = False
 # --- MQTT Topic Constants (No Magic Numbers) ---
 ROOT_TOPIC = "OPEN-AIR/yak/Memory"
 NAB_TRIGGER_TOPIC = f"{ROOT_TOPIC}/Nab/Nab_Preset_Catalog/scpi_details/N9342CN/trigger"
-NAB_OUTPUT_TOPIC = f"{ROOT_TOPIC}/Nab/Nab_Preset_Catalog/scpi_outputs/preset_catalog_list/value"
-SET_FILENAME_TOPIC = f"{ROOT_TOPIC}/Set/Set_Store_Preset/scpi_inputs/preset_fileName/value"
+NAB_OUTPUT_TOPIC = f"{ROOT_TOPIC}/Nab/Nab_Preset_Catalog/Outputs/preset_catalog_list/value"
+SET_FILENAME_TOPIC = f"{ROOT_TOPIC}/Set/Set_Store_Preset/Input/preset_fileName/value"
 SET_TRIGGER_TOPIC = f"{ROOT_TOPIC}/Set/Set_Store_Preset/scpi_details/N9342CN/trigger"
 
 # --- NEW: MQTT Topic for publishing presets ---

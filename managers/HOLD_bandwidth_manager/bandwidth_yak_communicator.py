@@ -39,16 +39,16 @@ class BandwidthYakCommunicator:
     HZ_TO_MHZ = 1_000_000.0 
     YAK_BASE = "OPEN-AIR/yak/Bandwidth"
     
-    YAK_UPDATE_TOPIC = f"{YAK_BASE}/nab/NAB_bandwidth_settings/scpi_details/generic_model/trigger"
-    YAK_RBW_TRIGGER = f"{YAK_BASE}/set/Set_RBW/scpi_details/generic_model/trigger"
-    YAK_SWEEP_TIME_TRIGGER = f"{YAK_BASE}/set/Set_Sweep_time/scpi_details/generic_model/trigger"
-    YAK_VBW_TRIGGER = f"{YAK_BASE}/set/Set_VBW/scpi_details/generic_model/trigger"
-    YAK_VBW_AUTO_ON_TRIGGER = f"{YAK_BASE}/set/do_Video_Bandwidth_Auto_ON/scpi_details/generic_model/trigger"
-    YAK_VBW_AUTO_OFF_TRIGGER = f"{YAK_BASE}/set/do_Video_Bandwidth_Auto_OFF/scpi_details/generic_model/trigger"
+    YAK_UPDATE_TOPIC = f"{YAK_BASE}/nab/NAB_bandwidth_settings/scpi_details/Execute Command/trigger"
+    YAK_RBW_TRIGGER = f"{YAK_BASE}/set/Set_RBW/scpi_details/Execute Command/trigger"
+    YAK_SWEEP_TIME_TRIGGER = f"{YAK_BASE}/set/Set_Sweep_time/scpi_details/Execute Command/trigger"
+    YAK_VBW_TRIGGER = f"{YAK_BASE}/set/Set_VBW/scpi_details/Execute Command/trigger"
+    YAK_VBW_AUTO_ON_TRIGGER = f"{YAK_BASE}/set/do_Video_Bandwidth_Auto_ON/scpi_details/Execute Command/trigger"
+    YAK_VBW_AUTO_OFF_TRIGGER = f"{YAK_BASE}/set/do_Video_Bandwidth_Auto_OFF/scpi_details/Execute Command/trigger"
 
-    YAK_RBW_INPUT = f"{YAK_BASE}/set/Set_RBW/scpi_inputs/hz_value/value"
-    YAK_SWEEP_TIME_INPUT = f"{YAK_BASE}/set/Set_Sweep_time/scpi_inputs/s_value/value"
-    YAK_VBW_INPUT = f"{YAK_BASE}/set/Set_VBW/scpi_inputs/hz_value/value"
+    YAK_RBW_INPUT = f"{YAK_BASE}/set/Set_RBW/Input/hz_value/value"
+    YAK_SWEEP_TIME_INPUT = f"{YAK_BASE}/set/Set_Sweep_time/Input/s_value/value"
+    YAK_VBW_INPUT = f"{YAK_BASE}/set/Set_VBW/Input/hz_value/value"
 
     YAK_NAB_OUTPUTS = {
         "RBW_Hz/value": "Settings/fields/Resolution Bandwidth/fields/RBW/value",
@@ -108,7 +108,7 @@ class BandwidthYakCommunicator:
 
     def process_yak_output(self, topic, payload):
         try:
-            yak_suffix = topic.split('/scpi_outputs/')[1]
+            yak_suffix = topic.split('/Outputs/')[1]
             gui_suffix = self.YAK_NAB_OUTPUTS.get(yak_suffix)
             if not gui_suffix: return
 

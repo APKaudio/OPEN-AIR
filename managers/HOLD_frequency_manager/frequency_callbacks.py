@@ -60,7 +60,7 @@ class FrequencyCallbacks:
                 )
             
         for yak_suffix in self.yak_communicator.YAK_NAB_OUTPUTS.keys():
-            yak_topic = f"{self.yak_communicator.YAK_BASE}/nab/NAB_Frequency_settings/scpi_outputs/{yak_suffix}"
+            yak_topic = f"{self.yak_communicator.YAK_BASE}/nab/NAB_Frequency_settings/Outputs/{yak_suffix}"
             self.mqtt_controller.add_subscriber(topic_filter=yak_topic, callback_func=self.on_message)
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
@@ -74,7 +74,7 @@ class FrequencyCallbacks:
     def on_message(self, topic, payload):
         current_function_name = inspect.currentframe().f_code.co_name
         
-        if topic.startswith(f"{self.yak_communicator.YAK_BASE}/nab/NAB_Frequency_settings/scpi_outputs"):
+        if topic.startswith(f"{self.yak_communicator.YAK_BASE}/nab/NAB_Frequency_settings/Outputs"):
             self.yak_communicator.process_yak_output(topic, payload)
             return
 

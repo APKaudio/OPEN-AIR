@@ -1,0 +1,78 @@
+{
+  "nab": {
+    "type": "OcaBlock",
+    "description": "ESA System Status",
+    "fields": {
+      "Diagnostics": {
+        "type": "OcaBlock",
+        "fields": {
+          "Get_IDN": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": "*IDN?",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Outputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "id_string": { "value": "ID String", "type": "_Value" }
+                }
+              }
+            }
+          },
+          "Get_Error": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":SYST:ERR?",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Outputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "error_msg": { "value": "Error", "type": "_Value" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "rig": {
+    "type": "OcaBlock",
+    "description": "ESA System Actions",
+    "fields": {
+      "System_Control": {
+        "type": "OcaBlock",
+        "fields": {
+          "Preset_Device": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "label_inactive": "Preset (*RST)",
+            "Execute Command": { "message": "*RST" }
+          },
+          "Auto_Align_All": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "label_inactive": "Align Now",
+            "Execute Command": { "message": ":CAL:ALL" }
+          },
+          "Abort_Operation": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "label_inactive": "Abort",
+            "Execute Command": { "message": ":ABOR" }
+          }
+        }
+      }
+    }
+  }
+}

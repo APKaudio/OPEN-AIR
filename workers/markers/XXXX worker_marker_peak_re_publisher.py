@@ -40,7 +40,7 @@ current_file = f"{os.path.basename(__file__)}"
 
 # --- MQTT Topic Constants ---
 TOPIC_MARKERS_ROOT = "OPEN-AIR/measurements"
-TOPIC_MARKER_NAB_OUTPUT_WILDCARD = "OPEN-AIR/yak/Markers/nab/NAB_all_marker_settings/scpi_outputs/Marker_*/value"
+TOPIC_MARKER_NAB_OUTPUT_WILDCARD = "OPEN-AIR/yak/Markers/nab/NAB_all_marker_settings/Outputs/Marker_*/value"
 NUMBER_OF_MARKERS = 6
 
 

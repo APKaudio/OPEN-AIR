@@ -10,14 +10,14 @@
           "Get_Apply_String": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "APPLy?",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_outputs": {
+              "Outputs": {
                 "type": "OcaBlock",
                 "fields": {
                   "config_string": { "value": "\"SIN 1000, 3.0, 0.0\"", "type": "_Value" }
@@ -28,14 +28,14 @@
           "Get_Output_State": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "OUTPut?",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_outputs": {
+              "Outputs": {
                 "type": "OcaBlock",
                 "fields": {
                   "is_on": { "value": "0 or 1", "type": "_Value" }
@@ -46,14 +46,14 @@
           "Get_Error_Queue": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "SYSTem:ERRor?",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_outputs": {
+              "Outputs": {
                 "type": "OcaBlock",
                 "fields": {
                   "error_msg": { "value": "Error Code, Message", "type": "_Value" }
@@ -76,14 +76,14 @@
           "Apply_Sine": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "APPLy:SINusoid <freq>, <amp>, <offset>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "freq": { "value": "1000", "type": "_Value" },
@@ -96,14 +96,14 @@
           "Apply_Square": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "APPLy:SQUare <freq>, <amp>, <offset>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "freq": { "value": "1000", "type": "_Value" },
@@ -116,14 +116,14 @@
           "Apply_Pulse": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "APPLy:PULSe <freq>, <amp>, <offset>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "freq": { "value": "1000", "type": "_Value" },
@@ -142,14 +142,14 @@
           "Setup_AM": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "AM:INTernal:FUNCtion <shape>;AM:INTernal:FREQuency <freq>;AM:DEPTh <depth>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "shape": { "value": "SIN", "type": "_Value", "description": "SIN, SQU, TRI, RAMP" },
@@ -162,14 +162,14 @@
           "Setup_Pulse_Width": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "FUNCtion:PULSe:WIDTh <width_sec>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "width_sec": { "value": "0.0001", "type": "_Value" }
@@ -191,14 +191,14 @@
           "Set_Frequency": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "FREQuency <freq>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": { "freq": { "value": "1000", "type": "_Value" } }
               }
@@ -207,14 +207,14 @@
           "Set_Amplitude": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "VOLTage <amp>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": { "amp": { "value": "1.0", "type": "_Value", "description": "Default unit is Vpp" } }
               }
@@ -223,14 +223,14 @@
           "Set_Offset": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "VOLTage:OFFSet <offset>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": { "offset": { "value": "0.0", "type": "_Value" } }
               }
@@ -239,14 +239,14 @@
           "Set_Function_Shape": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "FUNCtion <shape>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": {
                   "shape": { "value": "SIN", "type": "_Value", "description": "SIN, SQU, RAMP, PULS, NOIS, DC, USER" }
@@ -262,14 +262,14 @@
           "Set_Output_Load": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "OUTPut:LOAD <ohms>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": { "ohms": { "value": "50", "type": "_Value", "description": "Ohms or INFinity" } }
               }
@@ -278,14 +278,14 @@
           "Set_Voltage_Unit": {
             "type": "OcaBlock",
             "fields": {
-              "Generic_Model": {
+              "Execute Command": {
                 "type": "_GuiActuator",
                 "AES70": "OcaBooleanActuator",
                 "active": true,
                 "message": "VOLTage:UNIT <unit>",
                 "layout": { "height": 30, "sticky": "" }
               },
-              "scpi_inputs": {
+              "Input": {
                 "type": "OcaBlock",
                 "fields": { "unit": { "value": "VPP", "type": "_Value", "description": "VPP, VRMS, DBM" } }
               }
@@ -307,28 +307,28 @@
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "Output ON",
-            "Generic_Model": { "message": "OUTPut ON" }
+            "Execute Command": { "message": "OUTPut ON" }
           },
           "Output_OFF": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "Output OFF",
-            "Generic_Model": { "message": "OUTPut OFF" }
+            "Execute Command": { "message": "OUTPut OFF" }
           },
           "Sync_ON": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "Sync ON",
-            "Generic_Model": { "message": "OUTPut:SYNC ON" }
+            "Execute Command": { "message": "OUTPut:SYNC ON" }
           },
           "Sync_OFF": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
             "active": true,
             "label_inactive": "Sync OFF",
-            "Generic_Model": { "message": "OUTPut:SYNC OFF" }
+            "Execute Command": { "message": "OUTPut:SYNC OFF" }
           }
         }
       },
@@ -339,25 +339,25 @@
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
             "label_inactive": "AM ON",
-            "Generic_Model": { "message": "AM:STATe ON" }
+            "Execute Command": { "message": "AM:STATe ON" }
           },
           "AM_State_OFF": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
             "label_inactive": "AM OFF",
-            "Generic_Model": { "message": "AM:STATe OFF" }
+            "Execute Command": { "message": "AM:STATe OFF" }
           },
           "FM_State_ON": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
             "label_inactive": "FM ON",
-            "Generic_Model": { "message": "FM:STATe ON" }
+            "Execute Command": { "message": "FM:STATe ON" }
           },
           "FM_State_OFF": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
             "label_inactive": "FM OFF",
-            "Generic_Model": { "message": "FM:STATe OFF" }
+            "Execute Command": { "message": "FM:STATe OFF" }
           }
         }
       },
@@ -368,19 +368,19 @@
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
             "label_inactive": "Trigger (*TRG)",
-            "Generic_Model": { "message": "*TRG" }
+            "Execute Command": { "message": "*TRG" }
           },
           "Reset_Device": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
             "label_inactive": "Reset (*RST)",
-            "Generic_Model": { "message": "*RST" }
+            "Execute Command": { "message": "*RST" }
           },
           "Clear_Text": {
             "type": "_GuiActuator",
             "AES70": "OcaBooleanActuator",
             "label_inactive": "Clear Display",
-            "Generic_Model": { "message": "DISPlay:TEXT:CLEar" }
+            "Execute Command": { "message": "DISPlay:TEXT:CLEar" }
           }
         }
       }

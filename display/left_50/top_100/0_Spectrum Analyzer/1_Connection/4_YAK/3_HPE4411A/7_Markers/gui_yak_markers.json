@@ -1,0 +1,114 @@
+{
+  "nab": {
+    "type": "OcaBlock",
+    "description": "ESA Marker Readback",
+    "fields": {
+      "Read_Markers": {
+        "type": "OcaBlock",
+        "description": "Get Frequency and Amplitude",
+        "fields": {
+          "Get_Marker_1": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":CALC:MARK1:X?;:CALC:MARK1:Y?",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Outputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "freq": { "value": "Hz", "type": "_Value" },
+                  "ampl": { "value": "dBm", "type": "_Value" }
+                }
+              }
+            }
+          },
+          "Get_Marker_2": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":CALC:MARK2:X?;:CALC:MARK2:Y?",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Outputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "freq": { "value": "Hz", "type": "_Value" },
+                  "ampl": { "value": "dBm", "type": "_Value" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "rig": {
+    "type": "OcaBlock",
+    "description": "ESA Marker Control",
+    "fields": {
+      "Marker_1_Control": {
+        "type": "OcaBlock",
+        "fields": {
+          "Marker_1_Normal": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "label_inactive": "Mkr 1 Normal",
+            "Execute Command": { "message": ":CALC:MARK1:MODE POS" }
+          },
+          "Marker_1_Delta": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "label_inactive": "Mkr 1 Delta",
+            "Execute Command": { "message": ":CALC:MARK1:MODE DELT" }
+          },
+          "Marker_1_Off": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "label_inactive": "Mkr 1 Off",
+            "Execute Command": { "message": ":CALC:MARK1:MODE OFF" }
+          },
+          "Marker_1_Peak_Search": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "label_inactive": "Peak Search",
+            "Execute Command": { "message": ":CALC:MARK1:MAX" }
+          },
+          "Marker_To_Center": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "label_inactive": "Mkr -> Center",
+            "Execute Command": { "message": ":CALC:MARK1:CENT" }
+          }
+        }
+      },
+      "Marker_Positioning": {
+        "type": "OcaBlock",
+        "fields": {
+          "Set_Marker_1_Freq": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":CALC:MARK1:X <freq>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "freq": { "value": "100 MHZ", "type": "_Value" } }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

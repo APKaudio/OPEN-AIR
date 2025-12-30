@@ -1,0 +1,143 @@
+{
+  "nab": {
+    "type": "OcaBlock",
+    "description": "ESA Bandwidth Monitoring",
+    "fields": {
+      "Bandwidth_Readbacks": {
+        "type": "OcaBlock",
+        "description": "RBW, VBW, and Sweep Stats",
+        "fields": {
+          "Get_BW_Settings": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":BAND?;:BAND:AUTO?;:BAND:VID?;:BAND:VID:AUTO?;:SWE:TIME?",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Outputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "rbw_val": { "value": "RBW Hz", "type": "_Value" },
+                  "rbw_auto": { "value": "RBW Auto (0/1)", "type": "_Value" },
+                  "vbw_val": { "value": "VBW Hz", "type": "_Value" },
+                  "vbw_auto": { "value": "VBW Auto (0/1)", "type": "_Value" },
+                  "sweep_time": { "value": "Sweep Seconds", "type": "_Value" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "rig": {
+    "type": "OcaBlock",
+    "description": "ESA Bandwidth Control",
+    "fields": {
+      "Resolution_Bandwidth": {
+        "type": "OcaBlock",
+        "description": "RBW Settings",
+        "fields": {
+          "Set_RBW": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":BAND <val>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "val": { "value": "100 kHz", "type": "_Value", "description": "1kHz, 3kHz, 10kHz..." } }
+              }
+            }
+          },
+          "Set_RBW_Auto_ON": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "RBW Auto",
+            "Execute Command": { "message": ":BAND:AUTO ON" }
+          },
+          "Set_RBW_Auto_OFF": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "RBW Manual",
+            "Execute Command": { "message": ":BAND:AUTO OFF" }
+          }
+        }
+      },
+      "Video_Bandwidth": {
+        "type": "OcaBlock",
+        "description": "VBW Settings",
+        "fields": {
+          "Set_VBW": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":BAND:VID <val>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "val": { "value": "100 kHz", "type": "_Value" } }
+              }
+            }
+          },
+          "Set_VBW_Auto_ON": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "VBW Auto",
+            "Execute Command": { "message": ":BAND:VID:AUTO ON" }
+          },
+          "Set_VBW_Auto_OFF": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "VBW Manual",
+            "Execute Command": { "message": ":BAND:VID:AUTO OFF" }
+          }
+        }
+      },
+      "Coupling_Ratio": {
+        "type": "OcaBlock",
+        "description": "VBW/RBW Ratio",
+        "fields": {
+          "Set_Vid_Res_Ratio": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":BAND:VID:RAT <val>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "val": { "value": "1.0", "type": "_Value", "description": "Ratio (e.g. 0.1, 1.0)" } }
+              }
+            }
+          },
+          "Set_Ratio_Auto": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "Ratio Auto",
+            "Execute Command": { "message": ":BAND:VID:RAT:AUTO ON" }
+          }
+        }
+      }
+    }
+  }
+}

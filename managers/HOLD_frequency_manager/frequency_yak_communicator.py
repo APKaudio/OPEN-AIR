@@ -42,19 +42,19 @@ class FrequencyYakCommunicator:
     
     HZ_TO_MHZ = 1_000_000
     YAK_BASE = "OPEN-AIR/yak/Frequency"
-    YAK_UPDATE_TOPIC = f"{YAK_BASE}/nab/NAB_Frequency_settings/scpi_details/generic_model/trigger"
+    YAK_UPDATE_TOPIC = f"{YAK_BASE}/nab/NAB_Frequency_settings/scpi_details/Execute Command/trigger"
     
-    YAK_CENTER_INPUT = f"{YAK_BASE}/set/set_center_freq_MHz/scpi_inputs/hz_value/value"
-    YAK_CENTER_TRIGGER = f"{YAK_BASE}/set/set_center_freq_MHz/scpi_details/generic_model/trigger"
+    YAK_CENTER_INPUT = f"{YAK_BASE}/set/set_center_freq_MHz/Input/hz_value/value"
+    YAK_CENTER_TRIGGER = f"{YAK_BASE}/set/set_center_freq_MHz/scpi_details/Execute Command/trigger"
 
-    YAK_SPAN_INPUT = f"{YAK_BASE}/set/set_span_freq_MHz/scpi_inputs/hz_value/value"
-    YAK_SPAN_TRIGGER = f"{YAK_BASE}/set/set_span_freq_MHz/scpi_details/generic_model/trigger"
+    YAK_SPAN_INPUT = f"{YAK_BASE}/set/set_span_freq_MHz/Input/hz_value/value"
+    YAK_SPAN_TRIGGER = f"{YAK_BASE}/set/set_span_freq_MHz/scpi_details/Execute Command/trigger"
 
-    YAK_START_INPUT = f"{YAK_BASE}/set/set_start_freq_MHz/scpi_inputs/hz_value/value"
-    YAK_START_TRIGGER = f"{YAK_BASE}/set/set_start_freq_MHz/scpi_details/generic_model/trigger"
+    YAK_START_INPUT = f"{YAK_BASE}/set/set_start_freq_MHz/Input/hz_value/value"
+    YAK_START_TRIGGER = f"{YAK_BASE}/set/set_start_freq_MHz/scpi_details/Execute Command/trigger"
 
-    YAK_STOP_INPUT = f"{YAK_BASE}/set/set_stop_freq_MHz/scpi_inputs/hz_value/value"
-    YAK_STOP_TRIGGER = f"{YAK_BASE}/set/set_stop_freq_MHz/scpi_details/generic_model/trigger"
+    YAK_STOP_INPUT = f"{YAK_BASE}/set/set_stop_freq_MHz/Input/hz_value/value"
+    YAK_STOP_TRIGGER = f"{YAK_BASE}/set/set_stop_freq_MHz/scpi_details/Execute Command/trigger"
     
     YAK_NAB_OUTPUTS = {
         "start_freq/value": "Settings/fields/start_freq_MHz/value",
@@ -148,7 +148,7 @@ class FrequencyYakCommunicator:
         current_function_name = inspect.currentframe().f_code.co_name
         
         try:
-            yak_suffix = topic.split('/scpi_outputs/')[1]
+            yak_suffix = topic.split('/Outputs/')[1]
             gui_suffix = self.YAK_NAB_OUTPUTS.get(yak_suffix)
             
             if not gui_suffix:

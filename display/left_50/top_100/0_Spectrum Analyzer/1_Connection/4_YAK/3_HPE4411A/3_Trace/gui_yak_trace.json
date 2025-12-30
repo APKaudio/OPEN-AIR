@@ -1,0 +1,217 @@
+{
+  "nab": {
+    "type": "OcaBlock",
+    "description": "ESA Trace Data Readback",
+    "fields": {
+      "Fetch_Trace_Data": {
+        "type": "OcaBlock",
+        "description": "Get Trace Arrays",
+        "fields": {
+          "Get_Trace_1_Data": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FORM:DATA ASC;:TRAC? TRACE1",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Outputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "trace_data": { "value": "Comma Separated Values", "type": "_Value" }
+                }
+              }
+            }
+          },
+          "Get_Trace_2_Data": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FORM:DATA ASC;:TRAC? TRACE2",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Outputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "trace_data": { "value": "Comma Separated Values", "type": "_Value" }
+                }
+              }
+            }
+          },
+          "Get_Trace_3_Data": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FORM:DATA ASC;:TRAC? TRACE3",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Outputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "trace_data": { "value": "Comma Separated Values", "type": "_Value" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "rig": {
+    "type": "OcaBlock",
+    "description": "ESA Trace Control",
+    "fields": {
+      "Trace_1_Modes": {
+        "type": "OcaBlock",
+        "description": "Trace A Control",
+        "fields": {
+          "Set_Trace1_ClearWrite": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T1 Clear Write",
+            "Execute Command": { "message": ":TRAC1:MODE WRIT" }
+          },
+          "Set_Trace1_MaxHold": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T1 Max Hold",
+            "Execute Command": { "message": ":TRAC1:MODE MAXH" }
+          },
+          "Set_Trace1_MinHold": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T1 Min Hold",
+            "Execute Command": { "message": ":TRAC1:MODE MINH" }
+          },
+          "Set_Trace1_View": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T1 View",
+            "Execute Command": { "message": ":TRAC1:MODE VIEW" }
+          },
+          "Set_Trace1_Blank": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T1 Blank",
+            "Execute Command": { "message": ":TRAC1:MODE BLAN" }
+          }
+        }
+      },
+      "Trace_2_Modes": {
+        "type": "OcaBlock",
+        "description": "Trace B Control",
+        "fields": {
+          "Set_Trace2_ClearWrite": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T2 Clear Write",
+            "Execute Command": { "message": ":TRAC2:MODE WRIT" }
+          },
+          "Set_Trace2_MaxHold": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T2 Max Hold",
+            "Execute Command": { "message": ":TRAC2:MODE MAXH" }
+          },
+          "Set_Trace2_MinHold": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T2 Min Hold",
+            "Execute Command": { "message": ":TRAC2:MODE MINH" }
+          },
+          "Set_Trace2_View": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T2 View",
+            "Execute Command": { "message": ":TRAC2:MODE VIEW" }
+          },
+          "Set_Trace2_Blank": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T2 Blank",
+            "Execute Command": { "message": ":TRAC2:MODE BLAN" }
+          }
+        }
+      },
+      "Trace_3_Modes": {
+        "type": "OcaBlock",
+        "description": "Trace C Control",
+        "fields": {
+          "Set_Trace3_ClearWrite": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T3 Clear Write",
+            "Execute Command": { "message": ":TRAC3:MODE WRIT" }
+          },
+          "Set_Trace3_MaxHold": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T3 Max Hold",
+            "Execute Command": { "message": ":TRAC3:MODE MAXH" }
+          },
+          "Set_Trace3_MinHold": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T3 Min Hold",
+            "Execute Command": { "message": ":TRAC3:MODE MINH" }
+          },
+          "Set_Trace3_View": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T3 View",
+            "Execute Command": { "message": ":TRAC3:MODE VIEW" }
+          },
+          "Set_Trace3_Blank": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T3 Blank",
+            "Execute Command": { "message": ":TRAC3:MODE BLAN" }
+          }
+        }
+      },
+      "Trace_Math": {
+        "type": "OcaBlock",
+        "description": "Trace Math Operations",
+        "fields": {
+          "Trace1_Minus_Trace2": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "T1 - T2 -> T3",
+            "Execute Command": { "message": ":TRAC:MATH:SUBT TRACE3, TRACE1, TRACE2" }
+          },
+          "Trace_Exchange": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "Exchange T1 & T2",
+            "Execute Command": { "message": ":TRAC:EXCH TRACE1, TRACE2" }
+          }
+        }
+      }
+    }
+  }
+}

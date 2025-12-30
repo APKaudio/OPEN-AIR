@@ -99,23 +99,23 @@ def lookup_inputs(command_node, command_path):
     """
     current_function_name = inspect.currentframe().f_code.co_name
     
-    scpi_inputs_path = command_path + ["scpi_inputs"]
-    scpi_inputs = command_node.get("scpi_inputs")
+    Input_path = command_path + ["Input"]
+    Input = command_node.get("Input")
     
-    if scpi_inputs:
-        inputs_count = len(scpi_inputs)
-        input_details = " ".join([f"({key} = {details.get('value', 'N/A')})" for key, details in scpi_inputs.items()])
+    if Input:
+        inputs_count = len(Input)
+        input_details = " ".join([f"({key} = {details.get('value', 'N/A')})" for key, details in Input.items()])
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message=f"✅ Inputs found at path: {'/'.join(scpi_inputs_path)}",
+            debug_logger(message=f"✅ Inputs found at path: {'/'.join(Input_path)}",
                       **_get_log_args() 
 
 )
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message=f"➡️ scpi_inputs = {inputs_count} {input_details}",
+            debug_logger(message=f"➡️ Input = {inputs_count} {input_details}",
                       **_get_log_args() 
 
 )
-        return scpi_inputs
+        return Input
     else:
         debug_logger(message="🟡 No inputs found.", **_get_log_args())
         return None
@@ -127,23 +127,23 @@ def lookup_outputs(command_node, command_path):
     """
     current_function_name = inspect.currentframe().f_code.co_name
     
-    scpi_outputs_path = command_path + ["scpi_outputs"]
-    scpi_outputs = command_node.get("scpi_outputs")
+    Outputs_path = command_path + ["Outputs"]
+    Outputs = command_node.get("Outputs")
     
-    if scpi_outputs:
-        outputs_count = len(scpi_outputs)
-        output_details = " ".join([f"({key} = {details.get('value', 'N/A')})" for key, details in scpi_outputs.items()])
+    if Outputs:
+        outputs_count = len(Outputs)
+        output_details = " ".join([f"({key} = {details.get('value', 'N/A')})" for key, details in Outputs.items()])
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message=f"✅ Outputs found at path: {'/'.join(scpi_outputs_path)}",
+            debug_logger(message=f"✅ Outputs found at path: {'/'.join(Outputs_path)}",
                       **_get_log_args() 
 
 )
         if app_constants.global_settings['debug_enabled']:
-            debug_logger(message=f"⬅️ scpi_outputs = {outputs_count} {output_details}",
+            debug_logger(message=f"⬅️ Outputs = {outputs_count} {output_details}",
                       **_get_log_args() 
 
 )
-        return scpi_outputs
+        return Outputs
     else:
         debug_logger(message="🟡 No outputs found.", **_get_log_args())
         return None

@@ -67,17 +67,17 @@ TOPIC_DEVICE_FREQ_WILDCARD = f"{TOPIC_MARKERS_ROOT}/+/IDENTITY/FREQ_MHZ"
 
 
 # YAK Frequency Topics
-TOPIC_FREQ_START_INPUT = "OPEN-AIR/yak/Frequency/rig/Rig_freq_start_stop/scpi_inputs/start_freq/value"
-TOPIC_FREQ_STOP_INPUT = "OPEN-AIR/yak/Frequency/rig/Rig_freq_start_stop/scpi_inputs/stop_freq/value"
-TOPIC_FREQ_TRIGGER = "OPEN-AIR/yak/Frequency/rig/Rig_freq_start_stop/scpi_details/generic_model/trigger"
+TOPIC_FREQ_START_INPUT = "OPEN-AIR/yak/Frequency/rig/Rig_freq_start_stop/Input/start_freq/value"
+TOPIC_FREQ_STOP_INPUT = "OPEN-AIR/yak/Frequency/rig/Rig_freq_start_stop/Input/stop_freq/value"
+TOPIC_FREQ_TRIGGER = "OPEN-AIR/yak/Frequency/rig/Rig_freq_start_stop/scpi_details/Execute Command/trigger"
 
 # YAK Marker Placement Topics
-TOPIC_MARKER_PLACE_BASE = "OPEN-AIR/yak/Markers/beg/Beg_Place_All_markers/scpi_inputs"
-TOPIC_MARKER_PLACE_TRIGGER = "OPEN-AIR/yak/Markers/beg/Beg_Place_All_markers/scpi_details/generic_model/trigger"
+TOPIC_MARKER_PLACE_BASE = "OPEN-AIR/yak/Markers/beg/Beg_Place_All_markers/Input"
+TOPIC_MARKER_PLACE_TRIGGER = "OPEN-AIR/yak/Markers/beg/Beg_Place_All_markers/scpi_details/Execute Command/trigger"
 
 # YAK Marker Value Retrieval (NAB) Topics
-TOPIC_MARKER_NAB_TRIGGER = "OPEN-AIR/yak/Markers/nab/NAB_all_marker_settings/scpi_details/generic_model/trigger"
-TOPIC_MARKER_NAB_OUTPUT_WILDCARD = "OPEN-AIR/yak/Markers/nab/NAB_all_marker_settings/scpi_outputs/Marker_*/value"
+TOPIC_MARKER_NAB_TRIGGER = "OPEN-AIR/yak/Markers/nab/NAB_all_marker_settings/scpi_details/Execute Command/trigger"
+TOPIC_MARKER_NAB_OUTPUT_WILDCARD = "OPEN-AIR/yak/Markers/nab/NAB_all_marker_settings/Outputs/Marker_*/value"
 
 
 class MarkerGoGetterWorker:
@@ -342,9 +342,9 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
 
     try:
         # Define the MQTT topics as constants
-        CENTER_FREQ_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_center_span/scpi_inputs/center_freq/value"
-        SPAN_FREQ_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_center_span/scpi_inputs/span_freq/value"
-        TRIGGER_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_center_span/scpi_details/generic_model/trigger"
+        CENTER_FREQ_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_center_span/Input/center_freq/value"
+        SPAN_FREQ_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_center_span/Input/span_freq/value"
+        TRIGGER_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_center_span/scpi_details/Execute Command/trigger"
         
         DEFAULT_SPAN_HZ = 1000000 # 1 MHz
         
@@ -457,9 +457,9 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
 
     try:
         # Define the MQTT topics as constants
-        START_FREQ_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_start_stop/scpi_inputs/start_freq/value"
-        STOP_FREQ_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_start_stop/scpi_inputs/stop_freq/value"
-        START_STOP_TRIGGER_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_start_stop/scpi_details/generic_model/trigger"
+        START_FREQ_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_start_stop/Input/start_freq/value"
+        STOP_FREQ_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_start_stop/Input/stop_freq/value"
+        START_STOP_TRIGGER_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_start_stop/scpi_details/Execute Command/trigger"
         
         freq_mhz = marker_data.get('FREQ_MHZ', None)
         if freq_mhz is None:
