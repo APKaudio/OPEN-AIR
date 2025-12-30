@@ -1,0 +1,131 @@
+{
+  "Card_9_Coax_Routing": {
+    "type": "OcaBlock",
+    "description": "Card 9 - Coax Cross-Point Routing",
+    "layout": { "sticky": "ew" },
+    "fields": {
+      "Group_Main_IO": {
+        "type": "OcaBlock",
+        "description": "Main I/O, Transformers & Amps",
+        "layout": { "sticky": "ew", "max_cols": 4 },
+        "fields": {
+          "Relay_901_Patch_Out": {
+            "type": "_GuiButton",
+            "AES70": "OcaSwitch",
+            "description": "Patch Panel OUT",
+            "handler": "set_relay_c9",
+            "yak_handler": { "enable": true, "yak_type": "set", "sub_path": "Routing", "command": "Set_Relay_Card9", "input_name": "relay_id", "converter": "int" },
+            "properties": { "value": 901, "label_active": "Patch OUT", "label_inactive": "Patch OUT", "color_active": "green" },
+            "layout": { "height": 30, "sticky": "ew" }
+          },
+          "Relay_902_Patch_In": {
+            "type": "_GuiButton",
+            "AES70": "OcaSwitch",
+            "description": "Patch Panel IN",
+            "handler": "set_relay_c9",
+            "yak_handler": { "enable": true, "yak_type": "set", "sub_path": "Routing", "command": "Set_Relay_Card9", "input_name": "relay_id", "converter": "int" },
+            "properties": { "value": 902, "label_active": "Patch IN", "label_inactive": "Patch IN", "color_active": "green" },
+            "layout": { "height": 30, "sticky": "ew" }
+          },
+          "Relay_903_HP_Xfrm_1": {
+            "type": "_GuiButton",
+            "AES70": "OcaSwitch",
+            "description": "HP-xformer 1 IN",
+            "handler": "set_relay_c9",
+            "yak_handler": { "enable": true, "yak_type": "set", "sub_path": "Routing", "command": "Set_Relay_Card9", "input_name": "relay_id", "converter": "int" },
+            "properties": { "value": 903, "label_active": "HP Xfrm 1", "label_inactive": "HP Xfrm 1", "color_active": "green" },
+            "layout": { "height": 30, "sticky": "ew" }
+          },
+          "Relay_904_HP_Xfrm_2": {
+            "type": "_GuiButton",
+            "AES70": "OcaSwitch",
+            "description": "HP-xformer 2 IN",
+            "handler": "set_relay_c9",
+            "yak_handler": { "enable": true, "yak_type": "set", "sub_path": "Routing", "command": "Set_Relay_Card9", "input_name": "relay_id", "converter": "int" },
+            "properties": { "value": 904, "label_active": "HP Xfrm 2", "label_inactive": "HP Xfrm 2", "color_active": "green" },
+            "layout": { "height": 30, "sticky": "ew" }
+          },
+          "Relay_905_Amp_L": {
+            "type": "_GuiButton",
+            "AES70": "OcaSwitch",
+            "description": "To Amplifier Left",
+            "handler": "set_relay_c9",
+            "yak_handler": { "enable": true, "yak_type": "set", "sub_path": "Routing", "command": "Set_Relay_Card9", "input_name": "relay_id", "converter": "int" },
+            "properties": { "value": 905, "label_active": "Amp Out L", "label_inactive": "Amp Out L", "color_active": "green" },
+            "layout": { "height": 30, "sticky": "ew" }
+          },
+          "Relay_906_Amp_R": {
+            "type": "_GuiButton",
+            "AES70": "OcaSwitch",
+            "description": "To Amplifier Right",
+            "handler": "set_relay_c9",
+            "yak_handler": { "enable": true, "yak_type": "set", "sub_path": "Routing", "command": "Set_Relay_Card9", "input_name": "relay_id", "converter": "int" },
+            "properties": { "value": 906, "label_active": "Amp Out R", "label_inactive": "Amp Out R", "color_active": "green" },
+            "layout": { "height": 30, "sticky": "ew" }
+          },
+          "Relay_907_SigGen_1": {
+            "type": "_GuiButton",
+            "AES70": "OcaSwitch",
+            "description": "From Signal Gen 1",
+            "handler": "set_relay_c9",
+            "yak_handler": { "enable": true, "yak_type": "set", "sub_path": "Routing", "command": "Set_Relay_Card9", "input_name": "relay_id", "converter": "int" },
+            "properties": { "value": 907, "label_active": "Sig Gen 1", "label_inactive": "Sig Gen 1", "color_active": "green" },
+            "layout": { "height": 30, "sticky": "ew" }
+          },
+          "Relay_908_SigGen_2": {
+            "type": "_GuiButton",
+            "AES70": "OcaSwitch",
+            "description": "From Signal Gen 2",
+            "handler": "set_relay_c9",
+            "yak_handler": { "enable": true, "yak_type": "set", "sub_path": "Routing", "command": "Set_Relay_Card9", "input_name": "relay_id", "converter": "int" },
+            "properties": { "value": 908, "label_active": "Sig Gen 2", "label_inactive": "Sig Gen 2", "color_active": "green" },
+            "layout": { "height": 30, "sticky": "ew" }
+          }
+        }
+      },
+      "Group_Scopes": {
+        "type": "OcaBlock",
+        "description": "Scope Inputs",
+        "layout": { "sticky": "ew", "max_cols": 4 },
+        "fields": {
+          "Relay_910_Scope_1": {
+            "type": "_GuiButton",
+            "AES70": "OcaSwitch",
+            "description": "Scope In 1",
+            "handler": "set_relay_c9",
+            "yak_handler": { "enable": true, "yak_type": "set", "sub_path": "Routing", "command": "Set_Relay_Card9", "input_name": "relay_id", "converter": "int" },
+            "properties": { "value": 910, "label_active": "Scope 1", "label_inactive": "Scope 1", "color_active": "green" },
+            "layout": { "height": 30, "sticky": "ew" }
+          },
+          "Relay_920_Scope_2": {
+            "type": "_GuiButton",
+            "AES70": "OcaSwitch",
+            "description": "Scope In 2",
+            "handler": "set_relay_c9",
+            "yak_handler": { "enable": true, "yak_type": "set", "sub_path": "Routing", "command": "Set_Relay_Card9", "input_name": "relay_id", "converter": "int" },
+            "properties": { "value": 920, "label_active": "Scope 2", "label_inactive": "Scope 2", "color_active": "green" },
+            "layout": { "height": 30, "sticky": "ew" }
+          },
+          "Relay_930_Scope_3": {
+            "type": "_GuiButton",
+            "AES70": "OcaSwitch",
+            "description": "Scope In 3",
+            "handler": "set_relay_c9",
+            "yak_handler": { "enable": true, "yak_type": "set", "sub_path": "Routing", "command": "Set_Relay_Card9", "input_name": "relay_id", "converter": "int" },
+            "properties": { "value": 930, "label_active": "Scope 3", "label_inactive": "Scope 3", "color_active": "green" },
+            "layout": { "height": 30, "sticky": "ew" }
+          },
+          "Relay_940_Scope_4": {
+            "type": "_GuiButton",
+            "AES70": "OcaSwitch",
+            "description": "Scope In 4",
+            "handler": "set_relay_c9",
+            "yak_handler": { "enable": true, "yak_type": "set", "sub_path": "Routing", "command": "Set_Relay_Card9", "input_name": "relay_id", "converter": "int" },
+            "properties": { "value": 940, "label_active": "Scope 4", "label_inactive": "Scope 4", "color_active": "green" },
+            "layout": { "height": 30, "sticky": "ew" }
+          }
+        }
+      }
+    }
+  }
+}

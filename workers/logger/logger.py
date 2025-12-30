@@ -152,8 +152,10 @@ def debug_logger(message: str, **kwargs):
         'function': kwargs.get('function', caller_func),
         'version': kwargs.get('version', caller_version)
     }
-    # Add any other kwargs that might have been passed, excluding keys we explicitly handled.
-    context_data_for_log.update({k: v for k, v in kwargs.items() if k not in ['file', 'function', 'version']})
+    # Explicitly remove 'file', 'function', 'version' from kwargs before updating
+    # to prevent potential multiple value errors if they were passed via **_get_log_args().
+    filtered_kwargs = {k: v for k, v in kwargs.items() if k not in ['file', 'function', 'version']}
+    context_data_for_log.update(filtered_kwargs)
 
     # --- Routing Logic ---
     if _log_directory is None:

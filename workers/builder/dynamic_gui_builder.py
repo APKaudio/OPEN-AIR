@@ -218,7 +218,11 @@ class DynamicGuiBuilder(
         
         # Ensure FluxPlotter is instantiated safely
         try:
-            plot_widget = FluxPlotter(parent_frame, config=config)
+            plot_widget = FluxPlotter(parent_frame, 
+                                      config=config,
+                                      base_mqtt_topic_from_path=base_mqtt_topic_from_path,
+                                      widget_id=path,
+                                      subscriber_router=subscriber_router)
         except Exception as e:
             debug_logger(message=f"❌ Failed to initialize FluxPlotter: {e}", **_get_log_args())
             raise e # Re-raise to be caught by the batch processor

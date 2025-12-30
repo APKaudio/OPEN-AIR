@@ -3,10 +3,13 @@ from tkinter import ttk
 from typing import Dict, Any, List
 import math
 import orjson
+import time # Import time for timestamp in MQTT payload
+
 from workers.mqtt.mqtt_publisher_service import publish_payload
 from workers.utils.topic_utils import get_topic
 from workers.setup.config_reader import Config
 from workers.utils.log_utils import _get_log_args
+from workers.logger.logger import debug_logger # Added import for debug_logger
 
 app_constants = Config.get_instance()
 
@@ -15,10 +18,10 @@ class HorizontalMeterWithText(ttk.Frame):
     A Tkinter widget inspired by a Visual Basic control, displaying a numerical value
     split into integer and decimal parts, visualized with progress bars and labels.
     """
-    def __init__(self, parent, config: Dict[str, Any], subscriber_router, base_mqtt_topic_from_path: str, widget_id: str, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
+    def __init__(self, parent, config: Dict[str, Any], base_mqtt_topic_from_path: str, widget_id: str, **kwargs):
+        self.subscriber_router = kwargs.pop('subscriber_router', None) # Extract subscriber_router from kwargs
+        super().__init__(parent, **kwargs)
         self.config = config
-        self.subscriber_router = subscriber_router
         self.base_mqtt_topic_from_path = base_mqtt_topic_from_path
         self.widget_id = widget_id
         
@@ -113,6 +116,27 @@ class HorizontalMeterWithText(ttk.Frame):
             self.label_value.config(foreground="black") # Assuming default foreground is black
             self.label1.config(foreground="black")
             self.label_dec.config(foreground="black")
+        
+        # Publish the new value to MQTT
+        if self.subscriber_router and app_constants.ENABLE_BUILDER_STATUS_PUBLISH:
+            try:
+                publish_topic = get_topic(self.base_mqtt_topic_from_path, self.widget_id, "value")
+                payload = {
+                    "value": new_value,
+                    "timestamp": time.time()
+                }
+                publish_payload(publish_topic, orjson.dumps(payload), retain=True)
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
+                        message=f"📢 HorizontalMeterWithText '{self.widget_id}' published value {new_value} to {publish_topic}",
+                        **_get_log_args()
+                    )
+            except Exception as e:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
+                        message=f"❌ Error publishing HorizontalMeterWithText value for '{self.widget_id}': {e}",
+                        **_get_log_args()
+                    )
 
 
 class VerticalMeter(ttk.Frame):
@@ -120,10 +144,10 @@ class VerticalMeter(ttk.Frame):
     A Tkinter widget to simulate a 4-channel vertical meter display.
     Placeholder for actual plotting, uses labels for values.
     """
-    def __init__(self, parent, config: Dict[str, Any], subscriber_router, base_mqtt_topic_from_path: str, widget_id: str, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
+    def __init__(self, parent, config: Dict[str, Any], base_mqtt_topic_from_path: str, widget_id: str, **kwargs):
+        self.subscriber_router = kwargs.pop('subscriber_router', None) # Extract subscriber_router from kwargs
+        super().__init__(parent, **kwargs)
         self.config = config
-        self.subscriber_router = subscriber_router
         self.base_mqtt_topic_from_path = base_mqtt_topic_from_path
         self.widget_id = widget_id
         self.channel_labels: List[ttk.Label] = []
@@ -171,6 +195,27 @@ class VerticalMeter(ttk.Frame):
         for i, value in enumerate(new_values):
             if i < len(self.channel_labels):
                 self.channel_labels[i].config(text=f"Ch {i+1}: {value:.2f}")
+
+        # Publish the new values to MQTT
+        if self.subscriber_router and app_constants.ENABLE_BUILDER_STATUS_PUBLISH:
+            try:
+                publish_topic = get_topic(self.base_mqtt_topic_from_path, self.widget_id, "values")
+                payload = {
+                    "values": new_values,
+                    "timestamp": time.time()
+                }
+                publish_payload(publish_topic, orjson.dumps(payload), retain=True)
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
+                        message=f"📢 VerticalMeter '{self.widget_id}' published values {new_values} to {publish_topic}",
+                        **_get_log_args()
+                    )
+            except Exception as e:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
+                        message=f"❌ Error publishing VerticalMeter values for '{self.widget_id}': {e}",
+                        **_get_log_args()
+                    )
 
 # Example usage (for testing purposes)
 if __name__ == "__main__":

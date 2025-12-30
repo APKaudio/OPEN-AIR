@@ -53,13 +53,13 @@ class PresetPusherGui(ttk.Frame):
     """
     A container frame that instantiates the DynamicGuiBuilder for the Frequency configuration.
     """
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, json_path=None, config=None, **kwargs):
         """
         Initializes the Frequency frame and the dynamic GUI builder.
         """
-        config_from_kwargs = kwargs.pop('config', {}) # Store original config to extract necessary parts
+        config_from_kwargs = kwargs.pop('config', {}) if config is None else config # Store original config to extract necessary parts
         
-        super().__init__(parent, *args, **kwargs)
+        super().__init__(parent, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
 
         # Extract state_mirror_engine and subscriber_router from the config dictionary

@@ -10,6 +10,9 @@ from typing import Dict, Any, List
 from workers.logger.logger import debug_logger
 from workers.setup.config_reader import Config
 from workers.utils.log_utils import _get_log_args
+from workers.mqtt.mqtt_publisher_service import publish_payload
+from workers.utils.topic_utils import get_topic
+import orjson
 
 app_constants = Config.get_instance()
 
@@ -19,9 +22,12 @@ class FluxPlotter(tk.Frame):
     time domain, frequency domain, or trend logger plots based on a JSON configuration.
     """
 
-    def __init__(self, parent, config: Dict[str, Any], *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
+    def __init__(self, parent, config: Dict[str, Any], base_mqtt_topic_from_path: str, widget_id: str, **kwargs):
+        self.subscriber_router = kwargs.pop('subscriber_router', None) # Extract subscriber_router from kwargs
+        super().__init__(parent, **kwargs)
         self.config = config
+        self.base_mqtt_topic_from_path = base_mqtt_topic_from_path
+        self.widget_id = widget_id
         self.plot_mode = config.get('plot_mode', 'time_domain')
         self.buffer_size = config.get('buffer_size', 100) # For trend_logger
         self.data_source = config.get('data_source', None)
@@ -40,6 +46,29 @@ class FluxPlotter(tk.Frame):
                 message=f"⚡ Plotter initialized! Mode: {self.plot_mode}, ID: {self.config.get('id', 'N/A')}",
                 **_get_log_args()
             )
+        
+        # Announce the input data topic for this plotter
+        if app_constants.ENABLE_BUILDER_STATUS_PUBLISH:
+            try:
+                announcement_topic = get_topic(self.base_mqtt_topic_from_path, self.widget_id, "input_data_announcement")
+                input_data_topic = get_topic(self.base_mqtt_topic_from_path, self.widget_id, "input_data")
+                payload = {
+                    "input_data_topic": input_data_topic,
+                    "description": f"Publish CSV-like data (x,y points) to this topic to update FluxPlotter '{self.widget_id}'. Payload format: {{'x_data': [...], 'y_data': [...]}}",
+                    "timestamp": time.time()
+                }
+                publish_payload(announcement_topic, orjson.dumps(payload), retain=True)
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
+                        message=f"📢 FluxPlotter '{self.widget_id}' announced input data topic on {announcement_topic}",
+                        **_get_log_args()
+                    )
+            except Exception as e:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
+                        message=f"❌ Error announcing input data topic for FluxPlotter '{self.widget_id}': {e}",
+                        **_get_log_args()
+                    )
 
     def _initialize_plot(self):
         """Initializes the matplotlib figure, axes, and canvas."""
@@ -143,6 +172,37 @@ class FluxPlotter(tk.Frame):
         
         self.line.set_data(list(self.x_data), list(self.y_data))
         self.fig.canvas.draw_idle()
+
+        self._publish_current_data() # Publish current data after loading
+
+    def _publish_current_data(self):
+        """Publishes the current x_data and y_data to MQTT."""
+        if app_constants.ENABLE_BUILDER_STATUS_PUBLISH: # Use the global flag
+            try:
+                topic = get_topic(self.base_mqtt_topic_from_path, self.widget_id, "data")
+                
+                # Start with a copy of the config, removing non-serializable/redundant keys
+                payload_data = {k: v for k, v in self.config.items() if k not in ["layout", "initial_csv_data", "axis", "style"]}
+                
+                # Add current data and timestamp
+                payload_data.update({
+                    "x_data": list(self.x_data),
+                    "y_data": list(self.y_data),
+                    "timestamp": time.time()
+                })
+                
+                publish_payload(topic, orjson.dumps(payload_data), retain=True)
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
+                        message=f"📢 FluxPlotter '{self.widget_id}' published current data to {topic}",
+                        **_get_log_args()
+                    )
+            except Exception as e:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(
+                        message=f"❌ Error publishing FluxPlotter data for '{self.widget_id}': {e}",
+                        **_get_log_args()
+                    )
 
     def update_plot(self, x_new: float, y_new: float):
         """
