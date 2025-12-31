@@ -11,6 +11,7 @@ import inspect
 import sys
 import importlib.util
 import pathlib
+import tkinter as tk # Explicitly import tkinter as tk
 from tkinter import ttk, Frame
 from workers.setup.config_reader import Config # Import the Config class
 
@@ -65,14 +66,11 @@ class ModuleLoader:
                 
             module = importlib.util.module_from_spec(spec)
             
-            # Add module to sys.modules
-            if module_name in sys.modules:
-                if app_constants.global_settings['debug_enabled']:
-                    debug_logger(
-                        message=f"⚠️ Temporal anomaly detected! Module '{module_name}' already exists. Overwriting...",
-                        **_get_log_args()
-                    )
-            sys.modules[module_name] = module
+            # Ensure 'tk' and 'ttk' are available in the module's global namespace
+            # This is a more robust approach than attempting to modify __builtins__
+            # or relying on its presence as a dict or the builtins module itself.
+            module.tk = tk
+            module.ttk = ttk
             
             spec.loader.exec_module(module)
             

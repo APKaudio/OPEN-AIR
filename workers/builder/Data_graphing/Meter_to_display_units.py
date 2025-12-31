@@ -1,39 +1,22 @@
-# display/Meter_to_display_units.py
-#
-# Meters for visualizing data (Horizontal and Vertical).
-# Refactored to align with StateMirrorEngine standards for MQTT topology and payloads.
-#
-# Author: Anthony Peter Kuzub
-# Blog: www.Like.audio (Contributor to this project)
-#
-# Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no charge to use, modify, or fork this software.
-#
-# Build Log: https://like.audio/category/software/spectrum-scanner/
-# Source Code: https://github.com/APKaudio/
-# Feature Requests can be emailed to i @ like . audio
-#
-# Version 20251230.181522.1
-
 import tkinter as tk
 from tkinter import ttk
-from typing import Dict, Any, List
-import math
-import orjson
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+import matplotlib.animation as animation
+from collections import deque
 import time
+import math
+from typing import Dict, Any, List
 import inspect
+import orjson # Ensure orjson is imported
 
-from workers.mqtt.mqtt_publisher_service import publish_payload
-from workers.utils.topic_utils import get_topic
+from workers.logger.logger import debug_logger
 from workers.setup.config_reader import Config
 from workers.utils.log_utils import _get_log_args
-from workers.logger.logger import debug_logger
+from workers.mqtt.mqtt_publisher_service import publish_payload
+from workers.utils.topic_utils import get_topic
+from workers.utils import worker_project_paths as app_constants
 
-app_constants = Config.get_instance()
-
-# Globals
-current_version = "20251230.181522.1"
-current_version_hash = 20251230 * 181522 * 1
 
 class HorizontalMeterWithText(ttk.Frame):
     """
@@ -56,6 +39,9 @@ class HorizontalMeterWithText(ttk.Frame):
         self.title_text = config.get('title', 'Meter')
         self.max_integer_value = config.get('max_integer_value', 100)
         
+        # --- Introduce tk.DoubleVar for state management ---
+        self.meter_value_var = tk.DoubleVar(value=config.get('value_default', 0.0))
+
         # --- UI Construction ---
         self.header_frame = ttk.Frame(self)
         self.header_frame.pack(side=tk.TOP, fill=tk.X)
@@ -86,16 +72,15 @@ class HorizontalMeterWithText(ttk.Frame):
         self.label_dec = ttk.Label(self.dec_frame, text="Dec: --", width=8, anchor="w")
         self.label_dec.pack(side=tk.RIGHT, padx=2)
         
-        # Initialize
-        self.update_value(config.get('value_default', 0.0))
+        # Bind update logic to the meter_value_var's trace
+        self.meter_value_var.trace_add("write", self._on_meter_value_var_change)
+        # Initial display update
+        self._on_meter_value_var_change()
 
-        # 📡 Subscribe to Updates
-        if self.subscriber_router:
-            base_topic = self.state_mirror_engine.base_topic if self.state_mirror_engine else "OPEN-AIR"
-            update_topic_suffix = config.get('update_topic_suffix', "set_value")
-            # Subscription topic usually includes a specific command suffix (like 'set_value')
-            self.update_topic = get_topic(base_topic, self.base_mqtt_topic_from_path, self.widget_id, update_topic_suffix)
-            self.subscriber_router.subscribe_to_topic(self.update_topic, self._on_value_mqtt_update)
+        # 📡 Register with StateMirrorEngine (handles subscription automatically)
+        if self.state_mirror_engine:
+            self.state_mirror_engine.register_widget(self.widget_id, self.meter_value_var, self.base_mqtt_topic_from_path, self.config)
+            self.state_mirror_engine.initialize_widget_state(self.widget_id)
 
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
@@ -103,36 +88,9 @@ class HorizontalMeterWithText(ttk.Frame):
                 **_get_log_args()
             )
 
-    def _on_value_mqtt_update(self, topic, payload):
-        """Handles incoming MQTT messages, supporting both raw and enveloped data."""
-        try:
-            data = orjson.loads(payload)
-            val = 0.0
-            
-            # 🕵️ Unwrap Standard Envelope
-            if isinstance(data, dict):
-                if 'val' in data:
-                    # 🛑 Infinite Loop Protection
-                    if data.get('instance_id') == self.instance_id:
-                        return
-                    val = float(data['val'])
-                elif 'value' in data:
-                    val = float(data['value'])
-                else:
-                    # Fallback if raw number sent as json
-                    # This might fail if data is complex, but meters expect numbers
-                    pass
-            else:
-                # Direct value
-                val = float(data)
-
-            self.update_value(val)
-            
-        except (orjson.JSONDecodeError, ValueError, TypeError) as e:
-            if app_constants.global_settings['debug_enabled']:
-                debug_logger(f"❌ Error processing MQTT for {self.widget_id}: {e}", **_get_log_args())
-
-    def update_value(self, new_value: float):
+    def _on_meter_value_var_change(self, *args):
+        """Callback for when meter_value_var changes (from internal or MQTT)."""
+        new_value = self.meter_value_var.get()
         # Update UI
         self.label_value.config(text=f"Value: {new_value:.3f}")
         truncated_value = math.trunc(new_value)
@@ -147,21 +105,20 @@ class HorizontalMeterWithText(ttk.Frame):
         else:
             self.label_value.config(foreground="black")
         
-        # 🚀 Publish Standardized State
+        # 🚀 Publish Standardized State (only if initiated by user interaction, not self-echo)
+        # The _silent_update mechanism in StateMirrorEngine handles preventing echoes
         try:
-            base_topic = self.state_mirror_engine.base_topic if self.state_mirror_engine else "OPEN-AIR"
-            
-            # FIXED: Publish to the Widget Root, not a subfolder (unless configured otherwise)
-            # This aligns with standard Faders/Buttons.
-            topic = get_topic(base_topic, self.base_mqtt_topic_from_path, self.widget_id)
-            
-            payload = {
-                "val": new_value,
-                "ts": time.time(),
-                "instance_id": self.instance_id,
-                "src": "HorizontalMeter"
-            }
-            publish_payload(topic, orjson.dumps(payload), retain=True)
+            if self.state_mirror_engine and not self.state_mirror_engine._silent_update:
+                base_topic = self.state_mirror_engine.base_topic if self.state_mirror_engine else "OPEN-AIR"
+                topic = get_topic(base_topic, self.base_mqtt_topic_from_path, self.widget_id)
+                
+                payload = {
+                    "val": new_value,
+                    "ts": time.time(),
+                    "instance_id": self.instance_id,
+                    "src": "HorizontalMeter"
+                }
+                publish_payload(topic, orjson.dumps(payload), retain=True)
             
         except Exception as e:
             if app_constants.global_settings['debug_enabled']:
@@ -188,71 +145,58 @@ class VerticalMeter(ttk.Frame):
         self.channel_labels: List[ttk.Label] = []
         num_channels = config.get('num_channels', 4)
 
+        # Introduce a tk.StringVar to hold the JSON string of values
+        self.meter_values_var = tk.StringVar(value=orjson.dumps([config.get('value_default', 0.0)] * num_channels).decode())
+
         for i in range(num_channels):
             label = ttk.Label(self, text=f"Ch {i+1}: --", anchor="w")
             label.pack(side=tk.TOP, fill=tk.X, pady=1)
             self.channel_labels.append(label)
         
-        initial_values = [config.get('value_default', 0.0)] * num_channels
-        self.update_values(initial_values)
+        # Bind update logic to the meter_values_var's trace
+        self.meter_values_var.trace_add("write", self._on_meter_values_var_change)
+        # Initial display update
+        self._on_meter_values_var_change()
 
-        if self.subscriber_router:
-            base_topic = self.state_mirror_engine.base_topic if self.state_mirror_engine else "OPEN-AIR"
-            update_topic_suffix = config.get('update_topic_suffix', "set_values")
-            self.update_topic = get_topic(base_topic, self.base_mqtt_topic_from_path, self.widget_id, update_topic_suffix)
-            self.subscriber_router.subscribe_to_topic(self.update_topic, self._on_values_mqtt_update)
+        # 📡 Register with StateMirrorEngine (handles subscription automatically)
+        if self.state_mirror_engine:
+            self.state_mirror_engine.register_widget(self.widget_id, self.meter_values_var, self.base_mqtt_topic_from_path, self.config)
+            self.state_mirror_engine.initialize_widget_state(self.widget_id)
 
-    def _on_values_mqtt_update(self, topic, payload):
-        """Handles incoming MQTT messages, supporting both raw and enveloped data."""
+    def _on_meter_values_var_change(self, *args):
+        """Callback for when meter_values_var changes (from internal or MQTT)."""
+        new_values_json = self.meter_values_var.get()
         try:
-            data = orjson.loads(payload)
-            new_values = []
-
-            # 🕵️ Unwrap Standard Envelope
-            if isinstance(data, dict):
-                if 'val' in data:
-                     # 🛑 Infinite Loop Protection
-                    if data.get('instance_id') == self.instance_id:
-                        return
-                    raw_val = data['val']
-                    if isinstance(raw_val, list):
-                        new_values = [float(v) for v in raw_val]
-                elif 'values' in data:
-                    new_values = [float(v) for v in data['values']]
-            elif isinstance(data, list):
-                new_values = [float(v) for v in data]
-
-            if new_values:
-                self.update_values(new_values)
+            new_values = orjson.loads(new_values_json)
+            if not isinstance(new_values, list):
+                raise ValueError("Expected list of values.")
+            
+            # Update UI
+            for i, value in enumerate(new_values):
+                if i < len(self.channel_labels):
+                    self.channel_labels[i].config(text=f"Ch {i+1}: {float(value):.2f}")
+            
+            # 🚀 Publish Standardized State (only if initiated by user interaction, not self-echo)
+            try:
+                if self.state_mirror_engine and not self.state_mirror_engine._silent_update:
+                    base_topic = self.state_mirror_engine.base_topic if self.state_mirror_engine else "OPEN-AIR"
+                    topic = get_topic(base_topic, self.base_mqtt_topic_from_path, self.widget_id)
+                    
+                    payload = {
+                        "val": new_values, # The list is now the main 'val'
+                        "ts": time.time(),
+                        "instance_id": self.instance_id,
+                        "src": "VerticalMeter"
+                    }
+                    publish_payload(topic, orjson.dumps(payload), retain=True)
                 
+            except Exception as e:
+                if app_constants.global_settings['debug_enabled']:
+                    debug_logger(f"❌ Error publishing values for {self.widget_id}: {e}", **_get_log_args())
+
         except (orjson.JSONDecodeError, ValueError, TypeError) as e:
             if app_constants.global_settings['debug_enabled']:
-                debug_logger(f"❌ Error processing MQTT update for {self.widget_id}: {e}", **_get_log_args())
-
-    def update_values(self, new_values: List[float]):
-        # Update UI
-        for i, value in enumerate(new_values):
-            if i < len(self.channel_labels):
-                self.channel_labels[i].config(text=f"Ch {i+1}: {value:.2f}")
-        
-        # 🚀 Publish Standardized State
-        try:
-            base_topic = self.state_mirror_engine.base_topic if self.state_mirror_engine else "OPEN-AIR"
-            
-            # FIXED: Publish to Widget Root
-            topic = get_topic(base_topic, self.base_mqtt_topic_from_path, self.widget_id)
-            
-            payload = {
-                "val": new_values, # The list is now the main 'val'
-                "ts": time.time(),
-                "instance_id": self.instance_id,
-                "src": "VerticalMeter"
-            }
-            publish_payload(topic, orjson.dumps(payload), retain=True)
-            
-        except Exception as e:
-            if app_constants.global_settings['debug_enabled']:
-                debug_logger(f"❌ Error publishing values for {self.widget_id}: {e}", **_get_log_args())
+                debug_logger(f"❌ Error processing meter_values_var: {e}", **_get_log_args())
 
 if __name__ == "__main__":
     # Example usage remains the same

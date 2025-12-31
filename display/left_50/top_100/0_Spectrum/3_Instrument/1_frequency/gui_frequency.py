@@ -41,7 +41,7 @@ current_path = pathlib.Path(__file__).resolve()
 # Automatically turns 'gui_yak_bandwidth' into 'OPEN-AIR/yak/bandwidth'
 module_name = current_path.stem.replace('gui_', '')
 
-class GenericInstrumentGui(ttk.Frame):
+class GenericInstrumentGui(tk.ttk.Frame):
     """
     A generic GUI wrapper that loads a JSON configuration to build its interface.
     Now safely handles arguments from ModuleLoader and fails gracefully.

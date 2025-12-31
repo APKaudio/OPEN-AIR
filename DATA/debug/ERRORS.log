@@ -1,8 +1,7 @@
-1767159783.657294❌🔴 Great Scott! The wrapper has failed to contain the builder! The Blueprint is missing! Cannot find JSON at: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/9_Distortion/1_Instrument/gui_dc_load.json
-
-🕵️ FORENSIC TRACE:
-Traceback (most recent call last):
-  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/9_Distortion/1_Instrument/gui_dc_load.py", line 125, in _construct_dynamic_gui
-    raise FileNotFoundError(f"The Blueprint is missing! Cannot find JSON at: {self.json_path}")
-FileNotFoundError: The Blueprint is missing! Cannot find JSON at: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/9_Distortion/1_Instrument/gui_dc_load.json
- ❌ gui dc load🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767162106.793447❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py': module 'gui_frequency' has no attribute '__builtins__'. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767162106.793523❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767162106.848423❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py': module 'gui_start_pause_stop' has no attribute '__builtins__'. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767162106.848453❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767162106.855248❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py': module 'gui_Connection_Manager' has no attribute '__builtins__'. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767162106.855281❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767162168.317432❌ Error in _create_gui_listbox for 'Found_devices': cannot access local variable 'get_topic' where it is not associated with a value ❌ dynamic gui create gui listbox🪿  create gui listbox  🧩 {'version': '20251213.120000.44'}
