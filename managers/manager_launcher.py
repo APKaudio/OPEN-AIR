@@ -15,22 +15,29 @@ from managers.yak.yak_translator import YakTranslator # Import YakTranslator
 from managers.yak.manager_yak_rx import YakRxManager # Import YakRxManager
 
 
-def launch_managers(app, splash, root): # Removed scpi_dispatcher
+def launch_managers(app, splash, root, state_cache_manager, mqtt_connection_manager): # Removed scpi_dispatcher, added mqtt_connection_manager
     current_function_name = inspect.currentframe().f_code.co_name
     debug_logger(message=f"🟢️️️🟢 Entering '{current_function_name}'. Preparing to launch a fleet of managers!", **_get_log_args())
     splash.set_status("Initializing managers...")
 
     try:
         # 1. Initialize MQTT Core Components
-        mqtt_connection_manager = MqttConnectionManager()
         subscriber_router = MqttSubscriberRouter()
-        state_mirror_engine = StateMirrorEngine(base_topic="OPEN-AIR", subscriber_router=subscriber_router, root=root)
+        state_mirror_engine = StateMirrorEngine(base_topic="OPEN-AIR", subscriber_router=subscriber_router, root=root, state_cache_manager=state_cache_manager)
+        
+        # Pass subscriber_router to state_cache_manager and initialize
+        state_cache_manager.subscriber_router = subscriber_router
+        state_cache_manager.state_mirror_engine = state_mirror_engine
+        state_cache_manager.initialize_state()
         
         # Connect MQTT Client (if not already connected by Application)
         mqtt_connection_manager.connect_to_broker(
-            on_message_callback=subscriber_router.get_on_message_callback(),
+            on_message_callback=state_cache_manager.handle_incoming_mqtt,
             subscriber_router=subscriber_router
         )
+        
+        # Subscribe state_cache_manager to all topics
+        state_cache_manager.subscribe_to_all_topics()
 
         # 2. Initialize Visa Manager Orchestrator
         visa_orchestrator = VisaManagerOrchestrator(

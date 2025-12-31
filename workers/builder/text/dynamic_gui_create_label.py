@@ -24,10 +24,10 @@ import inspect
 from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args
 from workers.setup.config_reader import Config # Import the Config class                                                                          
+from workers.utils.topic_utils import get_topic
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.handlers.widget_event_binder import bind_variable_trace
-from workers.utils.topic_utils import get_topic
 
 current_version = "20251127.000000.1"
 current_version_hash = (20251127 * 0 * 1)
@@ -71,16 +71,16 @@ class LabelCreatorMixin:
                     # 1. Register widget
                     state_mirror_engine.register_widget(widget_id, label_var, base_mqtt_topic_from_path, config)
 
-                    # 2. Bind variable trace for outgoing messages
-                    callback = lambda *args: state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id) # Added *args
-                    bind_variable_trace(label_var, callback)
-
-                    # 3. Subscribe to topic for incoming messages
+                    # 2. Subscribe to topic for incoming messages
                     topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
                     subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
 
-                    # 4. Broadcast initial state
-                    state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
+                    # 3. Bind variable trace for outgoing messages
+                    callback = lambda *args: state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id) # Added *args
+                    bind_variable_trace(label_var, callback)
+
+                    # 4. Initialize state from cache or broadcast
+                    state_mirror_engine.initialize_widget_state(widget_id)
 
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(

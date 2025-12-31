@@ -1,0 +1,92 @@
+{
+  "set": {
+    "type": "OcaBlock",
+    "description": "Digital I/O Configuration",
+    "fields": {
+      "Digital_Input_Source": {
+        "type": "OcaBlock",
+        "description": "Select Digital Input Connector",
+        "fields": {
+          "Select_DIN_XLR": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":DINPut XLR",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Select_DIN_BNC": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":DINPut BNC",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Select_DIN_Optical": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":DINPut OPTical",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Select_DIN_Generator": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":DINPut GENerator",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          }
+        }
+      },
+      "Digital_Output_Control": {
+        "type": "OcaBlock",
+        "description": "Digital Output State",
+        "fields": {
+          "Set_DOUT_ON": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":DOUTput ON",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Set_DOUT_OFF": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":DOUTput OFF",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -107,8 +107,8 @@ class GuiButtonToggleCreatorMixin:
                 topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
                 subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
 
-                # 5. Broadcast initial state
-                state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
+                # 5. Initialize the widget's state from the cache or broadcast.
+                state_mirror_engine.initialize_widget_state(widget_id)
 
 
             if app_constants.global_settings['debug_enabled']:

@@ -173,6 +173,10 @@ class CustomFaderCreatorMixin:
             
             # Update the Tkinter variable, triggering a redraw
             frame.variable.set(current_value)
+
+            # Broadcast the change from the user interaction
+            if state_mirror_engine:
+                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
             
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
@@ -199,6 +203,7 @@ class CustomFaderCreatorMixin:
             # Force canvas to match theme background so it blends in
             canvas = tk.Canvas(frame, width=width, height=height, bg=bg_color, highlightthickness=0)
             canvas.pack(fill=tk.BOTH, expand=True)
+            canvas.update_idletasks()
 
             # Value Label for Fader
             value_label = ttk.Label(frame, text=f"{int(fader_value_var.get())}", font=("Helvetica", 8))
@@ -206,6 +211,7 @@ class CustomFaderCreatorMixin:
 
             def on_fader_value_change(*args):
                 current_fader_val = fader_value_var.get()
+                
                 self._draw_fader(frame, canvas, canvas.winfo_width(), canvas.winfo_height(), 
                                  current_fader_val)
                 
@@ -218,9 +224,6 @@ class CustomFaderCreatorMixin:
                 else:
                     active_color = "white" # Hardcoded for now, could be frame.handle_col
                 value_label.config(text=f"{int(current_fader_val)}", foreground=active_color)
-                
-                if state_mirror_engine:
-                    state_mirror_engine.broadcast_gui_change_to_mqtt(path)
                 
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
@@ -246,17 +249,20 @@ class CustomFaderCreatorMixin:
 
             # Register the StringVar with the StateMirrorEngine for MQTT updates
             if path:
-                state_mirror_engine.register_widget(path, fader_value_var, base_mqtt_topic_from_path, config)
+                widget_id = path
+                state_mirror_engine.register_widget(widget_id, fader_value_var, base_mqtt_topic_from_path, config)
+                
+                # Subscribe to the topic for incoming messages
+                topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
+                subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
+
                 if app_constants.global_settings['debug_enabled']:
                                 debug_logger(
                                     message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {fader_value_var.get()}).",
                                     **_get_log_args()
                                 )
-                            # Broadcast initial state
-                state_mirror_engine.broadcast_gui_change_to_mqtt(path)            
-            
-            subscriber_router.subscribe_to_topic(f"{base_mqtt_topic_from_path}/set", lambda msg: fader_value_var.set(float(msg.payload.decode())))
-         #
+                # Initialize state from cache or broadcast
+                state_mirror_engine.initialize_widget_state(path)
 
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(

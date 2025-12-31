@@ -11,6 +11,8 @@ from workers.utils.log_utils import _get_log_args
 import os
 from workers.setup.path_initializer import GLOBAL_PROJECT_ROOT
 
+from workers.utils.topic_utils import get_topic # Import get_topic
+
 class ImageDisplayCreatorMixin:
     def _create_image_display(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
         """Creates an image display widget that is state-aware."""
@@ -60,14 +62,20 @@ class ImageDisplayCreatorMixin:
         update_image() # Initial update
 
         if path:
-            state_mirror_engine.register_widget(path, image_path_var, base_mqtt_topic_from_path, config)
+            widget_id = path
+            state_mirror_engine.register_widget(widget_id, image_path_var, base_mqtt_topic_from_path, config)
+            
+            # Subscribe to the topic for incoming messages
+            topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
+            subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
+
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
                     message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine.",
                     **_get_log_args()
                 )
-            # Broadcast initial state
-            state_mirror_engine.broadcast_gui_change_to_mqtt(path)
+            # Initialize state from cache or broadcast
+            state_mirror_engine.initialize_widget_state(path)
         
         if app_constants.global_settings['debug_enabled']:
             debug_logger(

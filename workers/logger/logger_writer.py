@@ -51,7 +51,7 @@ def set_log_directory_for_writer(directory: str):
         except OSError as e:
             print(f"❌ Error creating log directory for writer: {e}")
 
-def write_log_to_file(timestamp: str, level: str, message: str, context_data: dict):
+def write_log_to_file(timestamp: str, level: str, message: str, context_data: dict, log_file_timestamp: str):
     """
     Writes a general log message to a timestamped file.
     Filters out Watchdog/Heartbeat messages.
@@ -70,9 +70,8 @@ def write_log_to_file(timestamp: str, level: str, message: str, context_data: di
         return
 
     try:
-        # Filename format: YYYYMMDDHHMM.log
-        file_time_str = datetime.fromtimestamp(float(timestamp)).strftime("%Y%m%d%H%M")
-        log_filename = f"📍🐛{file_time_str}.log"
+        # Filename format: 📍🐛YYYYMMDDHHMMSS.log
+        log_filename = f"📍🐛{log_file_timestamp}.log"
         file_path = os.path.join(_log_directory, log_filename)
         
         c_file = context_data.get('file', '?')

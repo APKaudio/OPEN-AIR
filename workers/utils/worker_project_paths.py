@@ -61,6 +61,7 @@ except Exception as e:
 # FIX: Correctly constructs path relative to the project root.
 MARKERS_JSON_PATH = GLOBAL_PROJECT_ROOT / "DATA" / "MARKERS.json"
 MARKERS_CSV_PATH = GLOBAL_PROJECT_ROOT / "DATA" / "MARKERS.csv"
+DEVICE_STATE_SNAPSHOT_PATH = GLOBAL_PROJECT_ROOT / "DATA" / "device_state_snapshot.json"
 YAKETY_YAK_REPO_PATH = GLOBAL_PROJECT_ROOT / "DATA" / "YAKETYYAK.json"
 PRESET_REPO_PATH = GLOBAL_PROJECT_ROOT / "DATA" / "PRESET.csv"
 

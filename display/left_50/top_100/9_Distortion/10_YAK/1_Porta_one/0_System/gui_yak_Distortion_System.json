@@ -1,0 +1,55 @@
+{
+  "Do": {
+    "type": "OcaBlock",
+    "description": "System Actions",
+    "fields": {
+      "Output_Control": {
+        "type": "OcaBlock",
+        "description": "Master Generator Output",
+        "fields": {
+          "Do_Output_ON": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "OUTPUT ON",
+            "Execute Command": { "message": ":OUTPut ON" }
+          },
+          "Do_Output_OFF": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "OUTPUT OFF",
+            "Execute Command": { "message": ":OUTPut OFF" }
+          }
+        }
+      },
+      "System_Utilities": {
+        "type": "OcaBlock",
+        "description": "Global Utilities",
+        "fields": {
+          "Do_Reset": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "RESET (*RST)",
+            "Execute Command": { "message": "*RST" }
+          },
+          "Do_Clear_Status": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "CLS (*CLS)",
+            "Execute Command": { "message": "*CLS" }
+          },
+          "Do_Display_Panel": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "Display Panel",
+            "Execute Command": { "message": ":DISPlay PANel" }
+          }
+        }
+      }
+    }
+  }
+}

@@ -40,6 +40,8 @@ from workers.setup.config_reader import Config # Import the Config class
 
 app_constants = Config.get_instance() # Get the singleton instance      
 
+from workers.utils.topic_utils import get_topic
+
 # The wrapper functions debug_log and _switch are removed
 # as the core debug_log and  now directly handle LOCAL_DEBUG_ENABLE.
 
@@ -109,14 +111,20 @@ class GuiCheckboxCreatorMixin:
 
             # Store the widget and its state variable for external updates.
             if path:
-                state_mirror_engine.register_widget(path, state_var, base_mqtt_topic_from_path, config)
+                widget_id = path
+                state_mirror_engine.register_widget(widget_id, state_var, base_mqtt_topic_from_path, config)
+
+                # Subscribe to this widget's topic to receive updates
+                topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
+                subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
+
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (BooleanVar: {state_var.get()}).",
                         **_get_log_args()
                     )
-                # Broadcast initial state
-                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
+                # Initialize state from cache or broadcast
+                state_mirror_engine.initialize_widget_state(path)
 
 
             if app_constants.global_settings['debug_enabled']:

@@ -17,6 +17,7 @@ from workers.logger.logger_display import display_debug_message_on_terminal, dis
 # --- GLOBALS (Managed by this main logger module) ---
 _log_directory = None
 _config_instance_cache = None
+_log_file_timestamp = None
 
 def _get_config_instance():
     """
@@ -83,8 +84,10 @@ def set_log_directory(directory: str):
     any buffered messages to their destinations (terminal, file, error log)
     based on current configuration.
     """
-    global _log_directory
+    global _log_directory, _log_file_timestamp
     _log_directory = directory
+    if _log_file_timestamp is None:
+        _log_file_timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     
     # Delegate directory creation to the writer module.
     set_log_directory_for_writer(_log_directory)
@@ -106,7 +109,7 @@ def set_log_directory(directory: str):
             
             # 2. Write to regular log file
             if config_instance.global_settings.get('debug_to_file', False):
-                write_log_to_file(timestamp, level, message, context_data)
+                write_log_to_file(timestamp, level, message, context_data, _log_file_timestamp)
             
             # 3. Write to error log file if it's an error
             if is_error and config_instance.global_settings.get('debug_to_file', False):
@@ -170,7 +173,7 @@ def debug_logger(message: str, **kwargs):
         
         # 2. Write to regular log file if enabled.
         if config_instance.global_settings.get('debug_to_file', False):
-            write_log_to_file(current_ts, level, message, context_data_for_log)
+            write_log_to_file(current_ts, level, message, context_data_for_log, _log_file_timestamp)
         
         # 3. Write to error log file if it's an error and file logging is enabled.
         if is_error and config_instance.global_settings.get('debug_to_file', False):

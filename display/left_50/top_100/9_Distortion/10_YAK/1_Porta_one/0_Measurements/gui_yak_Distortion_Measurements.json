@@ -1,0 +1,135 @@
+{
+  "set": {
+    "type": "OcaBlock",
+    "description": "Measurement Units & Setup",
+    "fields": {
+      "Analyzer_Units": {
+        "type": "OcaBlock",
+        "description": "Select Output Unit (M1/M2)",
+        "fields": {
+          "Set_Unit_Volts": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":AUNits V",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Set_Unit_dBm": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":AUNits DBM",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Set_Unit_dBu": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":AUNits DBU",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Set_Unit_dBV": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":AUNits DBV",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Set_Unit_Watts": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":AUNits W",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          }
+        }
+      },
+      "Read_Modes": {
+        "type": "OcaBlock",
+        "description": "Read Commands",
+        "fields": {
+          "Read_Ch_A_Only": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": "M1?",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Outputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "val_a": { "value": "Ch A Value", "type": "_Value" }
+                }
+              }
+            }
+          },
+          "Read_Ch_B_Only": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": "M2?",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Outputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "val_b": { "value": "Ch B Value", "type": "_Value" }
+                }
+              }
+            }
+          },
+          "Read_Stereo_AB": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": "M1?;M2?",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Outputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "val_a": { "value": "Ch A Value", "type": "_Value" },
+                  "val_b": { "value": "Ch B Value", "type": "_Value" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

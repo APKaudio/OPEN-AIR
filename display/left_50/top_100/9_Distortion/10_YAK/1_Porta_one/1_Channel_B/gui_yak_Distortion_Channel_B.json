@@ -1,0 +1,38 @@
+{
+  "set": {
+    "type": "OcaBlock",
+    "description": "Channel B Configuration",
+    "fields": {
+      "Input_Selection_B": {
+        "type": "OcaBlock",
+        "description": "Route signals to Analyzer B",
+        "fields": {
+          "Select_Input_Analog_B": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":INPut B",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Select_Input_Gen_Monitor_B": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":INPut GENB",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

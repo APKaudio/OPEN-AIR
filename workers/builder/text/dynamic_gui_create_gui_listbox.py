@@ -167,8 +167,15 @@ class GuiListboxCreatorMixin:
             listbox.bind("<<ListboxSelect>>", on_select)
 
             if path:
+                widget_id = path
                 # Register the StringVar with the StateMirrorEngine for MQTT updates
-                state_mirror_engine.register_widget(path, self.selected_option_var, base_mqtt_topic_from_path, config)
+                state_mirror_engine.register_widget(widget_id, self.selected_option_var, base_mqtt_topic_from_path, config)
+                
+                # Subscribe to this widget's topic to receive updates for its selected value
+                from workers.utils.topic_utils import get_topic
+                topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
+                subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
+
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (StringVar: {self.selected_option_var.get()}).",
@@ -179,8 +186,8 @@ class GuiListboxCreatorMixin:
                 callback = lambda *args: state_mirror_engine.broadcast_gui_change_to_mqtt(path)
                 self.selected_option_var.trace_add("write", callback)
 
-                # Broadcast initial state of the selected_option_var
-                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
+                # Initialize state of the selected_option_var from cache or broadcast
+                state_mirror_engine.initialize_widget_state(path)
 
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(

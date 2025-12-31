@@ -27,35 +27,16 @@ current_version = "20251225.004500.1"
 current_version_hash = 20251225 * 4500 * 1
 
 class StateMirrorEngine:
-    def __init__(self, base_topic, subscriber_router, root):
+    def __init__(self, base_topic, subscriber_router, root, state_cache_manager):
         self.base_topic = base_topic
         self.subscriber_router = subscriber_router
-        self.root = root  # The main tkinter root window
-        self.registered_widgets = {} # Map topic -> (tk_variable, tab_name)
-        self.instance_id = str(uuid.uuid4()) # Unique ID for this GUI instance
-        self._silent_update = False # Flag to prevent feedback loops when updating GUI from MQTT
-        self.update_queue = queue.Queue() # Thread-safe queue for GUI updates
-
-        # Start the queue processing loop
+        self.root = root
+        self.state_cache_manager = state_cache_manager
+        self.registered_widgets = {}
+        self.instance_id = str(uuid.uuid4())
+        self._silent_update = False
+        self.update_queue = queue.Queue()
         self.root.after(100, self._process_queue)
-
-        # We must listen to the very timeline we are creating!
-        self._subscribe_to_timeline()
-
-    def _subscribe_to_timeline(self):
-        """
-        Subscribes to the entire hierarchy of this engine's domain.
-        """
-        wildcard_topic = f"{self.base_topic}/#"
-        if app_constants.global_settings['debug_enabled']:
-            debug_logger(
-                message=f"🧪 Great Scott! Attaching electrodes to the timeline! Subscribing to: {wildcard_topic}",
-                **_get_log_args()
-            )
-        self.subscriber_router.subscribe_to_topic(
-            topic_filter=wildcard_topic, 
-            callback_func=self.sync_incoming_mqtt_to_gui
-        )
 
     def _process_queue(self):
         """
@@ -71,14 +52,12 @@ class StateMirrorEngine:
                         **_get_log_args()
                     )
                 
-                # Use the silent_update flag to prevent the trace from causing a broadcast
                 self._silent_update = True
                 try:
                     tk_var.set(value)
                 finally:
                     self._silent_update = False
         finally:
-            # Reschedule the next check
             self.root.after(100, self._process_queue)
 
     def register_widget(self, widget_id, tk_variable, tab_name, config):
@@ -91,8 +70,93 @@ class StateMirrorEngine:
             "var": tk_variable,
             "tab": tab_name,
             "id": widget_id,
-            "config": config # Store the config here
+            "config": config
         }
+
+    def initialize_widget_state(self, widget_id):
+        """
+        Initializes a widget's state. If the state exists in the cache,
+        it updates the widget. Otherwise, it broadcasts the widget's
+        initial state.
+        """
+        found_widget_info = None
+        found_full_topic = None
+
+        for full_topic, widget_info in self.registered_widgets.items():
+            if widget_info["id"] == widget_id:
+                found_widget_info = widget_info
+                found_full_topic = full_topic
+                break
+        
+        if not (found_widget_info and found_full_topic):
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
+                    message=f"⚠️ Attempted to initialize state for unregistered widget_id: {widget_id}",
+                    **_get_log_args()
+                )
+            return
+
+        if self.state_cache_manager and found_full_topic in self.state_cache_manager.cache:
+            # State exists in cache, so update the GUI widget
+            cached_payload = self.state_cache_manager.cache[found_full_topic]
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
+                    message=f"🧠 Found cached state for {widget_id}. Applying from snapshot.",
+                    **_get_log_args()
+                )
+
+            # Re-using logic from sync_incoming_mqtt_to_gui
+            try:
+                data = cached_payload # The cache stores a dict, not a JSON string
+                tk_var = found_widget_info["var"]
+                new_value = data.get("val", None)
+                
+                current_val = tk_var.get()
+                
+                if str(current_val) != str(new_value):
+                    widget_config = found_widget_info["config"]
+                    widget_type = widget_config.get("type")
+                    
+                    final_value = None
+
+                    if widget_type == '_GuiButtonToggle':
+                        if isinstance(new_value, bool):
+                            final_value = new_value
+                        else:
+                            if str(new_value).lower() in ('true', '1', 'on'):
+                                final_value = True
+                            elif str(new_value).lower() in ('false', '0', 'off'):
+                                final_value = False
+                    
+                    elif widget_type in ['_CustomFader', '_sliderValue', '_Knob', '_VUMeter', '_NeedleVUMeter', '_Panner']:
+                        try:
+                            new_value_float = float(new_value)
+                            min_val = float(widget_config.get("min", -1e9))
+                            max_val = float(widget_config.get("max", 1e9))
+                            final_value = max(min_val, min(max_val, new_value_float))
+                        except (ValueError, TypeError):
+                            return
+                    else:
+                        final_value = new_value
+
+                    if final_value is not None:
+                        # Put the update task into the queue instead of calling .set() directly
+                        self.update_queue.put((tk_var, final_value, widget_id))
+
+            except Exception as e:
+                debug_logger(
+                    message=f"❌ Error applying cached state for {widget_id}: {e}",
+                    **_get_log_args()
+                )
+
+        else:
+            # State does not exist in cache, so broadcast initial state
+            if app_constants.global_settings['debug_enabled']:
+                debug_logger(
+                    message=f"🧠 No cached state for {widget_id}. Broadcasting initial state.",
+                    **_get_log_args()
+                )
+            self.broadcast_gui_change_to_mqtt(widget_id)
 
     def broadcast_gui_change_to_mqtt(self, widget_id):
         """
@@ -161,16 +225,20 @@ class StateMirrorEngine:
         It validates the message and puts the required GUI update into a thread-safe queue.
         """
         try:
-            if isinstance(payload, bytes):
-                payload_str = payload.decode("utf-8")
+            data = None
+            if isinstance(payload, dict):
+                data = payload
             else:
-                payload_str = str(payload)
-            
-            stripped_payload = payload_str.strip()
-            if not stripped_payload.startswith(('{', '[')):
-                return
-            
-            data = orjson.loads(stripped_payload)
+                if isinstance(payload, bytes):
+                    payload_str = payload.decode("utf-8")
+                else:
+                    payload_str = str(payload)
+                
+                stripped_payload = payload_str.strip()
+                if not stripped_payload.startswith(('{', '[')):
+                    return
+                
+                data = orjson.loads(stripped_payload)
             
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(

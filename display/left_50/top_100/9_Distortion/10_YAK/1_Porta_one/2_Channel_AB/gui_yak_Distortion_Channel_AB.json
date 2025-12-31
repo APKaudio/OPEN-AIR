@@ -1,0 +1,98 @@
+{
+  "set": {
+    "type": "OcaBlock",
+    "description": "Global Analyzer Functions",
+    "fields": {
+      "Function_Selection": {
+        "type": "OcaBlock",
+        "description": "Select Measurement Mode",
+        "fields": {
+          "Mode_Amplitude": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion AMPLitude",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Mode_Noise": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion NOISE",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Mode_THD_N": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion THD",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Mode_Level_Stereo": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion LEVel",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Mode_Crosstalk": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion XTALK",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Mode_Phase": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion PHASE",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Mode_SINAD": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion SINad",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

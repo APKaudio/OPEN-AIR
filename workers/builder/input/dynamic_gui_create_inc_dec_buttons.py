@@ -3,6 +3,7 @@
 import tkinter as tk
 from tkinter import ttk
 from workers.setup.config_reader import Config # Import the Config class                                                                          
+from workers.utils.topic_utils import get_topic
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.logger.logger import  debug_logger
@@ -58,14 +59,18 @@ class IncDecButtonsCreatorMixin:
                 
                 # 1. Register widget
                 state_mirror_engine.register_widget(widget_id, current_value, base_mqtt_topic_from_path, config)
+
+                # 2. Subscribe to this widget's topic to receive updates
+                topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
+                subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
     
-                # 2. Bind variable trace for outgoing messages
+                # 3. Bind variable trace for outgoing messages
                 # Use a lambda that calls broadcast_gui_change_to_mqtt
                 callback = lambda *args: state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
                 current_value.trace_add("write", callback)
 
-                # 3. Broadcast initial state
-                state_mirror_engine.broadcast_gui_change_to_mqtt(widget_id)
+                # 4. Initialize state from cache or broadcast
+                state_mirror_engine.initialize_widget_state(widget_id)
     
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(

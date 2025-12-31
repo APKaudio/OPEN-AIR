@@ -1,2 +1,8 @@
-1767151711.808151🗑️ Attempting to delete: /home/anthony/Documents/OPEN-AIR/DATA/debug/ERRORS.log ❌ debug cleaner🪿 clear debug directory  🧩 {'version': 'Unknown_Ver'}
-1767151711.808163🗑️ Successfully deleted: /home/anthony/Documents/OPEN-AIR/DATA/debug/ERRORS.log ❌ debug cleaner🪿 clear debug directory  🧩 {'version': 'Unknown_Ver'}
+1767159783.657294❌🔴 Great Scott! The wrapper has failed to contain the builder! The Blueprint is missing! Cannot find JSON at: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/9_Distortion/1_Instrument/gui_dc_load.json
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/9_Distortion/1_Instrument/gui_dc_load.py", line 125, in _construct_dynamic_gui
+    raise FileNotFoundError(f"The Blueprint is missing! Cannot find JSON at: {self.json_path}")
+FileNotFoundError: The Blueprint is missing! Cannot find JSON at: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/9_Distortion/1_Instrument/gui_dc_load.json
+ ❌ gui dc load🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}

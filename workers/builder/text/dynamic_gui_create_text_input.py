@@ -3,6 +3,7 @@
 import tkinter as tk
 from tkinter import ttk
 from workers.setup.config_reader import Config # Import the Config class                                                                          
+from workers.utils.topic_utils import get_topic # Import get_topic
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.logger.logger import  debug_logger
@@ -49,14 +50,20 @@ class TextInputCreatorMixin:
             text_var.trace_add("write", _on_text_change) # Use trace_add for consistency
 
             if path:
-                state_mirror_engine.register_widget(path, text_var, base_mqtt_topic_from_path, config)
+                widget_id = path
+                state_mirror_engine.register_widget(widget_id, text_var, base_mqtt_topic_from_path, config)
+                
+                # Subscribe to this widget's topic to receive updates
+                topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
+                subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
+
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (StringVar: {text_var.get()}).",
                         **_get_log_args()
                     )
-                # Broadcast initial state
-                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
+                # Initialize state from cache or broadcast
+                state_mirror_engine.initialize_widget_state(path)
             
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(

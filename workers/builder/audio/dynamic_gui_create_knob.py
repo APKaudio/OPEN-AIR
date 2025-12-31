@@ -211,14 +211,21 @@ class KnobCreatorMixin:
 
             # Register the StringVar with the StateMirrorEngine for MQTT updates
             if path:
-                state_mirror_engine.register_widget(path, knob_value_var, base_mqtt_topic_from_path, config)
+                widget_id = path
+                state_mirror_engine.register_widget(widget_id, knob_value_var, base_mqtt_topic_from_path, config)
+
+                # Subscribe to the topic for incoming messages
+                from workers.utils.topic_utils import get_topic
+                topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
+                subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
+
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {knob_value_var.get()}).",
                         **_get_log_args()
                     )
-                # Broadcast initial state
-                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
+                # Initialize state from cache or broadcast
+                state_mirror_engine.initialize_widget_state(path)
 
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(

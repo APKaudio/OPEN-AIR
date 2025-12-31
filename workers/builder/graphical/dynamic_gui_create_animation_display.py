@@ -71,21 +71,31 @@ class AnimationDisplayCreatorMixin:
         if frames:
             anim_label.config(image=frames[0]) # Display the first frame or placeholder
 
-        def _update_frame(value):
+        # Introduce a tk.IntVar to hold the current frame index
+        frame_index_var = tk.IntVar(value=config.get("value_default", 0))
+
+        def _update_frame(*args): # Add *args to accept trace arguments
             try:
-                frame_index = int(value)
+                frame_index = frame_index_var.get()
                 if 0 <= frame_index < len(frames):
                     anim_label.config(image=frames[frame_index])
             except (ValueError, TypeError) as e:
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(message=f"🔴 ERROR updating animation frame: {e}", file=os.path.basename(__file__), function=current_function_name)
 
-        if path:
-            self.topic_widgets[path] = _update_frame # Store the update callable
+        frame_index_var.trace_add("write", _update_frame) # Bind _update_frame to the trace
 
-            # --- MQTT Subscription for incoming updates ---
-            topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, path) # Use new base topic
-            subscriber_router.subscribe_to_topic(topic, self._on_animation_frame_update_mqtt)
+        if path:
+            widget_id = path
+            # Register the IntVar with the StateMirrorEngine
+            state_mirror_engine.register_widget(widget_id, frame_index_var, base_mqtt_topic_from_path, config)
+            
+            # Subscribe to the topic for incoming messages
+            topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
+            subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
+
+            # Initialize state from cache or broadcast
+            state_mirror_engine.initialize_widget_state(path)
 
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
@@ -109,14 +119,15 @@ class AnimationDisplayCreatorMixin:
                     debug_logger(message=f"⚠️ Unexpected topic format for animation frame update: {topic}", **_get_log_args())
                 return
             
-            update_func = self.topic_widgets.get(widget_path)
-            if update_func:
-                update_func(value)
-                if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"🎞️ Animation '{widget_path}' frame updated to {value}", **_get_log_args())
+            # Instead of calling update_func directly, find the registered tk_var and set its value
+            # This will trigger the trace and the _update_frame function
+            full_topic = get_topic("OPEN-AIR", self.base_mqtt_topic_from_path, widget_path)
+            if full_topic in self.state_mirror_engine.registered_widgets:
+                tk_var = self.state_mirror_engine.registered_widgets[full_topic]["var"]
+                tk_var.set(value) # Set the tk.Variable, which triggers its trace
             else:
                 if app_constants.global_settings['debug_enabled']:
-                    debug_logger(message=f"⚠️ Animation update function not found for path: {widget_path}", **_get_log_args())
+                    debug_logger(message=f"⚠️ Animation widget not found in registered_widgets for path: {widget_path}", **_get_log_args())
 
         except (orjson.JSONDecodeError, AttributeError) as e:
             if app_constants.global_settings['debug_enabled']:

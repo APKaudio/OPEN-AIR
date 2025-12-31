@@ -8,6 +8,7 @@ app_constants = Config.get_instance() # Get the singleton instance
 from workers.logger.logger import  debug_logger
 from workers.utils.log_utils import _get_log_args 
 import os
+from workers.utils.topic_utils import get_topic
 
 class FaderCreatorMixin:
     def _create_fader(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
@@ -75,15 +76,21 @@ class FaderCreatorMixin:
             scale.config(command=_on_scale_change) # Bind command to the trace
 
             if path:
-                # Register the StringVar with the StateMirrorEngine for MQTT updates
-                state_mirror_engine.register_widget(path, fader_value_var, self.tab_name, config)
+                widget_id = path
+                # Register the widget with the StateMirrorEngine for MQTT updates
+                state_mirror_engine.register_widget(widget_id, fader_value_var, base_mqtt_topic_from_path, config)
+
+                # Subscribe to this widget's topic to receive updates
+                topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
+                subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
+
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(
                         message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {fader_value_var.get()}).",
                         **_get_log_args()
                     )
-                # Broadcast initial state
-                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
+                # Initialize state from cache or broadcast
+                state_mirror_engine.initialize_widget_state(path)
 
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(

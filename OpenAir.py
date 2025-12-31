@@ -7,7 +7,7 @@ current_script_dir = pathlib.Path(__file__).resolve().parent
 
 # Add the project root (which is current_script_dir in this case) to sys.path
 if str(current_script_dir) not in sys.path:
-    sys.path.insert(0, str(current_script_dir))
+    sys.path.insert(0, str(current_script_dir   ))
 
 import inspect
 import tkinter as tk
@@ -47,7 +47,7 @@ def _reveal_main_window(root, splash):
     splash.hide()    # Dismiss the splash screen
     debug_logger(message="DEBUG: _reveal_main_window completed.", **_get_log_args())
 
-def action_open_display(root, splash, mqtt_connection_manager, subscriber_router, state_mirror_engine):
+def action_open_display(root, splash, mqtt_connection_manager, subscriber_router, state_cache_manager):
     """
     Builds and displays the main application window, ensuring the splash
     screen remains responsive by updating the event loop between heavy steps.
@@ -63,13 +63,13 @@ def action_open_display(root, splash, mqtt_connection_manager, subscriber_router
         ApplicationModule = importlib.import_module("display.gui_display")
         Application = getattr(ApplicationModule, "Application")
         
-        debug_logger(message=f"⚙️ Preparing to instantiate Application with: mqtt_connection_manager={mqtt_connection_manager}, subscriber_router={subscriber_router}, state_mirror_engine={state_mirror_engine}", **_get_log_args())
+        debug_logger(message=f"⚙️ Preparing to instantiate Application with: mqtt_connection_manager={mqtt_connection_manager}, subscriber_router={subscriber_router}, state_mirror_engine={state_cache_manager.state_mirror_engine}", **_get_log_args())
         # This is the primary long-running GUI task.
         # We pass the root window to the Application so it can call update() internally.
         app = Application(parent=root, root=root,
                           mqtt_connection_manager=mqtt_connection_manager,
                           subscriber_router=subscriber_router,
-                          state_mirror_engine=state_mirror_engine)
+                          state_mirror_engine=state_cache_manager.state_mirror_engine)
         app.pack(fill=tk.BOTH, expand=True)
         splash.set_status("Main window constructed.")
         root.update()
@@ -121,7 +121,7 @@ def main():
 
     GLOBAL_PROJECT_ROOT, data_dir = initialize_paths()
     log_dir = pathlib.Path(data_dir) / "debug"
-    clear_debug_directory(data_dir)
+    # clear_debug_directory(data_dir)
     set_log_directory(log_dir)
     configure_console_encoding()
 
@@ -151,13 +151,21 @@ def main():
     root.splash_window = splash.splash_window # Strong reference
     splash.set_status("Initialization complete. Loading UI...")
     
+    # MQTT Connection Manager
+    from workers.mqtt.mqtt_connection_manager import MqttConnectionManager
+    mqtt_connection_manager = MqttConnectionManager()
+
+    # State Cache Manager
+    from workers.State_Cache.state_cache_manager import StateCacheManager
+    state_cache_manager = StateCacheManager(None, mqtt_connection_manager) # Pass mqtt_connection_manager
+    
     # Launch managers
-    managers = launch_managers(app=None, splash=splash, root=root) # Pass app=None for now, will be updated.
+    managers = launch_managers(app=None, splash=splash, root=root, state_cache_manager=state_cache_manager, mqtt_connection_manager=mqtt_connection_manager) # Pass mqtt_connection_manager
     
     if managers is None:
         debug_logger(message="❌ Manager launch failed. Exiting application.", **_get_log_args())
         sys.exit(1)
-
+    
     # Debug: Inspect managers dictionary
     debug_logger(message=f"✅ Managers launched: {managers}", **_get_log_args())
 
@@ -165,7 +173,7 @@ def main():
     app = action_open_display(root, splash,
                               mqtt_connection_manager=managers["mqtt_connection_manager"],
                               subscriber_router=managers["subscriber_router"],
-                              state_mirror_engine=managers["state_mirror_engine"])
+                              state_cache_manager=state_cache_manager)
     
     def on_closing():
         """Gracefully shuts down the application."""

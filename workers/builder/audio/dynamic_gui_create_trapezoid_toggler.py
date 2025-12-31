@@ -47,8 +47,13 @@ class TrapezoidButtonTogglerCreatorMixin(TrapezoidButtonCreatorMixin):
         selected_var.trace_add("write", on_state_change)
         
         if path and state_mirror_engine:
-            state_mirror_engine.register_widget(path, selected_var, base_mqtt_topic_from_path, config)
-            # Don't broadcast here, let the initial draw handle it
+            widget_id = path
+            state_mirror_engine.register_widget(widget_id, selected_var, base_mqtt_topic_from_path, config)
+            
+            # Subscribe to the topic for incoming messages
+            from workers.utils.topic_utils import get_topic
+            topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
+            subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
 
         # Theme Resolution
         from workers.styling.style import THEMES, DEFAULT_THEME
@@ -106,8 +111,8 @@ class TrapezoidButtonTogglerCreatorMixin(TrapezoidButtonCreatorMixin):
                 col = 0
                 row += 1
 
-        # Broadcast the initial state after all buttons are created
+        # Initialize state from cache or broadcast the initial state
         if path and state_mirror_engine:
-            state_mirror_engine.broadcast_gui_change_to_mqtt(path)
+            state_mirror_engine.initialize_widget_state(path)
 
         return container

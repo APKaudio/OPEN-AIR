@@ -115,6 +115,10 @@ class CustomHorizontalFaderCreatorMixin:
             current_value = frame.min_val + log_norm_pos * (frame.max_val - frame.min_val)
             frame.variable.set(current_value)
 
+            # Broadcast the change from the user interaction
+            if state_mirror_engine:
+                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
+
         frame = CustomHorizontalFaderFrame(
             parent_frame,
             variable=fader_value_var,
@@ -132,6 +136,7 @@ class CustomHorizontalFaderCreatorMixin:
 
         canvas = tk.Canvas(frame, width=width, height=height, bg=bg_color, highlightthickness=0)
         canvas.pack(fill=tk.BOTH, expand=True)
+        canvas.update_idletasks()
 
         value_label = ttk.Label(frame, text=f"{int(fader_value_var.get())}", font=("Helvetica", 8))
         value_label.pack(side=tk.BOTTOM)
@@ -140,8 +145,6 @@ class CustomHorizontalFaderCreatorMixin:
             current_fader_val = fader_value_var.get()
             self._draw_horizontal_fader(frame, canvas, canvas.winfo_width(), canvas.winfo_height(), current_fader_val)
             value_label.config(text=f"{int(current_fader_val)}")
-            if state_mirror_engine:
-                state_mirror_engine.broadcast_gui_change_to_mqtt(path)
 
         fader_value_var.trace_add("write", on_fader_value_change)
         on_fader_value_change()
@@ -153,8 +156,14 @@ class CustomHorizontalFaderCreatorMixin:
         canvas.bind("<Configure>", lambda e: on_fader_value_change())
 
         if path:
-            state_mirror_engine.register_widget(path, fader_value_var, base_mqtt_topic_from_path, config)
-            state_mirror_engine.broadcast_gui_change_to_mqtt(path)
+            widget_id = path
+            state_mirror_engine.register_widget(widget_id, fader_value_var, base_mqtt_topic_from_path, config)
+
+            # Subscribe to the topic for incoming messages
+            topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
+            subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
+
+            state_mirror_engine.initialize_widget_state(path)
 
         return frame
 

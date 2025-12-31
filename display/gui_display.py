@@ -417,6 +417,7 @@ class Application(ttk.Frame):
                     **_get_log_args()
                 )
 
+
     def print_to_console(self, message: str):
         """Placeholder method to print messages to a GUI console."""
         if app_constants.global_settings['debug_enabled']:
