@@ -1,0 +1,58 @@
+{
+    "Do": {
+    "type": "OcaBlock",
+    "description": "Actions and Toggles",
+    "fields": {
+      "Run_Control": {
+        "type": "OcaBlock",
+        "fields": {
+          "Run": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "RUN",
+            "Execute Command": { "message": ":RUN" }
+          },
+          "Stop": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "STOP",
+            "Execute Command": { "message": ":STOP" }
+          },
+          "Single": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "SINGLE",
+            "Execute Command": { "message": ":SINGle" }
+          },
+          "Auto_Scale": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "AUTO",
+            "Execute Command": { "message": ":AUToscale" }
+          }
+        }
+      },
+      "System_Actions": {
+        "type": "OcaBlock",
+        "fields": {
+          "Clear": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "label_inactive": "Clear",
+            "Execute Command": { "message": ":CLEar" }
+          },
+          "Force_Trigger": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "label_inactive": "Force",
+            "Execute Command": { "message": ":TFORce" }
+          }
+        }
+      }
+    }
+  }
+}

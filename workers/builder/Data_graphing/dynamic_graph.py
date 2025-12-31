@@ -1,3 +1,21 @@
+# display/dynamic_graph.py
+#
+# A Tkinter-compatible Matplotlib graph widget that dynamically renders
+# plots with multiple datasets based on a JSON configuration.
+# Now fully integrated with the State Mirror Engine for standardized MQTT publishing.
+#
+# Author: Anthony Peter Kuzub
+# Blog: www.Like.audio (Contributor to this project)
+#
+# Professional services for customizing and tailoring this software to your specific
+# application can be negotiated. There is no charge to use, modify, or fork this software.
+#
+# Build Log: https://like.audio/category/software/spectrum-scanner/
+# Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
+#
+# Version 20251230.180641.1
+
 import tkinter as tk
 from tkinter import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -6,6 +24,7 @@ import matplotlib.animation as animation
 from collections import deque
 import time
 from typing import Dict, Any, List
+import inspect
 
 from workers.logger.logger import debug_logger
 from workers.setup.config_reader import Config
@@ -16,10 +35,17 @@ import orjson
 
 app_constants = Config.get_instance()
 
+# Globals
+current_version = "20251230.180641.1"
+current_version_hash = 20251230 * 180641 * 1
+
 class FluxPlotter(tk.Frame):
     """
     A Tkinter-compatible Matplotlib graph widget that dynamically renders
     plots with multiple datasets based on a JSON configuration.
+    
+    Integrated with StateMirrorEngine to ensure 'instance_id' and standard 
+    payload wrapping are applied to all transmissions.
     """
 
     def __init__(self, parent, config: Dict[str, Any], base_mqtt_topic_from_path: str, widget_id: str, **kwargs):
@@ -32,6 +58,11 @@ class FluxPlotter(tk.Frame):
         self.plot_mode = config.get('plot_mode', 'time_domain')
         self.buffer_size = config.get('buffer_size', 100)
 
+        # 🧪 Temporal Alignment: Fetch the GUID from the Engine!
+        self.instance_id = "UNKNOWN_GUID"
+        if self.state_mirror_engine and hasattr(self.state_mirror_engine, 'instance_id'):
+            self.instance_id = self.state_mirror_engine.instance_id
+
         self.lines: Dict[str, Any] = {}
         self.x_data: Dict[str, deque] = {}
         self.y_data: Dict[str, deque] = {}
@@ -40,12 +71,14 @@ class FluxPlotter(tk.Frame):
         self._process_dataset_config()
         self._initialize_plot()
         self._load_all_initial_data()
+        
+        # 🚀 Initialization Sequence
         self._publish_initial_data()
         self._subscribe_to_data_topics()
 
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
-                message=f"⚡ Plotter initialized! Mode: {self.plot_mode}, ID: {self.config.get('id', 'N/A')}",
+                message=f"🧪 FluxPlotter '{self.widget_id}' initialized! Mode: {self.plot_mode}. Instance ID: {self.instance_id}",
                 **_get_log_args()
             )
 
@@ -72,8 +105,10 @@ class FluxPlotter(tk.Frame):
             self.config.get('layout', {}).get('height', 4) / 100
         ), dpi=100)
         self.ax = self.fig.add_subplot(111)
-        self.fig.patch.set_facecolor(self.config.get('style', {}).get('background_color', 'black'))
-        self.ax.set_facecolor(self.config.get('style', {}).get('background_color', 'black'))
+        
+        bg_color = self.config.get('style', {}).get('background_color', 'black')
+        self.fig.patch.set_facecolor(bg_color)
+        self.ax.set_facecolor(bg_color)
 
         for ds_id, ds_config in self.datasets_config.items():
             style = ds_config.get('style', {})
@@ -86,7 +121,11 @@ class FluxPlotter(tk.Frame):
             self.y_data[ds_id] = deque(maxlen=self.buffer_size)
         
         if len(self.datasets_config) > 1:
-            self.ax.legend()
+            legend = self.ax.legend()
+            if legend:
+                legend.get_frame().set_facecolor(bg_color)
+                for text in legend.get_texts():
+                    text.set_color("white")
 
         x_axis_config = self.config.get('axis', {}).get('x', {})
         y_axis_config = self.config.get('axis', {}).get('y', {})
@@ -116,11 +155,12 @@ class FluxPlotter(tk.Frame):
                 try:
                     x_values, y_values = [], []
                     lines = csv_data.strip().split('\n')
-                    if lines and not lines[0].replace('.', '', 1).replace('-', '', 1).isdigit():
+                    # Skip header if present
+                    if lines and not lines[0].replace('.', '', 1).replace('-', '', 1).replace(',', '').isdigit():
                         lines = lines[1:]
                     for line in lines:
                         parts = line.strip().split(',')
-                        if len(parts) == 2:
+                        if len(parts) >= 2:
                             x_values.append(float(parts[0]))
                             y_values.append(float(parts[1]))
                     self.load_initial_data(ds_id, x_values, y_values)
@@ -161,7 +201,7 @@ class FluxPlotter(tk.Frame):
                         min_y = min(min_y, min(y_deq))
                         max_y = max(max_y, max(y_deq))
                 if min_y != float('inf'):
-                    padding = (max_y - min_y) * 0.1
+                    padding = (max_y - min_y) * 0.1 if max_y != min_y else 1.0
                     self.ax.set_ylim(min_y - padding, max_y + padding)
 
         self.fig.canvas.draw_idle()
@@ -172,15 +212,32 @@ class FluxPlotter(tk.Frame):
             self._publish_current_data(ds_id)
 
     def _publish_current_data(self, dataset_id: str):
-        """Publishes the current data for a specific dataset to MQTT."""
+        """
+        Publishes the current data for a specific dataset to MQTT using the standardized envelope.
+        Format: {"val": {...}, "ts": <timestamp>, "instance_id": <guid>}
+        """
         try:
+            # Construct the topic correctly. 
+            # Note: We append the dataset_id to keep the tree clean.
             topic = get_topic(self.base_mqtt_topic_from_path, self.widget_id, dataset_id, "data")
-            payload = {
+            
+            # The actual value payload
+            data_val = {
                 "x_data": list(self.x_data[dataset_id]),
-                "y_data": list(self.y_data[dataset_id]),
-                "timestamp": time.time()
+                "y_data": list(self.y_data[dataset_id])
             }
+            
+            # 🧪 Standardizing the Envelope!
+            # We wrap it just like StateMirrorEngine does.
+            payload = {
+                "val": data_val,
+                "ts": time.time(),
+                "instance_id": self.instance_id,  # 🔑 The Key!
+                "src": "FluxPlotter"
+            }
+            
             publish_payload(topic, orjson.dumps(payload), retain=True)
+            
         except Exception as e:
              if app_constants.global_settings['debug_enabled']:
                 debug_logger(f"❌ Error publishing data for dataset '{dataset_id}': {e}", **_get_log_args())
@@ -189,6 +246,7 @@ class FluxPlotter(tk.Frame):
         if self.subscriber_router:
             for ds_id in self.datasets_config:
                 try:
+                    # Subscribe to the same topic structure we publish to
                     input_topic = get_topic(self.base_mqtt_topic_from_path, self.widget_id, ds_id, "data")
                     self.subscriber_router.subscribe_to_topic(input_topic, lambda t, p, ds=ds_id: self._on_data_update(t, p, ds))
                 except Exception as e:
@@ -196,13 +254,27 @@ class FluxPlotter(tk.Frame):
                         debug_logger(f"❌ Error subscribing to topic for dataset '{ds_id}': {e}", **_get_log_args())
     
     def _on_data_update(self, topic, payload, dataset_id):
-        """Callback to handle incoming data from MQTT for a specific dataset."""
+        """
+        Callback to handle incoming data from MQTT for a specific dataset.
+        Handles both raw data and 'StateMirror' enveloped data.
+        """
         try:
             data = orjson.loads(payload)
+            
+            # 🕵️ Unwrap the envelope if present
+            if 'val' in data and 'instance_id' in data:
+                # 🛑 Infinite Loop Protection: Don't process our own echoes!
+                if data.get('instance_id') == self.instance_id:
+                    return
+                # Extract the inner value
+                data = data['val']
+
+            # Process the data
             if 'x_data' in data and 'y_data' in data:
                 self.load_initial_data(dataset_id, data['x_data'], data['y_data'])
             elif 'x' in data and 'y' in data:
                 self.update_plot(dataset_id, data['x'], data['y'])
+                
         except Exception as e:
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(f"❌ Error processing MQTT update for dataset '{dataset_id}': {e}", **_get_log_args())
@@ -240,7 +312,6 @@ class FluxPlotter(tk.Frame):
         
         self.fig.canvas.draw_idle()
 
-
 # Example usage (for testing, if needed)
 if __name__ == "__main__":
     root = tk.Tk()
@@ -265,47 +336,6 @@ if __name__ == "__main__":
         }
     }
 
-    # Trend Logger Config
-    trend_config = {
-        "id": "test_trend_logger",
-        "type": "plot_widget",
-        "plot_mode": "trend_logger",
-        "title": "Voltage Drift Over Time - Test",
-        "buffer_size": 200,
-        "layout": { "row": 0, "col": 0, "width": 600, "height": 400 },
-        "axis": {
-            "x": { "label": "Timestamp", "auto_scroll": True, "color": "white" },
-            "y": { "label": "Measured (V)", "auto_scale": True, "color": "red", "min": 0, "max": 5 }
-        },
-        "datasets": [
-            {
-                "id": "sensor_1",
-                "label": "Sensor 1",
-                "style": {"line_color": "red", "line_width": 1}
-            },
-            {
-                "id": "sensor_2",
-                "label": "Sensor 2",
-                "style": {"line_color": "blue", "line_width": 1}
-            }
-        ]
-    }
-
-    plotter = FluxPlotter(root, trend_config)
+    plotter = FluxPlotter(root, time_config, "TEST/PATH", "plot1")
     plotter.pack(fill=tk.BOTH, expand=True)
-
-    # Example update function for multi-dataset trend plotter
-    import math
-    _trend_time = 0
-    def update_trend_plot():
-        global _trend_time
-        _trend_time += 1
-        y1 = math.sin(_trend_time * 0.1) + (_trend_time * 0.01)
-        y2 = math.cos(_trend_time * 0.1) + 2
-        plotter.update_plot("sensor_1", _trend_time, y1)
-        plotter.update_plot("sensor_2", _trend_time, y2)
-        root.after(100, update_trend_plot)
-    
-    update_trend_plot()
-
     root.mainloop()

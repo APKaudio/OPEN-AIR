@@ -1,12 +1,7 @@
 # workers/builder/dynamic_gui_builder.py
 #
 # A recursive GUI engine that builds functional tkinter interfaces from JSON configurations.
-# Version 20251229.1830.1 (CRITICAL FIX: Silent Failure Protection & Graphing Support)
-#
-# UPDATES:
-# 1. Added Try/Except blocks to batch processor to prevent silent death.
-# 2. Ensures self.pack() is called even if build fails.
-# 3. Supports "plot_widget" for FluxPlotter.
+# Version 20251230.1830.2 (FIXED: Integrated Plot & Meter Creators)
 
 import os
 import orjson
@@ -16,7 +11,7 @@ from tkinter import ttk
 from pathlib import Path
 import inspect
 import time
-import traceback # Added for forensic analysis
+import traceback 
 
 # --- Module Imports ---
 from workers.logger.logger import  debug_logger
@@ -29,8 +24,7 @@ from workers.mqtt.mqtt_publisher_service import publish_payload
 app_constants = Config.get_instance()
 from workers.utils.topic_utils import get_topic, generate_topic_path_from_filepath, TOPIC_DELIMITER
 from workers.utils.log_utils import _get_log_args 
-from typing import Dict, Any # Added for type hinting
-
+from typing import Dict, Any
 
 # --- Widget Creator Mixins ---
 from .text.dynamic_gui_create_label_from_config import LabelFromConfigCreatorMixin
@@ -59,15 +53,15 @@ from .audio.dynamic_gui_create_panner import PannerCreatorMixin
 from .audio.dynamic_gui_create_custom_horizontal_fader import CustomHorizontalFaderCreatorMixin
 from .audio.dynamic_gui_create_trapezoid_button import TrapezoidButtonCreatorMixin
 from .audio.dynamic_gui_create_trapezoid_toggler import TrapezoidButtonTogglerCreatorMixin
-from .Data_graphing.dynamic_gui_create_plot_widget import PlotWidgetCreatorMixin
-from .Data_graphing.dynamic_gui_create_meter_widgets import MeterWidgetsCreatorMixin
+
+# 🧪 NEW: Direct Imports of the Widget Classes (No Mixins needed)
 from .Data_graphing.dynamic_graph import FluxPlotter
 from .Data_graphing.Meter_to_display_units import HorizontalMeterWithText, VerticalMeter
 
 # --- Protocol Global Variables ---
-CURRENT_DATE = 20251229
+CURRENT_DATE = 20251230
 CURRENT_TIME = 183000
-CURRENT_ITERATION = 1
+CURRENT_ITERATION = 2
 
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{CURRENT_ITERATION}"
 current_version_hash = (CURRENT_DATE * CURRENT_TIME * CURRENT_ITERATION)
@@ -101,8 +95,8 @@ class DynamicGuiBuilder(
     PannerCreatorMixin,
     CustomHorizontalFaderCreatorMixin,
     TrapezoidButtonTogglerCreatorMixin,
-    PlotWidgetCreatorMixin,
-    MeterWidgetsCreatorMixin
+    TrapezoidButtonCreatorMixin
+    # ❌ Removed FluxPlotter/Meters from inheritance (we use composition now)
 ):
     def __init__(self, parent, json_path=None, tab_name=None, *args, **kwargs):
         config = kwargs.pop('config', {})
@@ -169,6 +163,8 @@ class DynamicGuiBuilder(
             "_Panner": self._create_panner,
             "_TrapezoidButton": self._create_trapezoid_button,
             "_TrapezoidButtonToggler": self._create_trapezoid_button_toggler,
+            
+            # 🧪 Mapped to the new local adapter methods
             "plot_widget": self._create_plot_widget,
             "_HorizontalMeterWithText": self._create_horizontal_meter,
             "_VerticalMeter": self._create_vertical_meter
@@ -209,47 +205,79 @@ class DynamicGuiBuilder(
         except Exception as e:
             debug_logger(message=f"❌ Error in __init__: {e}", **_get_log_args())
 
+    # --- ADAPTER METHODS FOR NEW WIDGETS ---
+    
+    def _create_plot_widget(self, parent_frame, config, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router, **kwargs):
+        """Adapter to create FluxPlotter from the Builder"""
+        widget_id = config.get("id", "plot_widget")
+        return FluxPlotter(
+            parent=parent_frame,
+            config=config,
+            base_mqtt_topic_from_path=base_mqtt_topic_from_path,
+            widget_id=widget_id,
+            state_mirror_engine=state_mirror_engine,
+            subscriber_router=subscriber_router
+        )
+
+    def _create_horizontal_meter(self, parent_frame, config, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router, **kwargs):
+        """Adapter to create HorizontalMeterWithText"""
+        widget_id = config.get("id", "h_meter")
+        return HorizontalMeterWithText(
+            parent=parent_frame,
+            config=config,
+            base_mqtt_topic_from_path=base_mqtt_topic_from_path,
+            widget_id=widget_id,
+            state_mirror_engine=state_mirror_engine,
+            subscriber_router=subscriber_router
+        )
+
+    def _create_vertical_meter(self, parent_frame, config, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router, **kwargs):
+        """Adapter to create VerticalMeter"""
+        widget_id = config.get("id", "v_meter")
+        return VerticalMeter(
+            parent=parent_frame,
+            config=config,
+            base_mqtt_topic_from_path=base_mqtt_topic_from_path,
+            widget_id=widget_id,
+            state_mirror_engine=state_mirror_engine,
+            subscriber_router=subscriber_router
+        )
+
+    # --- STYLING & CORE LOGIC ---
+
     def _apply_styles(self, theme_name):
         style = ttk.Style()
-        colors = THEMES.get(theme_name, THEMES["dark"]) # Fallback to dark theme
+        colors = THEMES.get(theme_name, THEMES["dark"])
 
-        # General colors
         bg = colors.get("bg", "#2b2b2b")
         fg = colors.get("fg", "#dcdcdc")
         entry_bg = colors.get("entry_bg", "#dcdcdc")
         entry_fg = colors.get("entry_fg", "#000000")
-        accent = colors.get("accent", "#f4902c") # Use accent for selected/highlighted elements
+        accent = colors.get("accent", "#f4902c")
 
-        # Configure general theme elements (Frames, Labels)
         style.configure('TFrame', background=bg)
         style.configure('TLabel', background=bg, foreground=fg)
 
-        # Configure TEntry (for TextInput and general Entry widgets)
         style.configure('TEntry', fieldbackground=entry_bg, background=bg, foreground=entry_fg, bordercolor=colors.get("border", "#555555"))
         style.map('TEntry', fieldbackground=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))],
-                             background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))]) # Apply background to the entire widget
+                             background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))])
 
-        # Configure Custom.TEntry (for ValueBox)
         style.configure('Custom.TEntry', fieldbackground=entry_bg, background=bg, foreground=entry_fg, bordercolor=colors.get("border", "#555555"))
         style.map('Custom.TEntry', fieldbackground=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))],
                                    background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))])
 
-        # Configure TCombobox (for Dropdown)
         style.configure('TCombobox', fieldbackground=entry_bg, background=bg, foreground=entry_fg, bordercolor=colors.get("border", "#555555"), selectbackground=accent, selectforeground=entry_fg)
         style.map('TCombobox', fieldbackground=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))],
                              background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))])
         
-        # Configure the Listbox part of the Combobox (for dropdown options)
         style.configure("TCombobox.Listbox", background=entry_bg, foreground=entry_fg, selectbackground=accent, selectforeground=fg)
         
-        # Configure the 'BlackText.TCombobox' style that was defined in dynamic_gui_create_gui_dropdown_option.py
         style.configure('BlackText.TCombobox', foreground=entry_fg)
         style.map('BlackText.TCombobox', fieldbackground=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))],
                                    background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))])
         
-        # --- Tab Styling ---
         tab_style_config = colors.get("tab_style", {}).get("tab_base_style", {})
-        style.configure('TNotebook', background=bg, borderwidth=0) # General Notebook background
+        style.configure('TNotebook', background=bg, borderwidth=0)
         style.configure('TNotebook.Tab', 
                         background=tab_style_config.get("background", colors.get("primary", bg)),
                         foreground=tab_style_config.get("foreground", fg),
@@ -258,8 +286,8 @@ class DynamicGuiBuilder(
                         borderwidth=tab_style_config.get("borderwidth", 0),
                         relief=tab_style_config.get("relief", "flat"))
         style.map('TNotebook.Tab',
-                  background=[('selected', accent), ('!selected', colors.get("secondary", bg))], # Orange when selected
-                  foreground=[('selected', fg), ('!selected', fg)]) # White text for both selected/unselected tabs
+                  background=[('selected', accent), ('!selected', colors.get("secondary", bg))],
+                  foreground=[('selected', fg), ('!selected', fg)])
 
     def _transmit_command(self, widget_name: str, value):
         if self.state_mirror_engine:
@@ -276,9 +304,6 @@ class DynamicGuiBuilder(
                 self.state_mirror_engine.publish_command(topic, orjson.dumps(payload))
         elif app_constants.global_settings['debug_enabled']:
             debug_logger(message=f"[DUMMY] _transmit_command called for {widget_name} with value {value}", **_get_log_args())
-                         
-
-
 
     def _on_frame_configure(self, event=None):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
@@ -325,8 +350,7 @@ class DynamicGuiBuilder(
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(message="🖥️🔁 Tearing down the old world to build a new one!", **_get_log_args())
             
-            # 🛑 THIS IS WHERE IT WAS GOING WRONG:
-            self.pack_forget() # Hides the frame
+            self.pack_forget()
             
             for child in self.scroll_frame.winfo_children():
                 child.destroy()
@@ -338,12 +362,9 @@ class DynamicGuiBuilder(
             
         except Exception as e:
             debug_logger(message=f"❌ Error in _rebuild_gui setup: {e}", **_get_log_args())
-            self.pack(fill=tk.BOTH, expand=True) # Emergency Restore
+            self.pack(fill=tk.BOTH, expand=True)
 
     def _create_widgets_in_batches(self, parent_frame, widget_configs, path_prefix="", override_cols=None, start_index=0, row_offset=0):
-        """
-        Creates widgets in batches. Wrapped in Try/Except to prevent silent GUI death.
-        """
         try:
             batch_size = 5
             index = start_index
@@ -398,10 +419,6 @@ class DynamicGuiBuilder(
 
                     if target_frame:
                         tk_var = self.tk_vars.get(current_path)
-
-                  #     '' if value.get("yak_handler"):
-                 #    '#'       self._process_yak_handler(target_frame, value, current_path, tk_var)
-                        
                         target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)
                         col += col_span
                         if col >= max_cols:
@@ -413,9 +430,8 @@ class DynamicGuiBuilder(
             if index < len(widget_configs):
                 self.after(5, lambda: self._create_widgets_in_batches(parent_frame, widget_configs, path_prefix, override_cols, index, row))
             else:
-                # --- Finalization Step ---
                 self._on_frame_configure()
-                self.pack(fill=tk.BOTH, expand=True) # SHOW THE GUI AGAIN!
+                self.pack(fill=tk.BOTH, expand=True)
 
                 app_constants.PERFORMANCE_MODE = False
                 
@@ -423,16 +439,11 @@ class DynamicGuiBuilder(
                     debug_logger(message="✅ Batch processing complete! All widgets built.", **_get_log_args())
 
         except Exception as e:
-            # 🚨 THE QUANTUM SHIELD 🚨
             tb = traceback.format_exc()
             debug_logger(message=f"❌🔥 CRITICAL BATCH PROCESSOR FAILURE! {e}\n{tb}", **_get_log_args())
-            # Force the GUI to show even if incomplete, so the user sees *something* (or at least the parts that worked)
             self.pack(fill=tk.BOTH, expand=True)
 
     def _create_dynamic_widgets(self, parent_frame, data, path_prefix="", override_cols=None):
-        """
-        Synchronous legacy method for building widgets, now primarily used for sub-blocks.
-        """
         try:
             if not isinstance(data, dict):
                 return
@@ -484,10 +495,6 @@ class DynamicGuiBuilder(
 
                     if target_frame:
                         tk_var = self.tk_vars.get(current_path)
-
-                   #     if value.get("yak_handler"):
-                   #         self._process_yak_handler(target_frame, value, current_path, tk_var)
-
                         target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)
                         col += col_span
                         if col >= max_cols:
