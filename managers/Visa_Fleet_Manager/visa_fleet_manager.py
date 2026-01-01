@@ -25,6 +25,7 @@ except ModuleNotFoundError:
         return {} # Return empty dict, as logger args are not available
 from managers.Visa_Fleet_Manager.manager_visa_supervisor import VisaFleetSupervisor
 from managers.Visa_Fleet_Manager.manager_visa_json_builder import VisaJsonBuilder # Import new builder
+from managers.Visa_Fleet_Manager.manager_fleet_mqtt_bridge import MqttFleetBridge # Import MQTT bridge
 
 class VisaFleetManager:
     def __init__(self):
@@ -36,6 +37,8 @@ class VisaFleetManager:
         
         # Initialize the JSON builder
         self.json_builder = VisaJsonBuilder()
+        # Initialize the MQTT bridge
+        self.mqtt_bridge = MqttFleetBridge()
 
         # Callbacks are initially empty (No-op)
         self.cb_inventory = lambda x: None
@@ -67,6 +70,8 @@ class VisaFleetManager:
         self._running = False
         if self.fleet_supervisor: # Ensure supervisor exists before trying to shut it down
             self.fleet_supervisor.shutdown()
+        if self.mqtt_bridge:
+            self.mqtt_bridge.disconnect()
         debug_logger("💳 Core: VisaFleetManager Stopped.", **_get_log_args())
 
 
@@ -93,7 +98,12 @@ class VisaFleetManager:
 
         self._current_inventory = augmented_inventory
         self.json_builder.save_inventory_to_json(augmented_inventory)
-        self.cb_inventory(augmented_inventory)
+        
+        # Load the newly saved (and grouped) inventory to ensure MQTT reflects the file structure
+        grouped_inventory = self.json_builder.load_grouped_inventory_from_json()
+        
+        self.cb_inventory(augmented_inventory) # Still emit the flat list for other listeners if needed
+        self.mqtt_bridge.publish_inventory(grouped_inventory) # Publish the grouped data
 
     def _notify_response(self, serial, response, command, corr_id):
         """Receives device response and saves it to a JSON file."""
