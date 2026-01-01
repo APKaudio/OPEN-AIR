@@ -51,7 +51,7 @@ class CustomFaderFrame(tk.Frame):
 
     def _jump_to_reff_point(self, event):
         """
-        ⚡ Great Scott! Jumping to the Reference Point immediately!
+        ⚡  Jumping to the Reference Point immediately!
         """
         if app_constants.global_settings['debug_enabled']:
             debug_logger(message=f"⚡ User invoked Quantum Jump! Resetting to {self.reff_point}", **_get_log_args())

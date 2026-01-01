@@ -425,6 +425,8 @@ class DynamicGuiBuilder(
                         except Exception as e:
                             debug_logger(message=f"❌ Error creating widget '{key}' of type '{widget_type}': {e}", **_get_log_args())
                             target_frame = None
+                    else:
+                        debug_logger(message=f"❓ Unknown or missing widget 'type' for widget '{key}'. Skipping.", **_get_log_args())
 
                     if target_frame:
                         tk_var = self.tk_vars.get(current_path)
@@ -502,6 +504,8 @@ class DynamicGuiBuilder(
                         except Exception as e:
                             debug_logger(message=f"❌ Error creating synchronous widget '{key}' of type '{widget_type}': {e}", **_get_log_args())
                             target_frame = None
+                    else:
+                        debug_logger(message=f"❓ Unknown or missing widget 'type' for widget '{key}' in synchronous builder. Skipping.", **_get_log_args())
 
                     if target_frame:
                         tk_var = self.tk_vars.get(current_path)

@@ -165,12 +165,19 @@ class VerticalMeter(ttk.Frame):
 
     def _on_meter_values_var_change(self, *args):
         """Callback for when meter_values_var changes (from internal or MQTT)."""
-        new_values_json = self.meter_values_var.get()
+        new_values_str = self.meter_values_var.get()
         try:
-            # Parse as a CSV string, removing brackets if present
-            cleaned_values_str = new_values_json.strip('[]() ')
-            new_values = [float(v) for v in cleaned_values_str.split(',') if v.strip()]
-            
+            # This logic is designed to be very tolerant of poorly-formatted list-like strings.
+            import re
+            number_strings = re.findall(r'-?\d*\.?\d+', new_values_str)
+            new_values = []
+            for n_str in number_strings:
+                try:
+                    new_values.append(float(n_str))
+                except ValueError:
+                    debug_logger(f"⚠️ Could not convert '{n_str}' to float in VerticalMeter.", **_get_log_args())
+                    continue
+
             # Update UI
             for i, value in enumerate(new_values):
                 if i < len(self.channel_labels):
@@ -194,7 +201,7 @@ class VerticalMeter(ttk.Frame):
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(f"❌ Error publishing values for {self.widget_id}: {e}", **_get_log_args())
 
-        except (orjson.JSONDecodeError, ValueError, TypeError) as e:
+        except (ValueError, TypeError) as e:
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(f"❌ Error processing meter_values_var: {e}", **_get_log_args())
 

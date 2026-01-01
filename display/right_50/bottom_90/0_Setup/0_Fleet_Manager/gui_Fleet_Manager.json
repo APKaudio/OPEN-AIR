@@ -1,0 +1,37 @@
+{
+  "fleetManager": {
+    "discovery": {
+      "searchTriggerTopic": "OPEN-AIR/Device/Discovery/Search_Trigger",
+      "fleetStatusTopic": "OPEN-AIR/Device/Discovery/Found",
+      "uiElement": "SearchButton"
+    },
+    "devices": [
+      {
+        "type": "deviceEntryTemplate",
+        "deviceNamePlaceholder": "{serial}",
+        "mqttTopics": {
+          "controlTx": "OPEN-AIR/Device/{serial}/Tx_Inbox",
+          "responseRx": "OPEN-AIR/Device/{serial}/Rx_Outbox",
+          "errorTopic": "OPEN-AIR/Device/{serial}/Error",
+          "statusTopic": "OPEN-AIR/Device/{serial}/Proxy_Status"
+        },
+        "uiElements": {
+           "deviceNameLabel": "Device: {serial}",
+           "modelLabel": "Model: {model}",
+           "manufacturerLabel": "Manufacturer: {manufacturer}",
+           "deviceTypeLabel": "Type: {device_type}",
+           "notesLabel": "Notes: {notes}",
+           "statusIndicator": "Status: {status}",
+           "connectButton": "Connect",
+           "disconnectButton": "Disconnect",
+           "commandInput": "Send Command to {serial}",
+           "responseDisplay": "Responses for {serial}"
+        }
+      }
+    ],
+    "globalActions": {
+       "resetAllButton": "Reset All Devices",
+       "rebootAllButton": "Reboot All Devices"
+    }
+  }
+}

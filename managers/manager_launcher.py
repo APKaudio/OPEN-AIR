@@ -10,12 +10,12 @@ from workers.logger.log_utils import _get_log_args
 from workers.mqtt.mqtt_connection_manager import MqttConnectionManager
 from workers.mqtt.mqtt_subscriber_router import MqttSubscriberRouter
 from workers.logic.state_mirror_engine import StateMirrorEngine
-from managers.VisaScipi.manager_visa import VisaManagerOrchestrator
+from managers.Visa_Fleet_Manager.visa_fleet_manager import VisaFleetManager # Import VisaFleetManager
 from managers.yak.yak_translator import YakTranslator # Import YakTranslator
 from managers.yak.manager_yak_rx import YakRxManager # Import YakRxManager
 
 
-def launch_managers(app, splash, root, state_cache_manager, mqtt_connection_manager): # Removed scpi_dispatcher, added mqtt_connection_manager
+def launch_managers(app, splash, root, state_cache_manager, mqtt_connection_manager):
     current_function_name = inspect.currentframe().f_code.co_name
     debug_logger(message=f"🟢️️️🟢 Entering '{current_function_name}'. Preparing to launch a fleet of managers!", **_get_log_args())
     splash.set_status("Initializing managers...")
@@ -39,11 +39,14 @@ def launch_managers(app, splash, root, state_cache_manager, mqtt_connection_mana
         # Subscribe state_cache_manager to all topics
         state_cache_manager.subscribe_to_all_topics()
 
-        # 2. Initialize Visa Manager Orchestrator
-        visa_orchestrator = VisaManagerOrchestrator(
-            mqtt_connection_manager=mqtt_connection_manager,
-            subscriber_router=subscriber_router
-        )
+        # 2. Initialize Visa Fleet Manager
+        visa_fleet_manager = VisaFleetManager()
+        visa_fleet_manager.start() # Start the Visa Fleet Manager
+        
+        # Automatically trigger a scan after starting the manager
+        debug_logger(message="💳 Triggering initial Visa Fleet scan...", **_get_log_args())
+        visa_fleet_manager.trigger_scan()
+       # time.sleep(1) # Give some time for the scan to initiate
 
         # 3. Initialize Yak Translator
         yak_translator = YakTranslator(
@@ -66,10 +69,10 @@ def launch_managers(app, splash, root, state_cache_manager, mqtt_connection_mana
             "mqtt_connection_manager": mqtt_connection_manager,
             "subscriber_router": subscriber_router,
             "state_mirror_engine": state_mirror_engine,
+            "visa_fleet_manager": visa_fleet_manager, # Add VisaFleetManager
             "yak_translator": yak_translator,
             "yak_rx_manager": yak_rx_manager,
         }
-        all_managers.update(visa_orchestrator.get_managers())
 
         # Return instantiated managers for use by the application if needed
         return all_managers

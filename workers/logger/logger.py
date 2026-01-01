@@ -96,7 +96,7 @@ def set_log_directory(directory: str):
     if not is_buffer_empty():
         buffered_messages = get_buffer_and_clear()
         # Log this action using the logger itself
-        debug_logger(message=f"🧪 Great Scott! Flushing {len(buffered_messages)} buffered messages to the timeline!", **_get_log_args())
+        debug_logger(message=f"🧪  Flushing {len(buffered_messages)} buffered messages to the timeline!", **_get_log_args())
         
         config_instance = _get_config_instance()
 

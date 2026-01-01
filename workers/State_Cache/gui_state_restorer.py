@@ -22,16 +22,16 @@ def restore_timeline(cache_data: Dict[str, Any], state_mirror_engine: Any) -> No
     Trigger the specific GUI update methods in display (or via the state_mirror if accessible)
     to visually set the knobs/labels/graphs.
     """
-    debug_logger(message="Great Scott! Engaging the Time Circuits!", **_get_log_args())
+    debug_logger(message="t! Engaging the Time Circuits!", **_get_log_args())
     if not state_mirror_engine:
-        debug_logger(message="Great Scott! State Mirror Engine not available for timeline restoration!", **_get_log_args())
+        debug_logger(message="tt! State Mirror Engine not available for timeline restoration!", **_get_log_args())
         return
 
-    debug_logger(message="Great Scott! We're going back in time! Restoring GUI state from the Almanac.", **_get_log_args())
+    debug_logger(message="t! We're going back in time! Restoring GUI state from the Almanac.", **_get_log_args())
     try:
         for topic, payload in cache_data.items():
-            debug_logger(message=f"Replaying event from the past: Topic='{topic}'", **_get_log_args())
+            debug_logger(message=f"🔄 Replaying event from the past: Topic='{topic}'", **_get_log_args())
             state_mirror_engine.sync_incoming_mqtt_to_gui(topic, payload)
-        debug_logger(message="Great Scott! The timeline has been successfully restored!", **_get_log_args())
+        debug_logger(message="tt! The timeline has been successfully restored!", **_get_log_args())
     except Exception as e:
-        debug_logger(message=f"Great Scott! A paradox has occurred! Failed to restore the timeline: {e}", **_get_log_args())
+        debug_logger(message=f"tt! A paradox has occurred! Failed to restore the timeline: {e}", **_get_log_args())

@@ -83,7 +83,7 @@ class GenericInstrumentGui(ttk.Frame):
         
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
-                message=f"🧪 Great Scott! Entering '{current_function_name}' for module '{module_name}'! Target JSON: {self.json_path}",
+                message=f"🧪  Entering '{current_function_name}' for module '{module_name}'! Target JSON: {self.json_path}",
                 **_get_log_args()
             )
 
@@ -175,7 +175,7 @@ class GenericInstrumentGui(ttk.Frame):
             # 3. Log the disaster with maximum detail
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(
-                    message=f"❌🔴 Great Scott! The wrapper has failed to contain the builder! {e}\n\n🕵️ FORENSIC TRACE:\n{tb}",
+                    message=f"❌🔴  The wrapper has failed to contain the builder! {e}\n\n🕵️ FORENSIC TRACE:\n{tb}",
                     **_get_log_args()
                 )
 

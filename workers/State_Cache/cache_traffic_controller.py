@@ -25,20 +25,20 @@ def process_traffic(topic: str, payload: str, current_cache: Dict) -> Tuple[bool
     Returns (True, new_payload) if the GUI needs an update.
     Returns (False, None) if it's redundant.
     """
-    debug_logger(message=f"Great Scott! A new event is rippling through the timeline! Topic: {topic}", **_get_log_args())
+    debug_logger(message=f"tt! A new event is rippling through the timeline! Topic: {topic}", **_get_log_args())
     try:
         if isinstance(payload, bytes):
             payload = payload.decode('utf-8')
         
         new_payload = orjson.loads(payload)
-        debug_logger(message="Payload decoded. Now, to the Judge!", **_get_log_args())
+        debug_logger(message="🧑‍⚖️ Payload decoded. Now, to the Judge!", **_get_log_args())
 
         if state_comparator.should_update(topic, new_payload, current_cache):
-            debug_logger(message=f"A change in the timeline! This is heavy. Topic: {topic}", **_get_log_args())
+            debug_logger(message=f"⚓ A change in the timeline! This is heavy. Topic: {topic}", **_get_log_args())
             return True, new_payload
         else:
-            debug_logger(message="No change detected. The timeline is stable... for now.", **_get_log_args())
+            debug_logger(message="🧘 No change detected. The timeline is stable... for now.", **_get_log_args())
             return False, None
     except Exception as e:
-        debug_logger(message=f"Great Scott! The traffic controller has short-circuited! {e}", **_get_log_args())
+        debug_logger(message=f"t! The traffic controller has short-circuited! {e}", **_get_log_args())
         return False, None
