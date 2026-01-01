@@ -29,6 +29,7 @@ class FleetMqttBridge:
     def __init__(self, mqtt_connection_manager, subscriber_router):
         self.mqtt_connection_manager = mqtt_connection_manager # Store the manager
         self.subscriber = subscriber_router # Store the router
+        self.json_builder = VisaJsonBuilder() # Initialize the JSON builder
         
         # Instantiate the Core Logic (Headless)
         self.core_manager = VisaFleetManager()
