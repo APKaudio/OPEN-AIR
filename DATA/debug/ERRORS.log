@@ -1,2 +1,1 @@
-1767306568.888022❌ Critical error during manager launch: 'MqttSubscriberRouter' object has no attribute 'subscribe' ❌ manager launcher🪿 launch managers  🧩 {'version': 'Unknown_Ver'}
-1767306568.889704❌ Manager launch failed. Exiting application. ❌ OpenAir🪿 main  🧩 {'version': '20251226.000000.1'}
+1767308306.255755💳 ❌ FleetSupervisor: Unexpected error connecting to CN03480580 (USB0::2391::65519::CN03480580::0::INSTR): No device found. ❌ manager visa supervisor🪿  connect and setup device  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}

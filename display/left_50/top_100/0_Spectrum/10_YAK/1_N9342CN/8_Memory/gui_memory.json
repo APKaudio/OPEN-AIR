@@ -1,0 +1,105 @@
+{
+      "Nab": {
+        "type": "OcaBlock",
+        "description": "Memory Catalog Monitoring",
+        "fields": {
+          "Nab_Preset_Catalog": {
+            "type": "OcaBlock",
+            "description": "View Preset Files",
+            "fields": {
+              "N9342CN": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "trigger": false,
+                "message": ":MMEMory:CATalog? \"<preset_path>\" ",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": {
+                  "preset_path": {
+                    "value": "C:\\PRESETS\\",
+                    "type": "_Value"
+                  }
+                }
+              },
+              "Outputs": {
+                "type": "OcaBlock",
+                "fields": {
+                  "preset_catalog_list": {
+                    "value": "0",
+                    "type": "_Value"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Set": {
+        "type": "OcaBlock",
+        "description": "Memory Actions",
+        "fields": {
+          "Set_stored_Preset": {
+            "type": "OcaBlock",
+            "description": "Configure Preset Target",
+            "fields": {
+              "N9342CN": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "trigger": false,
+                "message": ":MMEMory:LOAD STA,\"<preset_path><preset_fileName>\" ",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": {
+                  "preset_fileName": {
+                    "value": "14.STA",
+                    "type": "_Value"
+                  },
+                  "preset_path": {
+                    "value": "C:\\PRESETS\\",
+                    "type": "_Value"
+                  }
+                }
+              }
+            }
+          },
+          "Do_Load_Preset": {
+            "type": "OcaBlock",
+            "description": "Execute Preset Load",
+            "fields": {
+              "N9342CN": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "trigger": false,
+                "message": ":MMEMory:LOAD:STATe",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": {
+                  "preset_number": {
+                    "value": "0",
+                    "type": "_Value"
+                  }
+                }
+              },
+              "Load_Button": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "label_active": "LoadPreset",
+                "label_inactive": "LoadPreset",
+                "trigger": 0,
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          }
+        }
+      }
+    }

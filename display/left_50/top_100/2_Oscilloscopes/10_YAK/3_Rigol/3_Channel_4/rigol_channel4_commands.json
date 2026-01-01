@@ -1,0 +1,145 @@
+{
+  "nab": {
+    "type": "OcaBlock",
+    "description": "Rigol Measurements",
+    "fields": {
+      "Measurements_CH4": {
+        "type": "OcaBlock",
+        "description": "Channel 4 Stats",
+        "fields": {
+          "Get_Stats_CH4": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "message": ":MEASure:VPP? CHANnel4;:MEASure:VRMS? CHANnel4;:MEASure:FREQuency? CHANnel4;:MEASure:PDUTy? CHANnel4",
+            "layout": { "height": 30, "sticky": "" }
+          },
+          "Outputs": {
+            "type": "OcaBlock",
+            "fields": {
+              "Vpp": { "value": "Vpp", "type": "_Value" },
+              "Vrms": { "value": "Vrms", "type": "_Value" },
+              "Freq": { "value": "Freq", "type": "_Value" },
+              "Duty": { "value": "Duty %", "type": "_Value" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "rig": {
+    "type": "OcaBlock",
+    "description": "Scope Configuration",
+    "fields": {
+      "Config_CH4": {
+        "type": "OcaBlock",
+        "description": "Channel 4 Vertical",
+        "fields": {
+          "CH4_Scale": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":CHANnel4:SCALe <scale>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "scale": { "value": "1.0", "type": "_Value" } }
+              }
+            }
+          },
+          "CH4_Offset": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":CHANnel4:OFFSet <offset>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "offset": { "value": "0.0", "type": "_Value" } }
+              }
+            }
+          },
+          "CH4_Coupling": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":CHANnel4:COUPling <coupling>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "coupling": { "value": "DC", "type": "_Value" } }
+              }
+            }
+          },
+          "CH4_Probe": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":CHANnel4:PROBe <atten>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "atten": { "value": "10", "type": "_Value" } }
+              }
+            }
+          },
+          "CH4_BWLimit": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":CHANnel4:BWLimit <limit>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "fields": { "limit": { "value": "20M", "type": "_Value" } }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "Do": {
+    "type": "OcaBlock",
+    "description": "Actions and Toggles",
+    "fields": {
+      "Channel_Display_Control": {
+        "type": "OcaBlock",
+        "fields": {
+          "CH4_ON": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "label_inactive": "CH4 ON",
+            "Execute Command": { "message": ":CHANnel4:DISPlay ON" }
+          },
+          "CH4_OFF": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "label_inactive": "CH4 OFF",
+            "Execute Command": { "message": ":CHANnel4:DISPlay OFF" }
+          }
+        }
+      }
+    }
+  }
+}

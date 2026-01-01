@@ -288,6 +288,3 @@ def run_interactive_pre_check(console_print_func, debug_log_func, app_constants_
         # If we were in clean install mode, update config.ini for subsequent runs
         if initial_clean_install_mode:
             _update_config_after_install(debug_log_func)
-
-
-

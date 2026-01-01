@@ -30,5 +30,4 @@ _indicator on off toggle active inactive indicator   should be 🔴 🟢 as acti
 
 _progress indicator - %complete   not used at this time 
 
-_Vu meter - volum units representeing amplitude or {abosolute} amplitude   not used at this time 
-
+_Vu meter - volum units representeing amplitude or {abosolute} amplitude   not used at this time

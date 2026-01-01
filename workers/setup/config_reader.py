@@ -122,4 +122,3 @@ class Config:
         debug_logger(message=f"ENABLE_DEBUG_SCREEN: {self.ENABLE_DEBUG_SCREEN}", **_get_log_args())
         debug_logger(message=f"DEBUG_TO_TERMINAL: {self.DEBUG_TO_TERMINAL}", **_get_log_args()) # Add this line
         debug_logger(message="-----------------------------", **_get_log_args())
-

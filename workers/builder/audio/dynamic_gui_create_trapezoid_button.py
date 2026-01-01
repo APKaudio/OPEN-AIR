@@ -172,4 +172,3 @@ class TrapezoidButtonCreatorMixin:
             return f"#{r:02x}{g:02x}{b:02x}"
         except (ValueError, TypeError):
             return "#000000"
-

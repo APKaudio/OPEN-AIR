@@ -1,0 +1,303 @@
+{
+  "nab": {
+    "type": "OcaBlock",
+    "description": "Math Measurements",
+    "fields": {
+      "Read_Math_Stats": {
+        "type": "OcaBlock",
+        "description": "Read statistics for the active Math function",
+        "fields": {
+          "Get_Math_Statistics": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":MEASure:SOURce FUNCtion;:MEASure:VPP?;:MEASure:VMAX?;:MEASure:VMIN?;:MEASure:VAVerage?",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Outputs": {
+                "type": "OcaBlock",
+                "description": "Measured Math Statistics",
+                "fields": {
+                  "math_vpp": { "value": "Math Vpp", "type": "_Value" },
+                  "math_vmax": { "value": "Math Vmax", "type": "_Value" },
+                  "math_vmin": { "value": "Math Vmin", "type": "_Value" },
+                 "math_avg": { "value": "Math Avg", "type": "_Value" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "set": {
+    "type": "OcaBlock",
+    "description": "Math Configuration",
+    "fields": {
+      "Math_Operation": {
+        "type": "OcaBlock",
+        "description": "Select Operation",
+        "fields": {
+          "Set_Operation": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion:OPERation <operation>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "description": "Math Operation Input",
+                "fields": {
+                  "operation": {
+                    "value": "FFT",
+                    "type": "_Value",
+                    "description": "ADD, SUBTract, MULTiply, INTegrate, DIFFerentiate, FFT"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Math_Source_Control": {
+        "type": "OcaBlock",
+        "description": "Source Selection",
+        "fields": {
+          "Set_Source_CH1": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion:SOURce CHANnel1",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          },
+          "Set_Source_CH2": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion:SOURce CHANnel2",
+                "layout": { "height": 30, "sticky": "" }
+              }
+            }
+          }
+        }
+      },
+      "Math_Vertical": {
+        "type": "OcaBlock",
+        "description": "Vertical Scale & Offset",
+        "fields": {
+          "Set_Range": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion:RANGe <range>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "description": "Math Range Input",
+                "fields": {
+                  "range": { "value": "10.0", "type": "_Value", "description": "Full scale value" }
+                }
+              }
+            }
+          },
+          "Set_Offset": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion:OFFSet <offset>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "description": "Math Offset Input",
+                "fields": {
+                  "offset": { "value": "0.0", "type": "_Value", "description": "Offset value" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "FFT_Settings": {
+        "type": "OcaBlock",
+        "description": "FFT Specific Configuration",
+        "fields": {
+          "Set_Window_RECTangular": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion:WINDow <window>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "description": "FFT Window Type Input",
+                "fields": {
+                  "window": {
+                    "value": "RECTangular",
+                    "type": "_Value",
+                    "description": "RECTangular"
+                  }
+                }
+              }
+            }
+          },
+           "Set_Window_HANNing": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion:WINDow <window>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "description": "FFT Window Type Input",
+                "fields": {
+                  "window": {
+                    "value": "HANNing",
+                    "type": "_Value",
+                    "description": "HANNing"
+                  }
+                }
+              }
+            }
+          },
+           "Set_Window_FLATtop": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion:WINDow <window>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "description": "FFT Window Type Input",
+                "fields": {
+                  "window": {
+                    "value": "FLATtop",
+                    "type": "_Value",
+                    "description": "FLATtop"
+                  }
+                }
+              }
+            }
+          },
+          "Set_Center_Frequency": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion:CENTer <frequency>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "description": "FFT Center Frequency Input",
+                "fields": {
+                  "frequency": { "value": "100000", "type": "_Value", "description": "Center Freq in Hz" }
+                }
+              }
+            }
+          },
+          "Set_Span": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion:SPAN <span>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "description": "FFT Span Input",
+                "fields": {
+                  "span": { "value": "50000", "type": "_Value", "description": "Span in Hz" }
+                }
+              }
+            }
+          },
+          "Set_FFT_Scale": {
+            "type": "OcaBlock",
+            "fields": {
+              "Execute Command": {
+                "type": "_GuiActuator",
+                "AES70": "OcaBooleanActuator",
+                "active": true,
+                "message": ":FUNCtion:SCALe <scale>",
+                "layout": { "height": 30, "sticky": "" }
+              },
+              "Input": {
+                "type": "OcaBlock",
+                "description": "FFT Scale Input",
+                "fields": {
+                  "scale": { "value": "10", "type": "_Value", "description": "dB per division" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "Do": {
+    "type": "OcaBlock",
+    "description": "Actions and Toggles",
+    "fields": {
+      "Math_Display_Control": {
+        "type": "OcaBlock",
+        "description": "Math Display Controls",
+        "fields": {
+          "Do_Math_ON": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "Math ON",
+            "Execute Command": { "message": ":FUNCtion:DISPlay ON" }
+          },
+          "Do_Math_OFF": {
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "active": true,
+            "label_inactive": "Math OFF",
+            "Execute Command": { "message": ":FUNCtion:DISPlay OFF" }
+          }
+        }
+      }
+    }
+  }
+}

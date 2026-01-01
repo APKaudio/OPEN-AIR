@@ -1,0 +1,63 @@
+{
+  "Signal_Generator_Panel": {
+    "type": "OcaBlock",
+    "description": "Signal Generator Control Panel",
+    "fields": {
+      "Frequency_Control": {
+        "type": "OcaBlock",
+        "description": "Frequency",
+        "fields": {
+          "frequency_value": {
+            "type": "_TextInput",
+            "label_active": "Frequency (Hz)",
+            "value_default": "1e6",
+            "message_details": {
+              "SIGNAL_GENERATOR_MODEL": {
+                "type": "_GuiActuator",
+                "trigger": false,
+                "command_value": "FREQ <value>"
+              }
+            }
+          }
+        }
+      },
+      "Amplitude_Control": {
+        "type": "OcaBlock",
+        "description": "Amplitude",
+        "fields": {
+          "amplitude_value": {
+            "type": "_TextInput",
+            "label_active": "Amplitude (dBm)",
+            "value_default": "0",
+            "message_details": {
+              "SIGNAL_GENERATOR_MODEL": {
+                "type": "_GuiActuator",
+                "trigger": false,
+                "command_value": "POWER <value>"
+              }
+            }
+          }
+        }
+      },
+      "Output_Control": {
+        "type": "OcaBlock",
+        "description": "Output",
+        "fields": {
+          "output_state": {
+            "type": "_GuiButtonToggle",
+            "label_active": "ON",
+            "label_inactive": "OFF",
+            "state_default": false,
+            "message_details": {
+              "SIGNAL_GENERATOR_MODEL": {
+                "type": "_GuiActuator",
+                "trigger": false,
+                "command_value": "OUTPUT:STATE <state>"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

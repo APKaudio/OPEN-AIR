@@ -95,4 +95,3 @@ class Config:
             print("-----------------------------")
         else:
             print(f"Warning: config.ini not found at {config_path}. Using default settings.")
-

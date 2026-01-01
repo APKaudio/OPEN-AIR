@@ -149,4 +149,3 @@ class VisaJsonBuilder:
                 grouped_data[device_type][model] = []
             grouped_data[device_type][model].append(device)
         return grouped_data
-
