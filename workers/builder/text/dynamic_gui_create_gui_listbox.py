@@ -33,11 +33,11 @@ import os
 import inspect
 from decimal import Decimal, InvalidOperation
 from workers.mqtt.mqtt_subscriber_router import MqttSubscriberRouter # Import MqttSubscriberRouter
-from workers.utils.topic_utils import get_topic # Import get_topic
+from workers.mqtt.mqtt_topic_utils import get_topic, TOPIC_DELIMITER # Import get_topic and TOPIC_DELIMITER
 
 # --- Module Imports ---
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 from workers.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
@@ -172,7 +172,7 @@ class GuiListboxCreatorMixin:
                 state_mirror_engine.register_widget(widget_id, self.selected_option_var, base_mqtt_topic_from_path, config)
                 
                 # Subscribe to this widget's topic to receive updates for its selected value
-                from workers.utils.topic_utils import get_topic
+                from workers.mqtt.mqtt_topic_utils import get_topic
                 topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
                 subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
 

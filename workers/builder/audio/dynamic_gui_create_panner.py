@@ -10,7 +10,7 @@ from workers.setup.config_reader import Config
 
 app_constants = Config.get_instance()      
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 import os
 
@@ -213,7 +213,7 @@ class PannerCreatorMixin:
                 state_mirror_engine.register_widget(widget_id, panner_value_var, base_mqtt_topic_from_path, config)
 
                 # Subscribe to the topic for incoming messages
-                from workers.utils.topic_utils import get_topic
+                from workers.mqtt.mqtt_topic_utils import get_topic
                 topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
                 subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
 

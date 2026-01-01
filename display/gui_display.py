@@ -33,7 +33,7 @@ from workers.display.layout_parser import LayoutParser
 
 # Import logger and styling utilities
 # RESTORED: usage of _get_log_args to match the rest of the application protocol
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 from workers.logger.logger import debug_logger 
 from workers.styling.style import THEMES, DEFAULT_THEME
 

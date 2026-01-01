@@ -10,10 +10,10 @@ from workers.setup.config_reader import Config
 
 app_constants = Config.get_instance()     
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 import os
-from workers.utils.topic_utils import get_topic
+from workers.mqtt.mqtt_topic_utils import get_topic
 
 class CustomFaderFrame(tk.Frame):
     def __init__(self, master, variable, config, path, state_mirror_engine, command):

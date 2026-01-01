@@ -24,8 +24,8 @@ import inspect
 import orjson
 
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args
 
 
 def get_command_node(repo, command_path_parts, function_name):

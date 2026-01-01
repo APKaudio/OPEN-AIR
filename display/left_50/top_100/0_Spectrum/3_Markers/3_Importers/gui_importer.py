@@ -43,7 +43,7 @@ from workers.importers.worker_importer_editor import *
 from workers.importers.worker_importer_saver import *
 from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 
 # --- Global Scope Variables ---
 current_version = "20251226.000000.1"

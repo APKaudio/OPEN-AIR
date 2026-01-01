@@ -12,10 +12,10 @@ import orjson # Ensure orjson is imported
 
 from workers.logger.logger import debug_logger
 from workers.setup.config_reader import Config
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 from workers.mqtt.mqtt_publisher_service import publish_payload
-from workers.utils.topic_utils import get_topic
-from workers.utils import worker_project_paths as app_constants
+from workers.mqtt.mqtt_topic_utils import get_topic
+from workers.setup import worker_project_paths as app_constants
 
 
 class HorizontalMeterWithText(ttk.Frame):

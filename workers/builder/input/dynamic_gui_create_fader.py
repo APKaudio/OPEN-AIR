@@ -6,9 +6,9 @@ from workers.setup.config_reader import Config # Import the Config class
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 import os
-from workers.utils.topic_utils import get_topic
+from workers.mqtt.mqtt_topic_utils import get_topic
 
 class FaderCreatorMixin:
     def _create_fader(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
@@ -38,7 +38,8 @@ class FaderCreatorMixin:
                 from_=config.get("min", 0),
                 to=config.get("max", 100),
                 orient=orient,
-                variable=fader_value_var # Bind the StringVar to the scale
+                variable=fader_value_var, # Bind the StringVar to the scale
+                width=130 # Set fixed width to 130 pixels
             )
             
             if orient == "vertical":

@@ -53,7 +53,7 @@ headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ_MHZ", "PEAK"] # NEW: Added P
 
 # Updated imports for new logging functions
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 
 
 def Marker_convert_IAShtml_report_to_csv(html_content):

@@ -14,13 +14,13 @@ import time
 import queue
 import tkinter as tk
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 from workers.setup.config_reader import Config # Import the Config class                                                                          
 from workers.mqtt import mqtt_publisher_service
 
 app_constants = Config.get_instance() # Get the singleton instance      
 
-import workers.utils.topic_utils as topic_utils
+import workers.mqtt.mqtt_topic_utils as mqtt_topic_utils
 
 # Globals
 current_version = "20251225.004500.1"
@@ -65,7 +65,7 @@ class StateMirrorEngine:
         Registers a widget to be tracked by the engine.
         Now also stores the full config dictionary for the widget.
         """
-        full_topic = topic_utils.get_topic(self.base_topic, tab_name, widget_id)
+        full_topic = mqtt_topic_utils.get_topic(self.base_topic, tab_name, widget_id)
         self.registered_widgets[full_topic] = {
             "var": tk_variable,
             "tab": tab_name,

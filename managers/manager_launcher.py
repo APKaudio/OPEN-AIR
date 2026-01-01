@@ -4,7 +4,7 @@ import os
 import inspect
 
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 
 # --- MQTT and Proxy Imports ---
 from workers.mqtt.mqtt_connection_manager import MqttConnectionManager

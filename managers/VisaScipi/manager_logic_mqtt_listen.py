@@ -7,7 +7,7 @@
 import orjson
 import threading
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 
 # Constants for MQTT Topics
 MQTT_TOPIC_SEARCH_TRIGGER = "OPEN-AIR/Device/Instrument_Connection/Search_and_Connect/Search_For_devices/trigger"

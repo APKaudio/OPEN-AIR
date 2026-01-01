@@ -16,8 +16,8 @@ import os
 import inspect
 
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .frequency_state import FrequencyState
 from .frequency_yak_communicator import FrequencyYakCommunicator

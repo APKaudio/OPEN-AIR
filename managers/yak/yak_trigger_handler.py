@@ -23,12 +23,12 @@ app_constants = Config.get_instance() # Get the singleton instance
 # import orjson # Not needed in deprecated stub
 
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 # from managers.yak_manager.yak_repository_parser import get_command_node, lookup_scpi_command, lookup_inputs, lookup_outputs # Not needed
 # from managers.yak_manager.yak_command_builder import fill_scpi_placeholders # Not needed
 # from managers.yak_manager.manager_yak_tx import YakTxManager # Not needed
 # from managers.yak_manager.manager_yak_rx import YakRxManager # Not needed
-from workers.utils.worker_project_paths import YAKETY_YAK_REPO_PATH 
+from workers.setup.worker_project_paths import YAKETY_YAK_REPO_PATH 
 
 
 def handle_yak_trigger(*args, **kwargs):

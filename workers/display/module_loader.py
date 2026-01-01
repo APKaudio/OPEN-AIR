@@ -18,7 +18,7 @@ from workers.setup.config_reader import Config # Import the Config class
 # Globals
 app_constants = Config.get_instance() # Get the singleton instance
 from workers.logger.logger import debug_logger # Import the global debug_log
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 
 # Globals for Versioning
 current_version = "20251229.1755.1"

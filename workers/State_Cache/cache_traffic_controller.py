@@ -12,7 +12,7 @@ from typing import Dict, Any, Tuple, Optional
 
 from . import state_comparator
 from workers.logger.logger import debug_logger
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 
 current_version = "20251230.230300.1"
 current_version_hash = (20251230 * 230300 * 1)

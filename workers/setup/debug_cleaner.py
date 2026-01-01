@@ -3,7 +3,7 @@
 import os
 import sys
 from workers.logger.logger import  debug_logger # import  debug_logger
-from workers.utils.log_utils import _get_log_args # Import _get_log_args
+from workers.logger.log_utils import _get_log_args # Import _get_log_args
 
 def clear_debug_directory(data_dir): # Removed _func argument
     debug_logger(message="▶️ Entering clear_debug_directory.", **_get_log_args())

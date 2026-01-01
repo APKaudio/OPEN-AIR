@@ -45,14 +45,14 @@ app_constants = Config.get_instance() # Get the singleton instance
 
 # --- Module Imports ---
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 from workers.importers.worker_marker_file_import_converter import (
     Marker_convert_IAShtml_report_to_csv,
     Marker_convert_SB_PDF_File_report_to_csv,
     Marker_convert_WWB_SHW_File_report_to_csv,
     Marker_convert_csv_unknow_report_to_csv
 )
-from workers.utils.worker_project_paths import GLOBAL_PROJECT_ROOT # NEW: Import GLOBAL_PROJECT_ROOT
+from workers.setup.worker_project_paths import GLOBAL_PROJECT_ROOT # NEW: Import GLOBAL_PROJECT_ROOT
 
 
 # --- Global Scope Variables ---

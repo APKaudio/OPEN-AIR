@@ -13,9 +13,9 @@ import tempfile
 import inspect
 from typing import Dict, Any
 
-from workers.utils import worker_project_paths as app_constants
+from workers.setup import worker_project_paths as app_constants
 from workers.logger.logger import debug_logger
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 
 current_version = "20251230.230000.1"
 current_version_hash = (20251230 * 230000 * 1)

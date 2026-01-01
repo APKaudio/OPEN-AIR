@@ -35,12 +35,12 @@ import orjson
 
 # --- Module Imports ---
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 from workers.setup.config_reader import Config # Import the Config class                                                                          
 
 app_constants = Config.get_instance() # Get the singleton instance      
 
-from workers.utils.topic_utils import get_topic
+from workers.mqtt.mqtt_topic_utils import get_topic
 
 # The wrapper functions debug_log and _switch are removed
 # as the core debug_log and  now directly handle LOCAL_DEBUG_ENABLE.

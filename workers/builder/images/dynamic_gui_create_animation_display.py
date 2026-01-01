@@ -7,10 +7,10 @@ from workers.setup.config_reader import Config # Import the Config class
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 import os
 from workers.setup.path_initializer import GLOBAL_PROJECT_ROOT # Import GLOBAL_PROJECT_ROOT
-from workers.utils.topic_utils import get_topic # Import get_topic
+from workers.mqtt.mqtt_topic_utils import get_topic # Import get_topic
 
 class AnimationDisplayCreatorMixin:
     def _create_animation_display(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):

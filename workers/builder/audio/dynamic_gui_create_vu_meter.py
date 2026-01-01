@@ -7,9 +7,9 @@ from workers.setup.config_reader import Config # Import the Config class
 
 app_constants = Config.get_instance() # Get the singleton instance      
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 import os
-from workers.utils.topic_utils import get_topic
+from workers.mqtt.mqtt_topic_utils import get_topic
 
 class VUMeterCreatorMixin:
     def _create_vu_meter(self, parent_frame, label, config, path, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router):
@@ -71,7 +71,7 @@ class VUMeterCreatorMixin:
                 state_mirror_engine.register_widget(widget_id, vu_value_var, base_mqtt_topic_from_path, config)
 
                 # Subscribe to the topic for incoming messages
-                from workers.utils.topic_utils import get_topic
+                from workers.mqtt.mqtt_topic_utils import get_topic
                 topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
                 subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
 

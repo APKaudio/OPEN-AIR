@@ -1,7 +1,7 @@
 
 import inspect
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 from workers.Showtime.worker_showtime_tune import on_tune_request_from_selection
 
 def on_marker_button_click(showtime_tab_instance, button):

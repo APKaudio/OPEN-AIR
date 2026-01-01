@@ -6,7 +6,7 @@ import pathlib
 from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 from workers.logger.logger import  debug_logger # import  debug_logger
-from workers.utils.log_utils import _get_log_args # Import _get_log_args
+from workers.logger.log_utils import _get_log_args # Import _get_log_args
 
 GLOBAL_PROJECT_ROOT = None
 DATA_DIR = None

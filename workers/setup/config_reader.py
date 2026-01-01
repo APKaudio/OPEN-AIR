@@ -4,7 +4,7 @@ import configparser
 import pathlib
 import threading # Import threading for thread-safe singleton
 from .config_builder import create_default_config_ini
-from workers.utils.log_utils import _get_log_args # Import _get_log_args
+from workers.logger.log_utils import _get_log_args # Import _get_log_args
 
 class Config:
     _instance = None

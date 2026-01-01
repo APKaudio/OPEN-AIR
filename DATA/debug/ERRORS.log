@@ -1,7 +1,374 @@
-1767162106.793447❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py': module 'gui_frequency' has no attribute '__builtins__'. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
-1767162106.793523❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
-1767162106.848423❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py': module 'gui_start_pause_stop' has no attribute '__builtins__'. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
-1767162106.848453❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
-1767162106.855248❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py': module 'gui_Connection_Manager' has no attribute '__builtins__'. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
-1767162106.855281❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
-1767162168.317432❌ Error in _create_gui_listbox for 'Found_devices': cannot access local variable 'get_topic' where it is not associated with a value ❌ dynamic gui create gui listbox🪿  create gui listbox  🧩 {'version': '20251213.120000.44'}
+1767233900.662486❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233900.662560❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233900.725754❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233900.725941❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233900.801580❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233900.801638❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233903.920269❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/2_bandwidth/gui_bandwidth.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233903.920357❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/2_bandwidth/gui_bandwidth.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233904.246694❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/3_amplitude/gui_amplitude.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233904.246753❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/3_amplitude/gui_amplitude.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233904.702164❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/4_markers/gui_markers.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233904.702219❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/4_markers/gui_markers.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233905.142157❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/5_traces/gui_traces.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233905.142216❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/5_traces/gui_traces.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233906.513391❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/5_Sweeping/2_Sweeping_Configuration/gui_sweeping_configuration.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233906.513451❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/5_Sweeping/2_Sweeping_Configuration/gui_sweeping_configuration.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233906.519459❌ Error in _on_tab_change: workers.logger.logger.debug_logger() got multiple values for keyword argument 'function' ❌ gui display🪿  on tab change  🧩 {'version': 'Unknown_Ver'}
+1767233906.890336❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/6_plotting/1_Single/gui_single.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233906.890392❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/6_plotting/1_Single/gui_single.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233907.256294❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/10_YAK/1_N9342CN/0_Frequency/gui_yak_frequency.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233907.256353❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/10_YAK/1_N9342CN/0_Frequency/gui_yak_frequency.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233938.823323❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233938.823421❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233938.896824❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233938.896913❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233938.924999❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233938.925090❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233942.240228❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/2_bandwidth/gui_bandwidth.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233942.240299❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/2_bandwidth/gui_bandwidth.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233942.614526❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/3_amplitude/gui_amplitude.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233942.614580❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/3_amplitude/gui_amplitude.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233942.998515❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/4_markers/gui_markers.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233942.998568❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/4_markers/gui_markers.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233986.982278❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233986.982450❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233987.031106❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233987.031185❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233987.037965❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233987.038123❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233994.922227❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/2_bandwidth/gui_bandwidth.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233994.922323❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/2_bandwidth/gui_bandwidth.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233995.302803❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/3_amplitude/gui_amplitude.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233995.302876❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/3_amplitude/gui_amplitude.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233995.695200❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/4_markers/gui_markers.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233995.695300❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/4_markers/gui_markers.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233996.438677❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/5_traces/gui_traces.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233996.438730❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/5_traces/gui_traces.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233996.785271❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/10_YAK/1_N9342CN/0_Frequency/gui_yak_frequency.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233996.785329❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/10_YAK/1_N9342CN/0_Frequency/gui_yak_frequency.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233997.116724❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/6_plotting/1_Single/gui_single.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233997.116777❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/6_plotting/1_Single/gui_single.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233997.540966❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/5_Sweeping/2_Sweeping_Configuration/gui_sweeping_configuration.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233997.541024❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/5_Sweeping/2_Sweeping_Configuration/gui_sweeping_configuration.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233998.211312❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Router/0_Coax Left/gui_coax_left.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233998.211367❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Router/0_Coax Left/gui_coax_left.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233998.214914❌ Error in _on_tab_change: workers.logger.logger.debug_logger() got multiple values for keyword argument 'function' ❌ gui display🪿  on tab change  🧩 {'version': 'Unknown_Ver'}
+1767233998.531718❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/2_Oscilloscopes/2_Instrument/gui_instrument_oscilloscope.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233998.531762❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/2_Oscilloscopes/2_Instrument/gui_instrument_oscilloscope.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233998.924583❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/3_Generator/1_Instrument/gui_instrument_signal_Generator.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233998.924641❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/3_Generator/1_Instrument/gui_instrument_signal_Generator.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233999.308360❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/4_DMM/1_Instrument/gui_instrument_DMM.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233999.308415❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/4_DMM/1_Instrument/gui_instrument_DMM.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233999.604339❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/5_PSU/1_Instrument/gui_psu.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233999.604399❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/5_PSU/1_Instrument/gui_psu.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767233999.996777❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/7_Load/1_Instrument/gui_dc_load.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767233999.996834❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/7_Load/1_Instrument/gui_dc_load.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234000.388167❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/9_Distortion/1_Instrument/gui_dc_load.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234000.388277❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/9_Distortion/1_Instrument/gui_dc_load.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234000.732530❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/10_Console/1_1-8/gui_Console.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234000.732601❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/10_Console/1_1-8/gui_Console.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234034.485645❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234034.485783❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234034.559437❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234034.559523❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234034.572072❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234034.572893❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234094.508091❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234094.508634❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234094.569450❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234094.569538❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234094.580386❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234094.580962❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234096.810226❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/2_bandwidth/gui_bandwidth.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234096.810292❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/2_bandwidth/gui_bandwidth.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234097.311826❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/3_amplitude/gui_amplitude.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234097.311883❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/3_amplitude/gui_amplitude.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234097.687516❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/4_markers/gui_markers.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234097.687576❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/4_markers/gui_markers.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234097.967494❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/5_traces/gui_traces.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234097.967563❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/5_traces/gui_traces.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234098.371604❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/10_YAK/1_N9342CN/0_Frequency/gui_yak_frequency.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234098.371678❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/10_YAK/1_N9342CN/0_Frequency/gui_yak_frequency.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234098.733150❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/6_plotting/1_Single/gui_single.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234098.733216❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/6_plotting/1_Single/gui_single.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234099.037367❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/5_Sweeping/2_Sweeping_Configuration/gui_sweeping_configuration.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234099.037436❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/5_Sweeping/2_Sweeping_Configuration/gui_sweeping_configuration.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234099.681843❌ Error in _on_tab_change: workers.logger.logger.debug_logger() got multiple values for keyword argument 'function' ❌ gui display🪿  on tab change  🧩 {'version': 'Unknown_Ver'}
+1767234101.018195❌ The magic falters! Error instantiating class 'MarkerPeakHunterGUI': CsvExportUtility.__init__() missing 1 required positional argument: 'print_to_gui_func'. ❌ module loader🪿 instantiate gui class  🧩 {'version': '20251229.1755.1'}
+1767234101.018246❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Markers/2_Peak_Hunter/gui_peak_hunter.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234101.829588❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Router/0_Coax Left/gui_coax_left.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234101.829655❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Router/0_Coax Left/gui_coax_left.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234102.245417❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/2_Oscilloscopes/2_Instrument/gui_instrument_oscilloscope.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234102.245486❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/2_Oscilloscopes/2_Instrument/gui_instrument_oscilloscope.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234103.208185❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/2_Oscilloscopes/10_YAK/1_HP/0_System/gui_yak_Osilliscope_system.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234103.208285❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/2_Oscilloscopes/10_YAK/1_HP/0_System/gui_yak_Osilliscope_system.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234104.365951❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/4_DMM/1_Instrument/gui_instrument_DMM.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234104.366007❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/4_DMM/1_Instrument/gui_instrument_DMM.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234104.829017❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/3_Generator/1_Instrument/gui_instrument_signal_Generator.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234104.829128❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/3_Generator/1_Instrument/gui_instrument_signal_Generator.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234105.212397❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/5_PSU/1_Instrument/gui_psu.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234105.212482❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/5_PSU/1_Instrument/gui_psu.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234106.292892❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/4_DMM/10_YAK/gui_yak_DMM.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234106.293010❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/4_DMM/10_YAK/gui_yak_DMM.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234207.136128❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234207.136290❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234207.178716❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234207.178847❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234207.185809❌ The module, it resists! Error loading module '/home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py': Cannot create a consistent method resolution
+order (MRO) for bases object, TrapezoidButtonCreatorMixin, TrapezoidButtonTogglerCreatorMixin. ❌ module loader🪿  load module  🧩 {'version': '20251229.1755.1'}
+1767234207.185971❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767234313.078719❌🔴 Great Scott! The wrapper has failed to contain the builder! 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py", line 136, in _construct_dynamic_gui
+    self.dynamic_gui = DynamicGuiBuilder(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/Documents/OPEN-AIR/workers/builder/dynamic_gui_builder.py", line 147, in __init__
+    "_ProgressBar": self._create_progress_bar,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+ ❌ gui frequency🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234313.088836❌🔴 Great Scott! The wrapper has failed to contain the builder! 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py", line 136, in _construct_dynamic_gui
+    self.dynamic_gui = DynamicGuiBuilder(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/Documents/OPEN-AIR/workers/builder/dynamic_gui_builder.py", line 147, in __init__
+    "_ProgressBar": self._create_progress_bar,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+ ❌ gui start pause stop🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234313.095611❌🔴 Great Scott! The wrapper has failed to contain the builder! 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py", line 136, in _construct_dynamic_gui
+    self.dynamic_gui = DynamicGuiBuilder(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/Documents/OPEN-AIR/workers/builder/dynamic_gui_builder.py", line 147, in __init__
+    "_ProgressBar": self._create_progress_bar,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+ ❌ gui Connection Manager🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234332.767575❌🔴 Great Scott! The wrapper has failed to contain the builder! 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/1_frequency/gui_frequency.py", line 136, in _construct_dynamic_gui
+    self.dynamic_gui = DynamicGuiBuilder(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/Documents/OPEN-AIR/workers/builder/dynamic_gui_builder.py", line 147, in __init__
+    "_ProgressBar": self._create_progress_bar,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+ ❌ gui frequency🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234332.782282❌🔴 Great Scott! The wrapper has failed to contain the builder! 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/right_50/top_10/gui_start_pause_stop.py", line 136, in _construct_dynamic_gui
+    self.dynamic_gui = DynamicGuiBuilder(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/Documents/OPEN-AIR/workers/builder/dynamic_gui_builder.py", line 147, in __init__
+    "_ProgressBar": self._create_progress_bar,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+ ❌ gui start pause stop🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234332.785659❌🔴 Great Scott! The wrapper has failed to contain the builder! 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/right_50/bottom_90/0_Connection_Manager/gui_Connection_Manager.py", line 136, in _construct_dynamic_gui
+    self.dynamic_gui = DynamicGuiBuilder(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/Documents/OPEN-AIR/workers/builder/dynamic_gui_builder.py", line 147, in __init__
+    "_ProgressBar": self._create_progress_bar,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+ ❌ gui Connection Manager🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234337.985915❌🔴 Great Scott! The wrapper has failed to contain the builder! 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/2_bandwidth/gui_bandwidth.py", line 136, in _construct_dynamic_gui
+    self.dynamic_gui = DynamicGuiBuilder(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/Documents/OPEN-AIR/workers/builder/dynamic_gui_builder.py", line 147, in __init__
+    "_ProgressBar": self._create_progress_bar,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+ ❌ gui bandwidth🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234338.425946❌🔴 Great Scott! The wrapper has failed to contain the builder! 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/3_amplitude/gui_amplitude.py", line 136, in _construct_dynamic_gui
+    self.dynamic_gui = DynamicGuiBuilder(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/Documents/OPEN-AIR/workers/builder/dynamic_gui_builder.py", line 147, in __init__
+    "_ProgressBar": self._create_progress_bar,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+ ❌ gui amplitude🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234339.195939❌🔴 Great Scott! The wrapper has failed to contain the builder! 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/4_markers/gui_markers.py", line 136, in _construct_dynamic_gui
+    self.dynamic_gui = DynamicGuiBuilder(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/Documents/OPEN-AIR/workers/builder/dynamic_gui_builder.py", line 147, in __init__
+    "_ProgressBar": self._create_progress_bar,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+ ❌ gui markers🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234339.578517❌🔴 Great Scott! The wrapper has failed to contain the builder! 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/3_Instrument/5_traces/gui_traces.py", line 136, in _construct_dynamic_gui
+    self.dynamic_gui = DynamicGuiBuilder(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/Documents/OPEN-AIR/workers/builder/dynamic_gui_builder.py", line 147, in __init__
+    "_ProgressBar": self._create_progress_bar,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+ ❌ gui traces🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234340.603595❌ Error in _on_tab_change: workers.logger.logger.debug_logger() got multiple values for keyword argument 'function' ❌ gui display🪿  on tab change  🧩 {'version': 'Unknown_Ver'}
+1767234340.676959❌🔴 Great Scott! The wrapper has failed to contain the builder! The Blueprint is missing! Cannot find JSON at: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/5_Sweeping/2_Sweeping_Configuration/gui_sweeping_configuration.json
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/5_Sweeping/2_Sweeping_Configuration/gui_sweeping_configuration.py", line 125, in _construct_dynamic_gui
+    raise FileNotFoundError(f"The Blueprint is missing! Cannot find JSON at: {self.json_path}")
+FileNotFoundError: The Blueprint is missing! Cannot find JSON at: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/5_Sweeping/2_Sweeping_Configuration/gui_sweeping_configuration.json
+ ❌ gui sweeping configuration🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234341.002554❌🔴 Great Scott! The wrapper has failed to contain the builder! The Blueprint is missing! Cannot find JSON at: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/6_plotting/1_Single/gui_single.json
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/6_plotting/1_Single/gui_single.py", line 125, in _construct_dynamic_gui
+    raise FileNotFoundError(f"The Blueprint is missing! Cannot find JSON at: {self.json_path}")
+FileNotFoundError: The Blueprint is missing! Cannot find JSON at: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/6_plotting/1_Single/gui_single.json
+ ❌ gui single🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234341.458219❌🔴 Great Scott! The wrapper has failed to contain the builder! 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/10_YAK/1_N9342CN/0_Frequency/gui_yak_frequency.py", line 136, in _construct_dynamic_gui
+    self.dynamic_gui = DynamicGuiBuilder(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/Documents/OPEN-AIR/workers/builder/dynamic_gui_builder.py", line 147, in __init__
+    "_ProgressBar": self._create_progress_bar,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+ ❌ gui yak frequency🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234344.578044❌🔴 Great Scott! The wrapper has failed to contain the builder! 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/10_YAK/1_N9342CN/1_Bandwidth/gui_yak_bandwidth.py", line 136, in _construct_dynamic_gui
+    self.dynamic_gui = DynamicGuiBuilder(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/Documents/OPEN-AIR/workers/builder/dynamic_gui_builder.py", line 147, in __init__
+    "_ProgressBar": self._create_progress_bar,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+ ❌ gui yak bandwidth🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234344.883582❌🔴 Great Scott! The wrapper has failed to contain the builder! 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/10_YAK/1_N9342CN/2_Amplitude/gui_yak_amplitude.py", line 136, in _construct_dynamic_gui
+    self.dynamic_gui = DynamicGuiBuilder(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/Documents/OPEN-AIR/workers/builder/dynamic_gui_builder.py", line 147, in __init__
+    "_ProgressBar": self._create_progress_bar,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+ ❌ gui yak amplitude🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234345.252398❌🔴 Great Scott! The wrapper has failed to contain the builder! 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/10_YAK/1_N9342CN/3_Trace/gui_yak_trace.py", line 136, in _construct_dynamic_gui
+    self.dynamic_gui = DynamicGuiBuilder(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/Documents/OPEN-AIR/workers/builder/dynamic_gui_builder.py", line 147, in __init__
+    "_ProgressBar": self._create_progress_bar,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+ ❌ gui yak trace🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234345.599761❌🔴 Great Scott! The wrapper has failed to contain the builder! 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_Spectrum/10_YAK/3_HPE4411A/0_Frequency/gui_yak_frequency.py", line 136, in _construct_dynamic_gui
+    self.dynamic_gui = DynamicGuiBuilder(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/Documents/OPEN-AIR/workers/builder/dynamic_gui_builder.py", line 147, in __init__
+    "_ProgressBar": self._create_progress_bar,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'DynamicGuiBuilder' object has no attribute '_create_progress_bar'
+ ❌ gui yak frequency🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767234423.198071❌ Error in _create_gui_listbox for 'Found_devices': cannot access local variable 'get_topic' where it is not associated with a value ❌ dynamic gui create gui listbox🪿  create gui listbox  🧩 {'version': '20251213.120000.44'}

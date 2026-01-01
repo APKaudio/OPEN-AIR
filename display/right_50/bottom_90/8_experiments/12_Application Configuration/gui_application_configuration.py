@@ -38,7 +38,7 @@ from tkinter import ttk
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 import pathlib
 
 # --- Global Scope Variables ---

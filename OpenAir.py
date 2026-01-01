@@ -22,7 +22,7 @@ from managers.dependancy import dependancy_checker
 dependancy_checker.initialize_flags(app_constants) # Call early to set flags
 
 # Other essential modules
-from workers.splash.splash_screen import SplashScreen
+from workers.splash_screen.splash_screen import SplashScreen
 from workers.Worker_Launcher import WorkerLauncher
 import display.gui_display
 from workers.logger.logger import  debug_logger
@@ -32,7 +32,7 @@ import workers.logger.logger_config as logger_config
 import workers.setup.console_encoder as console_encoder
 import workers.setup.debug_cleaner as debug_cleaner
 from workers.setup.application_initializer import initialize_app
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 from managers.manager_launcher import launch_managers
 
 current_version = "20251226.000000.1"
@@ -117,7 +117,7 @@ def main():
     from workers.setup.debug_cleaner import clear_debug_directory
     from workers.setup.console_encoder import configure_console_encoding
     import pathlib
-    import workers.utils.watchdog as watchdog # Import watchdog
+    import workers.watchdog.watchdog as watchdog # Import watchdog
 
     GLOBAL_PROJECT_ROOT, data_dir = initialize_paths()
     log_dir = pathlib.Path(data_dir) / "debug"

@@ -202,7 +202,7 @@ debug_log = debug_logger
 # or passed manually in kwargs.
 try:
     # Attempt to import the utility function for automatic context gathering
-    from workers.utils.log_utils import _get_log_args
+    from workers.logger.log_utils import _get_log_args
 except ImportError:
     # Define a fallback if log_utils is not found or not importable
     def _get_log_args():

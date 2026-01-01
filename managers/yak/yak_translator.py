@@ -29,10 +29,10 @@ from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 from workers.mqtt.mqtt_connection_manager import MqttConnectionManager
 from workers.mqtt.mqtt_subscriber_router import MqttSubscriberRouter
-from workers.utils.worker_project_paths import YAKETY_YAK_REPO_PATH 
+from workers.setup.worker_project_paths import YAKETY_YAK_REPO_PATH 
 
 # Imports for command building logic (will be refactored into this class)
 # from managers.yak_manager.yak_repository_parser import get_command_node, lookup_scpi_command, lookup_inputs, lookup_outputs

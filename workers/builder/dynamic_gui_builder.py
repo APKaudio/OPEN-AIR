@@ -22,8 +22,8 @@ from workers.setup.path_initializer import GLOBAL_PROJECT_ROOT
 from workers.mqtt.mqtt_publisher_service import publish_payload
 
 app_constants = Config.get_instance()
-from workers.utils.topic_utils import get_topic, generate_topic_path_from_filepath, TOPIC_DELIMITER
-from workers.utils.log_utils import _get_log_args 
+from workers.mqtt.mqtt_topic_utils import get_topic, generate_topic_path_from_filepath, TOPIC_DELIMITER
+from workers.logger.log_utils import _get_log_args 
 from typing import Dict, Any
 
 # --- Widget Creator Mixins ---
@@ -37,11 +37,12 @@ from .text.dynamic_gui_create_gui_dropdown_option import GuiDropdownOptionCreato
 from .input.dynamic_gui_create_gui_actuator import GuiActuatorCreatorMixin
 from .input.dynamic_gui_create_gui_checkbox import GuiCheckboxCreatorMixin
 from .text.dynamic_gui_create_gui_listbox import GuiListboxCreatorMixin
-from .graphical.dynamic_gui_create_progress_bar import ProgressBarCreatorMixin
+from .images.dynamic_gui_create_progress_bar import ProgressBarCreatorMixin
+
 from .text.dynamic_gui_create_text_input import TextInputCreatorMixin
 from .text.dynamic_gui_create_web_link import WebLinkCreatorMixin
-from .graphical.dynamic_gui_create_image_display import ImageDisplayCreatorMixin
-from .graphical.dynamic_gui_create_animation_display import AnimationDisplayCreatorMixin
+from .images.dynamic_gui_create_image_display import ImageDisplayCreatorMixin
+from .images.dynamic_gui_create_animation_display import AnimationDisplayCreatorMixin
 from .audio.dynamic_gui_create_vu_meter import VUMeterCreatorMixin
 from .input.dynamic_gui_create_fader import FaderCreatorMixin
 from .audio.dynamic_gui_create_knob import KnobCreatorMixin
@@ -55,8 +56,8 @@ from .audio.dynamic_gui_create_trapezoid_button import TrapezoidButtonCreatorMix
 from .audio.dynamic_gui_create_trapezoid_toggler import TrapezoidButtonTogglerCreatorMixin
 
 # 🧪 NEW: Direct Imports of the Widget Classes (No Mixins needed)
-from .Data_graphing.dynamic_graph import FluxPlotter
-from .Data_graphing.Meter_to_display_units import HorizontalMeterWithText, VerticalMeter
+from .data_graphing.dynamic_graph import FluxPlotter
+from .data_graphing.Meter_to_display_units import HorizontalMeterWithText, VerticalMeter
 
 # --- Protocol Global Variables ---
 CURRENT_DATE = 20251230
@@ -68,7 +69,7 @@ current_version_hash = (CURRENT_DATE * CURRENT_TIME * CURRENT_ITERATION)
 current_file = f"{os.path.basename(__file__)}"
 
 class DynamicGuiBuilder(
-    ttk.Frame,
+    ttk.Frame,  # Inject ttk.Frame as the base widget class
     MousewheelScrollMixin,
     LabelFromConfigCreatorMixin,
     LabelCreatorMixin,
@@ -94,13 +95,11 @@ class DynamicGuiBuilder(
     NeedleVUMeterCreatorMixin,
     PannerCreatorMixin,
     CustomHorizontalFaderCreatorMixin,
-    TrapezoidButtonTogglerCreatorMixin,
-    TrapezoidButtonCreatorMixin
-    # ❌ Removed FluxPlotter/Meters from inheritance (we use composition now)
+    TrapezoidButtonTogglerCreatorMixin
 ):
     def __init__(self, parent, json_path=None, tab_name=None, *args, **kwargs):
         config = kwargs.pop('config', {})
-        super().__init__(parent, *args, **kwargs)
+        super().__init__(master=parent)
         self.tab_name = tab_name
         self.state_mirror_engine = config.get('state_mirror_engine')
         self.subscriber_router = config.get('subscriber_router')

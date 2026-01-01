@@ -38,7 +38,7 @@ from collections import defaultdict
 
 # --- Module Imports ---
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 from workers.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---

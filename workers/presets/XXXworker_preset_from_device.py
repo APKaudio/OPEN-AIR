@@ -38,7 +38,7 @@ import time
 # --- Module Imports ---
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 
 # --- Global Scope Variables (as per your instructions) ---
 current_date = datetime.datetime.now().strftime("%Y%m%d")

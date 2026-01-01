@@ -8,7 +8,7 @@
 import threading
 import time
 import sys
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 
 # Global flag to kill the watchdog when app closes
 WATCHDOG_RUNNING = True

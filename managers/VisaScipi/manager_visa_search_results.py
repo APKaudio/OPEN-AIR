@@ -8,7 +8,7 @@ import orjson
 import pathlib
 import re
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 from .manager_visa_list_visa_resources import list_visa_resources
 
 class VisaDeviceSearcher:

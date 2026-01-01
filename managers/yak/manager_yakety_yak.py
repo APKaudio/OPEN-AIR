@@ -26,11 +26,11 @@ app_constants = Config.get_instance() # Get the singleton instance
 
 # --- Utility and Manager Imports ---
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 # from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility # Not needed in deprecated stub
 # from managers.VisaScipi.manager_visa_dispatch_scpi import ScpiDispatcher # Not needed in deprecated stub
 # from managers.yak_manager.yak_trigger_handler import handle_yak_trigger # Not needed in deprecated stub
-from workers.utils.worker_project_paths import YAKETY_YAK_REPO_PATH 
+from workers.setup.worker_project_paths import YAKETY_YAK_REPO_PATH 
 
 # DELETED: YAKETY_YAK_REPO_PATH is now imported from worker_project_paths.py
 # repo_topic_filter = "OPEN-AIR/yak/#" # Not needed in deprecated stub

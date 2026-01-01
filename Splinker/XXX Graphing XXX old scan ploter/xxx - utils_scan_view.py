@@ -34,7 +34,7 @@ import numpy as np
 from matplotlib.offsetbox import AnchoredText 
 
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 
 
 def _find_and_plot_peaks(ax, data, start_freq_MHz, end_freq_MHz):

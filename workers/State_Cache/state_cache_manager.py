@@ -13,7 +13,7 @@ from . import cache_io_handler
 from . import cache_traffic_controller
 from . import gui_state_restorer
 from workers.logger.logger import debug_logger
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 
 current_version = "20251230.230400.1"
 current_version_hash = (20251230 * 230400 * 1)

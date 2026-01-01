@@ -23,7 +23,7 @@ except ImportError:
     PIL_AVAILABLE = False
     print("Warning: Pillow (PIL) not found. GIF animation will be disabled.")
 
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 
 # --- Path Setup ---
 SPLASH_ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent.parent

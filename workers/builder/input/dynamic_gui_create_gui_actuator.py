@@ -38,12 +38,12 @@ import orjson
 
 # --- Module Imports ---
 from workers.logger.logger import  debug_logger
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 from workers.setup.config_reader import Config # Import the Config class                                                                          
 from workers.mqtt.mqtt_publisher_service import publish_payload
 
 app_constants = Config.get_instance() # Get the singleton instance      
-from workers.utils.topic_utils import get_topic
+from workers.mqtt.mqtt_topic_utils import get_topic
 # --- Constants ---
 DEFAULT_PAD_X = 5
 DEFAULT_PAD_Y = 2

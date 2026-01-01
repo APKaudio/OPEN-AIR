@@ -27,7 +27,7 @@ from typing import Dict, Any # Added for type hinting
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import debug_logger
 from workers.setup.config_reader import Config # Import the Config class
-from workers.utils.log_utils import _get_log_args 
+from workers.logger.log_utils import _get_log_args 
 
 # Globals
 app_constants = Config.get_instance() # Get the singleton instance

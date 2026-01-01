@@ -11,7 +11,7 @@ import workers.setup.path_initializer as path_initializer
 import workers.logger.logger_config as logger_config
 import workers.setup.console_encoder as console_encoder
 import workers.setup.debug_cleaner as debug_cleaner
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 from workers.logger.logger import  debug_logger # import  debug_logger
 
 

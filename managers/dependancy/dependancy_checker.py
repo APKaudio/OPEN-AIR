@@ -8,7 +8,7 @@ import inspect
 import subprocess
 import configparser
 import pathlib # For path handling in config update
-from workers.utils.log_utils import _get_log_args
+from workers.logger.log_utils import _get_log_args
 
 # app_constants = Config.get_instance() # REMOVED: Will be passed as argument
 
