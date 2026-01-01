@@ -54,8 +54,8 @@ class FleetMqttBridge:
         
         # MQTT connection is handled by manager_launcher now.
         # 1. Subscribe to Incoming Topics
-        self.subscriber.subscribe(self.TOPIC_DISCOVERY, self._on_discovery_request)
-        self.subscriber.subscribe(self.TOPIC_CMD_INBOX, self._on_device_command)
+        self.subscriber.subscribe_to_topic(self.TOPIC_DISCOVERY, self._on_discovery_request)
+        self.subscriber.subscribe_to_topic(self.TOPIC_CMD_INBOX, self._on_device_command)
         
         # 3. Start the Core Logic
         self.core_manager.start()

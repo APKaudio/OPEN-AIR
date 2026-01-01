@@ -1,6 +1,2 @@
-1767306472.881067❌ Critical error during manager launch: 'MqttSubscriberRouter' object has no attribute 'subscribe' ❌ manager launcher🪿 launch managers  🧩 {'version': 'Unknown_Ver'}
-1767306472.882686❌ Manager launch failed. Exiting application. ❌ OpenAir🪿 main  🧩 {'version': '20251226.000000.1'}
-1767306500.160903❌ Critical error during manager launch: 'MqttSubscriberRouter' object has no attribute 'subscribe' ❌ manager launcher🪿 launch managers  🧩 {'version': 'Unknown_Ver'}
-1767306500.162035❌ Manager launch failed. Exiting application. ❌ OpenAir🪿 main  🧩 {'version': '20251226.000000.1'}
-1767306520.163211❌ Critical error during manager launch: 'MqttSubscriberRouter' object has no attribute 'subscribe' ❌ manager launcher🪿 launch managers  🧩 {'version': 'Unknown_Ver'}
-1767306520.164756❌ Manager launch failed. Exiting application. ❌ OpenAir🪿 main  🧩 {'version': '20251226.000000.1'}
+1767306568.888022❌ Critical error during manager launch: 'MqttSubscriberRouter' object has no attribute 'subscribe' ❌ manager launcher🪿 launch managers  🧩 {'version': 'Unknown_Ver'}
+1767306568.889704❌ Manager launch failed. Exiting application. ❌ OpenAir🪿 main  🧩 {'version': '20251226.000000.1'}

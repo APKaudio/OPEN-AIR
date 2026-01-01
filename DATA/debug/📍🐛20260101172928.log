@@ -1,0 +1,387 @@
+1767306568.265475 🧪  Flushing 8 buffered messages to the timeline! 🦆 logger🪿 set log directory  🧩 {'version': 'Unknown_Ver'}
+1767306568.189805 --- Loaded Debug Settings --- 🦆 config reader🪿 read config  🧩 {'version': 'Unknown_Ver'}
+1767306568.189818 ENABLE_DEBUG_MODE: True 🦆 config reader🪿 read config  🧩 {'version': 'Unknown_Ver'}
+1767306568.189822 ENABLE_DEBUG_FILE: True 🦆 config reader🪿 read config  🧩 {'version': 'Unknown_Ver'}
+1767306568.189825 ENABLE_DEBUG_SCREEN: True 🦆 config reader🪿 read config  🧩 {'version': 'Unknown_Ver'}
+1767306568.189827 DEBUG_TO_TERMINAL: True 🦆 config reader🪿 read config  🧩 {'version': 'Unknown_Ver'}
+1767306568.189830 ----------------------------- 🦆 config reader🪿 read config  🧩 {'version': 'Unknown_Ver'}
+1767306568.265353 📁 GLOBAL_PROJECT_ROOT set to /home/anthony/Documents/OPEN-AIR 🦆 path initializer🪿 initialize paths  🧩 {'version': 'Unknown_Ver'}
+1767306568.265367 ⚙️ sys.path updated. Current sys.path: ['/home/anthony/Documents/OPEN-AIR', '/usr/lib/python312.zip', '/usr/lib/python3.12', '/usr/lib/python3.12/lib-dynload', '/home/anthony/.local/lib/python3.12/site-packages', '/usr/local/lib/python3.12/dist-packages', '/usr/lib/python3/dist-packages'] 🦆 path initializer🪿 initialize paths  🧩 {'version': 'Unknown_Ver'}
+1767306568.265638 ⏩ Not on Windows ('nt'), skipping console encoding reconfiguration. 🦆 console encoder🪿 configure console encoding  🧩 {'version': 'Unknown_Ver'}
+1767306568.265655 ✅ Exiting configure_console_encoding. 🦆 console encoder🪿 configure console encoding  🧩 {'version': 'Unknown_Ver'}
+1767306568.265888 🚀 Continuing initialization sequence for version 20251225. 🦆 application initializer🪿 initialize app  🧩 {'version': 'Unknown_Ver'}
+1767306568.265934 ✅ Application initialization completed successfully. 🦆 application initializer🪿 initialize app  🧩 {'version': 'Unknown_Ver'}
+1767306568.265954 ✅ Dependency check skipped as per config.ini. 🦆 OpenAir🪿 conditional console print  🧩 {'version': '20251226.000000.1'}
+1767306568.357776 🖥️🟢 Entering SplashScreen.__init__ 🦆 splash screen🪿  safe log  🧩 {'version': 'Unknown_Ver'}
+1767306568.366985 🎬 Initializing GIF Animation... 🦆 splash screen🪿  safe log  🧩 {'version': 'Unknown_Ver'}
+1767306568.414371 🎞️ Updating GIF frame to index 0 🦆 splash screen🪿  safe log  🧩 {'version': 'Unknown_Ver'}
+1767306568.417883 ✅ SplashScreen Init Complete. 🦆 splash screen🪿  safe log  🧩 {'version': 'Unknown_Ver'}
+1767306568.867578 🚀 Great Scott! The State Cache Manager is online! We're ready to manipulate the timeline! 🦆 state cache manager🪿   init    🧩 {'version': '20251230.230400.1'}
+1767306568.867669 🟢️️️🟢 Entering 'launch_managers'. Preparing to launch a fleet of managers! 🦆 manager launcher🪿 launch managers  🧩 {'version': 'Unknown_Ver'}
+1767306568.868350 🧐 Initializing the timeline... let's see what the past holds. 🦆 state cache manager🪿 initialize state  🧩 {'version': '20251230.230400.1'}
+1767306568.868425 📖  We're attempting to read the Almanac! 🦆 cache io handler🪿 load cache  🧩 {'version': '20251230.230000.1'}
+1767306568.868553 📄 The Almanac is blank! No cache file found. 🦆 cache io handler🪿 load cache  🧩 {'version': '20251230.230000.1'}
+1767306568.868583 🐣 The Almanac is empty. Starting with a fresh timeline. 🦆 state cache manager🪿 initialize state  🧩 {'version': '20251230.230400.1'}
+1767306568.869227 ✅ Successfully connected to MQTT Broker. 🦆 mqtt connection manager🪿 on connect  🧩 {'version': 'Unknown_Ver'}
+1767306568.869179 ⚙️ MQTT client connection initiated in a background thread. 🦆 mqtt connection manager🪿 connect to broker  🧩 {'version': 'Unknown_Ver'}
+1767306568.869387 📡 StateCacheManager subscribing to topic: OPEN-AIR/# 🦆 state cache manager🪿 subscribe to all topics  🧩 {'version': '20251230.230400.1'}
+1767306568.869436 💳 🟢️️️🟢 Initializing VisaFleetManager. The commander of the fleet is online! 🦆 visa fleet manager🪿   init    🧩 {'version': 'Unknown_Ver'}
+1767306568.869468 🛠️ VisaJsonBuilder initialized with 14 known devices. 🦆 manager visa json builder🪿   init    🧩 {'version': 'Unknown_Ver'}
+1767306568.869500 ℹ️ No existing inventory file found at /home/anthony/Documents/OPEN-AIR/DATA/VISA_FLEET.json. Initializing empty inventory. 🦆 manager visa json builder🪿 load inventory from json  🧩 {'version': 'Unknown_Ver'}
+1767306568.869798 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Timebase_Control/time_per_div 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.869900 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Timebase_Control/time_per_div 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.870128 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.870375 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Timebase_Control/time_per_div 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.870394 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.870418 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Timebase_Control/time_per_div 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.870475 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.870934 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.871568 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.872279 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpuxivcwje.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.872687 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.872785 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.872837 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Timebase_Control/time_per_div', Payload='b'{"val":"1e-3","ts":1767303134.5356886,"GUID":"bf649285-3fa4-4bd7-9c2c-c0582b0b236b","type":"_TextInput","label_active":"Time/Div (s)","value_default":"1e-3","message_details":{"OSCILLOSCOPE_MODEL":{"type":"_GuiActuator","trigger":false,"command_value":"TIMEBASE:SCALE <value>"}}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.872984 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Voltage_Control/voltage_per_div 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.873056 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Voltage_Control/voltage_per_div 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.873093 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.873199 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Voltage_Control/voltage_per_div 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.873260 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.873402 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Voltage_Control/voltage_per_div 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.873500 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.873549 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.873593 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.874101 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpp8q6klcm.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.874306 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.874465 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.874528 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Voltage_Control/voltage_per_div', Payload='b'{"val":"1","ts":1767303134.5585668,"GUID":"bf649285-3fa4-4bd7-9c2c-c0582b0b236b","type":"_TextInput","label_active":"Volts/Div (V)","value_default":"1","message_details":{"OSCILLOSCOPE_MODEL":{"type":"_GuiActuator","trigger":false,"command_value":"CHAN1:VOLTS <value>"}}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.874926 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Voltage_Control/channel1_coupling 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.875182 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Voltage_Control/channel1_coupling 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.875332 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.875401 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Voltage_Control/channel1_coupling 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.875472 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.875554 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Voltage_Control/channel1_coupling 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.875600 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.875721 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.877044 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.877404 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpegpdws51.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.877995 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.878087 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.878510 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Voltage_Control/channel1_coupling', Payload='b'{"val":"","ts":1767303134.560434,"GUID":"bf649285-3fa4-4bd7-9c2c-c0582b0b236b","type":"_GuiDropDownOption","label_active":"Coupling","options":["AC","DC","GND"],"default_option":"DC","message_details":{"OSCILLOSCOPE_MODEL":{"type":"_GuiActuator","trigger":false,"command_value":"CHAN1:COUPLING <value>"}}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.878590 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Trigger_Control/trigger_mode 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.879019 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Trigger_Control/trigger_mode 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.879142 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.879158 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Trigger_Control/trigger_mode 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.879178 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.879207 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Trigger_Control/trigger_mode 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.879230 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.879248 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.879273 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.879385 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpyl197to6.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.879468 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.879492 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.879508 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Trigger_Control/trigger_mode', Payload='b'{"val":"","ts":1767303134.5868957,"GUID":"bf649285-3fa4-4bd7-9c2c-c0582b0b236b","type":"_GuiDropDownOption","label_active":"Mode","options":["AUTO","NORMAL","SINGLE"],"default_option":"AUTO","message_details":{"OSCILLOSCOPE_MODEL":{"type":"_GuiActuator","trigger":false,"command_value":"TRIG:MODE <value>"}}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.879556 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Trigger_Control/trigger_level 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.879572 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Trigger_Control/trigger_level 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.879588 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.879603 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Trigger_Control/trigger_level 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.879615 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.879626 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Trigger_Control/trigger_level 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.879637 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.879649 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.879664 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.879719 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpucvwqyex.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.879778 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.879812 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.879832 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Trigger_Control/trigger_level', Payload='b'{"val":"0","ts":1767303134.5887136,"GUID":"bf649285-3fa4-4bd7-9c2c-c0582b0b236b","type":"_TextInput","label_active":"Level (V)","value_default":"0","message_details":{"OSCILLOSCOPE_MODEL":{"type":"_GuiActuator","trigger":false,"command_value":"TRIG:LEVEL <value>"}}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.879891 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Acquisition_Control/run_stop 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.879925 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Acquisition_Control/run_stop 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.879953 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.879976 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Acquisition_Control/run_stop 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.879997 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.880015 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Acquisition_Control/run_stop 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.880036 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.880485 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.880930 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.881006 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpz6lmzbrc.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.881075 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.881096 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.881115 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/instrument/Oscilloscope_Panel/Acquisition_Control/run_stop', Payload='b'{"val":false,"ts":1767303134.6117637,"GUID":"bf649285-3fa4-4bd7-9c2c-c0582b0b236b","type":"_GuiButtonToggle","label_active":"RUN","label_inactive":"STOP","state_default":true,"message_details":{"OSCILLOSCOPE_MODEL":{"type":"_GuiActuator","trigger":false,"command_value":"ACQ:STATE <state>"}}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.881169 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_IDN/Execute Command/config 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.881195 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_IDN/Execute Command/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.881218 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.881233 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_IDN/Execute Command/config 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.881245 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.881256 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_IDN/Execute Command/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.881269 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.881281 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.881298 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.881358 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmps41rdsxu.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.881419 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.881444 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.881461 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_IDN/Execute Command/config', Payload='b'{"type":"_GuiActuator","AES70":"OcaBooleanActuator","active":true,"message":"*IDN?","layout":{"height":30,"sticky":""}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.881501 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_IDN/Outputs/idn_string 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.881517 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_IDN/Outputs/idn_string 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.881532 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.881546 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_IDN/Outputs/idn_string 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.881557 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.881588 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_IDN/Outputs/idn_string 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.881641 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.881662 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.881682 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.881753 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpc1zk_y53.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.881822 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.881854 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.881871 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_IDN/Outputs/idn_string', Payload='b'{"val":"Device ID","ts":1767303136.1144075,"GUID":"bf649285-3fa4-4bd7-9c2c-c0582b0b236b","static_config_value":"Device ID","type":"_Value"}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.881918 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_Error/Execute Command/config 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.881936 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_Error/Execute Command/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.881953 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.881966 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_Error/Execute Command/config 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.881978 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.881990 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_Error/Execute Command/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.882004 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.882016 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.882031 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.882089 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpxoiovvsa.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.882147 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.882176 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.882196 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_Error/Execute Command/config', Payload='b'{"type":"_GuiActuator","AES70":"OcaBooleanActuator","active":true,"message":":SYSTem:ERRor?","layout":{"height":30,"sticky":""}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.882241 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_Error/Outputs/error_msg 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.882262 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_Error/Outputs/error_msg 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.882280 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.882294 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_Error/Outputs/error_msg 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.882309 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.882322 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_Error/Outputs/error_msg 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.882382 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.882429 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.882456 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.882532 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmp7zgafbvl.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.882601 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.882628 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.882645 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/hp/system/nab/System_Health/Read_Error/Outputs/error_msg', Payload='b'{"val":"Error Message","ts":1767303136.161045,"GUID":"bf649285-3fa4-4bd7-9c2c-c0582b0b236b","static_config_value":"Error Message","type":"_Value"}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.882693 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Run/config 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.882712 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Run/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.882730 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.882744 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Run/config 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.882761 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.882773 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Run/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.882791 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.882804 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.882824 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.882942 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpgrfgai52.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.882991 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.883013 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.883030 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Run/config', Payload='b'{"type":"_GuiActuator","AES70":"OcaBooleanActuator","active":true,"label_inactive":"RUN","Execute Command":{"message":":RUN"}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.883075 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Stop/config 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.883092 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Stop/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.883111 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.883126 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Stop/config 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.883142 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.883156 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Stop/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.883172 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.883188 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.883205 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.883260 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpid79ctoy.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.883302 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.883322 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.883338 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Stop/config', Payload='b'{"type":"_GuiActuator","AES70":"OcaBooleanActuator","active":true,"label_inactive":"STOP","Execute Command":{"message":":STOP"}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.883377 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Single/config 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.883392 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Single/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.883405 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.883417 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Single/config 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.883428 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.883440 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Single/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.883451 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.883463 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.883477 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.883532 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmplbcn0xwf.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.883581 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.883601 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.883617 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Single/config', Payload='b'{"type":"_GuiActuator","AES70":"OcaBooleanActuator","active":true,"label_inactive":"SINGLE","Execute Command":{"message":":SINGle"}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.883654 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Autoscale/config 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.883668 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Autoscale/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.883683 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.883695 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Autoscale/config 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.883708 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.883719 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Autoscale/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.883730 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.883744 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.883758 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.883802 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpvwmt1hyo.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.883844 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.883860 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.883873 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/hp/system/Do/Run_Control/Do_Autoscale/config', Payload='b'{"type":"_GuiActuator","AES70":"OcaBooleanActuator","active":true,"label_inactive":"AUTOSCALE","Execute Command":{"message":":AUToscale"}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.883907 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Display_Control/Do_Clear_Display/config 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.883922 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Display_Control/Do_Clear_Display/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.883935 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.883947 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Display_Control/Do_Clear_Display/config 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.883958 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.883969 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/Display_Control/Do_Clear_Display/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.883981 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.883992 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884006 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884057 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpis4s37j9.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884097 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884116 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.884130 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/hp/system/Do/Display_Control/Do_Clear_Display/config', Payload='b'{"type":"_GuiActuator","AES70":"OcaBooleanActuator","active":true,"label_inactive":"Clear Display","Execute Command":{"message":":DISPlay:CLEar"}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.884163 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/System_Actions/Do_Clear_Status/config 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.884179 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/System_Actions/Do_Clear_Status/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.884192 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.884204 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/System_Actions/Do_Clear_Status/config 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.884215 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.884226 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/System_Actions/Do_Clear_Status/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.884238 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.884249 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884262 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884309 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpi05d31rg.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884349 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884366 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.884379 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/hp/system/Do/System_Actions/Do_Clear_Status/config', Payload='b'{"type":"_GuiActuator","AES70":"OcaBooleanActuator","active":true,"label_inactive":"CLS","Execute Command":{"message":"*CLS"}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.884413 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/System_Actions/Do_Reset/config 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.884426 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/System_Actions/Do_Reset/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.884439 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.884450 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/System_Actions/Do_Reset/config 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.884462 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.884473 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/hp/system/Do/System_Actions/Do_Reset/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.884484 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.884495 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884508 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884561 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmp13wqv_d_.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884615 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884638 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.884655 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/hp/system/Do/System_Actions/Do_Reset/config', Payload='b'{"type":"_GuiActuator","AES70":"OcaBooleanActuator","active":true,"label_inactive":"Reset (*RST)","Execute Command":{"message":"*RST"}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.884691 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Run/config 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.884706 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Run/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.884722 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.884736 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Run/config 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.884749 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.884762 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Run/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.884775 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.884788 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884803 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884854 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmp2t6a_4jr.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884895 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.884915 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.884931 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Run/config', Payload='b'{"type":"_GuiActuator","AES70":"OcaBooleanActuator","active":true,"label_inactive":"RUN","Execute Command":{"message":":RUN"}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.884965 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Stop/config 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.884978 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Stop/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.885028 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.885636 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Stop/config 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.886593 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.887701 💳 ✅ VisaFleetManager initialized. Supervisor ready. 🦆 visa fleet manager🪿   init    🧩 {'version': 'Unknown_Ver'}
+1767306568.887767 💳 🟢️️️🟢 Initializing VisaFleetManager. The commander of the fleet is online! 🦆 visa fleet manager🪿   init    🧩 {'version': 'Unknown_Ver'}
+1767306568.887797 🛠️ VisaJsonBuilder initialized with 14 known devices. 🦆 manager visa json builder🪿   init    🧩 {'version': 'Unknown_Ver'}
+1767306568.887837 ℹ️ No existing inventory file found at /home/anthony/Documents/OPEN-AIR/DATA/VISA_FLEET.json. Initializing empty inventory. 🦆 manager visa json builder🪿 load inventory from json  🧩 {'version': 'Unknown_Ver'}
+1767306568.887874 💳 ✅ VisaFleetManager initialized. Supervisor ready. 🦆 visa fleet manager🪿   init    🧩 {'version': 'Unknown_Ver'}
+1767306568.887900 💳 Core: VisaFleetManager Started (Standalone Mode). 🦆 visa fleet manager🪿 start  🧩 {'version': 'Unknown_Ver'}
+1767306568.887919 🌉 Bridge: Starting MQTT Bridge for Visa Fleet... 🦆 manager fleet mqtt bridge🪿 start  🧩 {'version': 'Unknown_Ver'}
+1767306568.888022 ❌ Critical error during manager launch: 'MqttSubscriberRouter' object has no attribute 'subscribe' ❌ manager launcher🪿 launch managers  🧩 {'version': 'Unknown_Ver'}
+1767306568.887079 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Stop/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.888301 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.888326 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.888353 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.888449 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmp35cnw4ak.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.888539 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.888573 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.888597 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Stop/config', Payload='b'{"type":"_GuiActuator","AES70":"OcaBooleanActuator","active":true,"label_inactive":"STOP","Execute Command":{"message":":STOP"}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.888664 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Single/config 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.888690 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Single/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.888714 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.888732 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Single/config 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.888752 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.888773 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Single/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.888791 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.888810 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.888833 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.888910 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpvxrp2ahi.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.888976 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.889002 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.889024 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Single/config', Payload='b'{"type":"_GuiActuator","AES70":"OcaBooleanActuator","active":true,"label_inactive":"SINGLE","Execute Command":{"message":":SINGle"}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.889076 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Auto_Scale/config 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.889099 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Auto_Scale/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.889120 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.889138 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Auto_Scale/config 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.889157 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.889175 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Auto_Scale/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.889194 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.889214 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.889236 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.889304 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmp1un_9cng.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.889365 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.889401 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.889423 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/rigol/system/Do/Run_Control/Auto_Scale/config', Payload='b'{"type":"_GuiActuator","AES70":"OcaBooleanActuator","active":true,"label_inactive":"AUTO","Execute Command":{"message":":AUToscale"}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.889476 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/System_Actions/Clear/config 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.889508 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/System_Actions/Clear/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.889535 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.889558 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/System_Actions/Clear/config 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.889580 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.889602 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/System_Actions/Clear/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.889626 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.889649 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.889673 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.889704 ❌ Manager launch failed. Exiting application. ❌ OpenAir🪿 main  🧩 {'version': '20251226.000000.1'}
+1767306568.889784 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpfo9y7puk.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.889849 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.889877 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.889899 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/rigol/system/Do/System_Actions/Clear/config', Payload='b'{"type":"_GuiActuator","AES70":"OcaBooleanActuator","label_inactive":"Clear","Execute Command":{"message":":CLEar"}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.889951 🌀 A temporal flux has been detected! Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/System_Actions/Force_Trigger/config 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.889976 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/System_Actions/Force_Trigger/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.889998 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.890016 ⚖️ Comparing timelines for topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/System_Actions/Force_Trigger/config 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.890035 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.890053 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/oscilloscopes/yak/rigol/system/Do/System_Actions/Force_Trigger/config 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.890074 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.890092 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.890112 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.890181 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpp841af8q.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.890239 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.890268 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.890290 📨 MQTT Message Received: Topic='OPEN-AIR/oscilloscopes/yak/rigol/system/Do/System_Actions/Force_Trigger/config', Payload='b'{"type":"_GuiActuator","AES70":"OcaBooleanActuator","label_inactive":"Force","Execute Command":{"message":":TFORce"}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.890340 🌀 A temporal flux has been detected! Topic: OPEN-AIR/generator/instrument/Signal_Generator_Panel/Frequency_Control/frequency_value 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.890363 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/generator/instrument/Signal_Generator_Panel/Frequency_Control/frequency_value 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.890387 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.890405 ⚖️ Comparing timelines for topic: OPEN-AIR/generator/instrument/Signal_Generator_Panel/Frequency_Control/frequency_value 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.890424 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.890445 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/generator/instrument/Signal_Generator_Panel/Frequency_Control/frequency_value 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.890464 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.890482 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.890503 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.890570 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmp2l1a4txe.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.890629 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.890655 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.890677 📨 MQTT Message Received: Topic='OPEN-AIR/generator/instrument/Signal_Generator_Panel/Frequency_Control/frequency_value', Payload='b'{"val":"1e6","ts":1767303138.899584,"GUID":"bf649285-3fa4-4bd7-9c2c-c0582b0b236b","type":"_TextInput","label_active":"Frequency (Hz)","value_default":"1e6","message_details":{"SIGNAL_GENERATOR_MODEL":{"type":"_GuiActuator","trigger":false,"command_value":"FREQ <value>"}}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.890730 🌀 A temporal flux has been detected! Topic: OPEN-AIR/generator/instrument/Signal_Generator_Panel/Amplitude_Control/amplitude_value 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.890753 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/generator/instrument/Signal_Generator_Panel/Amplitude_Control/amplitude_value 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.890774 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.890793 ⚖️ Comparing timelines for topic: OPEN-AIR/generator/instrument/Signal_Generator_Panel/Amplitude_Control/amplitude_value 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.890811 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.890832 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/generator/instrument/Signal_Generator_Panel/Amplitude_Control/amplitude_value 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.890851 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.890869 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.890890 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.890957 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpu3yr47_2.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.891014 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.891040 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.891062 📨 MQTT Message Received: Topic='OPEN-AIR/generator/instrument/Signal_Generator_Panel/Amplitude_Control/amplitude_value', Payload='b'{"val":"0","ts":1767303138.923837,"GUID":"bf649285-3fa4-4bd7-9c2c-c0582b0b236b","type":"_TextInput","label_active":"Amplitude (dBm)","value_default":"0","message_details":{"SIGNAL_GENERATOR_MODEL":{"type":"_GuiActuator","trigger":false,"command_value":"POWER <value>"}}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.891114 🌀 A temporal flux has been detected! Topic: OPEN-AIR/generator/instrument/Signal_Generator_Panel/Output_Control/output_state 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.891139 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/generator/instrument/Signal_Generator_Panel/Output_Control/output_state 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.891163 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.891181 ⚖️ Comparing timelines for topic: OPEN-AIR/generator/instrument/Signal_Generator_Panel/Output_Control/output_state 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.891201 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.891218 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/generator/instrument/Signal_Generator_Panel/Output_Control/output_state 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.891241 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.891262 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.891284 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.891350 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpq84fot0o.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.891407 💾  The timeline has been successfully recorded in the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.891434 ⏩ Forwarding the temporal flux to the main timeline... 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.891458 📨 MQTT Message Received: Topic='OPEN-AIR/generator/instrument/Signal_Generator_Panel/Output_Control/output_state', Payload='b'{"val":false,"ts":1767303138.9545066,"GUID":"bf649285-3fa4-4bd7-9c2c-c0582b0b236b","type":"_GuiButtonToggle","label_active":"ON","label_inactive":"OFF","state_default":false,"message_details":{"SIGNAL_GENERATOR_MODEL":{"type":"_GuiActuator","trigger":false,"command_value":"OUTPUT:STATE <state>"}}}'' 🦆 mqtt subscriber router🪿  on message  🧩 {'version': 'Unknown_Ver'}
+1767306568.891514 🌀 A temporal flux has been detected! Topic: OPEN-AIR/dmm/instrument/DMM_Panel/Measurement_Type/measure_func 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.891541 tt! A new event is rippling through the timeline! Topic: OPEN-AIR/dmm/instrument/DMM_Panel/Measurement_Type/measure_func 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.891567 🧑‍⚖️ Payload decoded. Now, to the Judge! 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.891587 ⚖️ Comparing timelines for topic: OPEN-AIR/dmm/instrument/DMM_Panel/Measurement_Type/measure_func 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.891605 ✨ It's a new event in the timeline! Updating. 🦆 state comparator🪿 should update  🧩 {'version': '20251230.230100.1'}
+1767306568.891622 ⚓ A change in the timeline! This is heavy. Topic: OPEN-AIR/dmm/instrument/DMM_Panel/Measurement_Type/measure_func 🦆 cache traffic controller🪿 process traffic  🧩 {'version': '20251230.230300.1'}
+1767306568.891641 🏋️ This is heavy! The timeline has been altered. Recording the new event. 🦆 state cache manager🪿 handle incoming mqtt  🧩 {'version': '20251230.230400.1'}
+1767306568.891659 ✍️  We're about to write to the Almanac! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.891681 👯 Creating a temporal duplicate in /home/anthony/Documents/OPEN-AIR/DATA... 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
+1767306568.891754 ↔️ Temporal duplicate created at /home/anthony/Documents/OPEN-AIR/DATA/tmpnpmug4sc.tmp. Now, for the switch! 🦆 cache io handler🪿 save cache  🧩 {'version': '20251230.230000.1'}
