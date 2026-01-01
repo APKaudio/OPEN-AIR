@@ -86,6 +86,7 @@ def probe_devices(resource_manager, potential_targets):
     Returns:
         dict: A dictionary of probed device entries, keyed by device identifier (serial number or sanitized resource).
     """
+    debug_logger(f"💳 🔍 manager_visa_Search: Received {len(potential_targets)} potential targets for probing: {potential_targets}", **_get_log_args())
     device_collection = {}
     
     for idx, target in enumerate(potential_targets):
