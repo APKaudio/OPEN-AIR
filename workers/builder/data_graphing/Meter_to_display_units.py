@@ -15,7 +15,7 @@ from workers.setup.config_reader import Config
 from workers.logger.log_utils import _get_log_args
 from workers.mqtt.mqtt_publisher_service import publish_payload
 from workers.mqtt.mqtt_topic_utils import get_topic
-from workers.setup import worker_project_paths as app_constants
+app_constants = Config.get_instance()
 
 
 class HorizontalMeterWithText(ttk.Frame):
@@ -167,9 +167,9 @@ class VerticalMeter(ttk.Frame):
         """Callback for when meter_values_var changes (from internal or MQTT)."""
         new_values_json = self.meter_values_var.get()
         try:
-            new_values = orjson.loads(new_values_json)
-            if not isinstance(new_values, list):
-                raise ValueError("Expected list of values.")
+            # Parse as a CSV string, removing brackets if present
+            cleaned_values_str = new_values_json.strip('[]')
+            new_values = [float(v) for v in cleaned_values_str.split(',') if v.strip()]
             
             # Update UI
             for i, value in enumerate(new_values):

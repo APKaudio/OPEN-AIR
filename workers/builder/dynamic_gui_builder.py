@@ -288,6 +288,16 @@ class DynamicGuiBuilder(
                   background=[('selected', accent), ('!selected', colors.get("secondary", bg))],
                   foreground=[('selected', fg), ('!selected', fg)])
 
+        # Custom Button Style
+        style.configure('Custom.TButton', background=colors.get('secondary'), foreground=colors.get('fg'))
+        style.map('Custom.TButton',
+                  background=[('pressed', accent), ('active', colors.get('hover_blue'))])
+
+        # Custom Selected Button Style (for ON state)
+        style.configure('Custom.Selected.TButton', background=accent, foreground=colors.get('fg'))
+        style.map('Custom.Selected.TButton',
+                  background=[('pressed', accent), ('active', colors.get('hover_blue'))])
+
     def _transmit_command(self, widget_name: str, value):
         if self.state_mirror_engine:
             if self.state_mirror_engine.is_widget_registered(widget_name):

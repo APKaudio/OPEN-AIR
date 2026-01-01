@@ -386,8 +386,8 @@ class CustomFaderCreatorMixin:
             active_color = "white"
 
         # Handle (Fader Cap)
-        cap_width = width * 0.7 # Make cap width 70% of the canvas width
-        cap_height = 30
+        cap_width = 40 # Set fixed cap width to 40 pixels
+        cap_height = 50
         self._draw_rounded_rectangle(
             canvas,
             cx - cap_width/2, handle_y - cap_height/2,

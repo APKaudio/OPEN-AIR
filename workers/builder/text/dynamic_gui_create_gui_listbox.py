@@ -70,20 +70,27 @@ class GuiListboxCreatorMixin:
             )
 
         try:
-            sub_frame = ttk.Frame(parent_frame)
+            sub_frame = ttk.Frame(parent_frame, width=200, height=150)
+            sub_frame.pack_propagate(False)
+
+            sub_frame.grid_rowconfigure(1, weight=1)
+            sub_frame.grid_columnconfigure(0, weight=1)
 
             label_widget = ttk.Label(sub_frame, text=label)
-            label_widget.pack(anchor='w', padx=DEFAULT_PAD_X, pady=2)
+            label_widget.grid(row=0, column=0, sticky='w', padx=DEFAULT_PAD_X, pady=2)
 
             listbox_frame = ttk.Frame(sub_frame)
-            listbox_frame.pack(fill=tk.BOTH, expand=True)
+            listbox_frame.grid(row=1, column=0, sticky='nsew')
+            
+            listbox_frame.grid_rowconfigure(0, weight=1)
+            listbox_frame.grid_columnconfigure(0, weight=1)
 
             scrollbar = ttk.Scrollbar(listbox_frame, orient=tk.VERTICAL)
-            listbox = tk.Listbox(listbox_frame, yscrollcommand=scrollbar.set, exportselection=False, selectmode=tk.SINGLE)
+            listbox = tk.Listbox(listbox_frame, yscrollcommand=scrollbar.set, exportselection=False, selectmode=tk.SINGLE, height=5, width=30)
             
             scrollbar.config(command=listbox.yview)
-            scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-            listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+            scrollbar.grid(row=0, column=1, sticky='ns')
+            listbox.grid(row=0, column=0, sticky='nsew')
 
             self.options_map = config.get('options', {}) # Stored as instance variable
             self.listbox = listbox # Stored as instance variable
@@ -172,7 +179,6 @@ class GuiListboxCreatorMixin:
                 state_mirror_engine.register_widget(widget_id, self.selected_option_var, base_mqtt_topic_from_path, config)
                 
                 # Subscribe to this widget's topic to receive updates for its selected value
-                from workers.mqtt.mqtt_topic_utils import get_topic
                 topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
                 subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
 
