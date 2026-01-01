@@ -69,7 +69,7 @@ class FleetMqttBridge:
 
     def stop(self):
         self.core_manager.stop()
-        self.mqtt_util.disconnect()
+        # self.mqtt_util.disconnect() # Removed as mqtt_connection_manager handles disconnection
 
     # --- Inbound: MQTT -> Core Logic ---
 
