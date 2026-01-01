@@ -1,0 +1,453 @@
+{
+    "Spectrum Analyzer": {
+        "N9340B": [
+            {
+                "type": "LOCAL",
+                "resource_string": "USB0::2391::65519::CN03480580::0::INSTR",
+                "ip_address": "USB",
+                "interface_port": "USB",
+                "gpib_address": "Direct",
+                "status": "CONNECTION_FAILED",
+                "manufacturer": "Keysight Technologies",
+                "model": "N9340B",
+                "serial_number": "CN03480580",
+                "firmware": "A.02.07",
+                "idn_string": "Keysight Technologies,N9340B,CN03480580,A.02.07",
+                "device_type": "Spectrum Analyzer",
+                "notes": "Handheld (100 kHz - 3 GHz)"
+            },
+            {
+                "type": "DEDICATED",
+                "resource_string": "TCPIP::44.44.44.66::INSTR",
+                "ip_address": "44.44.44.66",
+                "interface_port": "Ethernet",
+                "gpib_address": "Direct",
+                "status": "CONNECTED",
+                "manufacturer": "Keysight Technologies",
+                "model": "N9340B",
+                "serial_number": "CN03480580",
+                "firmware": "A.02.07",
+                "idn_string": "Keysight Technologies,N9340B,CN03480580,A.02.07",
+                "device_type": "Spectrum Analyzer",
+                "notes": "Handheld (100 kHz - 3 GHz)",
+                "driver_type": "GenericInstrumentDriver"
+            }
+        ]
+    },
+    "Function Generator": {
+        "33220A": [
+            {
+                "type": "DEDICATED",
+                "resource_string": "TCPIP::44.44.44.33::INSTR",
+                "ip_address": "44.44.44.33",
+                "interface_port": "Ethernet",
+                "gpib_address": "Direct",
+                "status": "CONNECTED",
+                "manufacturer": "Agilent Technologies",
+                "model": "33220A",
+                "serial_number": "MY44044028",
+                "firmware": "2.07-2.06-22-2",
+                "idn_string": "Agilent Technologies,33220A,MY44044028,2.07-2.06-22-2",
+                "device_type": "Function Generator",
+                "notes": "20 MHz Arbitrary Waveform",
+                "driver_type": "GenericInstrumentDriver"
+            }
+        ],
+        "33210A": [
+            {
+                "type": "DEDICATED",
+                "resource_string": "TCPIP::44.44.44.151::INSTR",
+                "ip_address": "44.44.44.151",
+                "interface_port": "Ethernet",
+                "gpib_address": "Direct",
+                "status": "CONNECTED",
+                "manufacturer": "Agilent Technologies",
+                "model": "33210A",
+                "serial_number": "MY48000299",
+                "firmware": "1.04-1.02-22-2",
+                "idn_string": "Agilent Technologies,33210A,MY48000299,1.04-1.02-22-2",
+                "device_type": "Function Generator",
+                "notes": "10 MHz Arbitrary Waveform",
+                "driver_type": "GenericInstrumentDriver"
+            }
+        ]
+    },
+    "Oscilloscope": {
+        "DS1104Z": [
+            {
+                "type": "DEDICATED",
+                "resource_string": "TCPIP::44.44.44.163::INSTR",
+                "ip_address": "44.44.44.163",
+                "interface_port": "Ethernet",
+                "gpib_address": "Direct",
+                "status": "CONNECTED",
+                "manufacturer": "RIGOL TECHNOLOGIES",
+                "model": "DS1104Z",
+                "serial_number": "DS1ZA171509511",
+                "firmware": "00.04.03",
+                "idn_string": "RIGOL TECHNOLOGIES,DS1104Z,DS1ZA171509511,00.04.03",
+                "device_type": "Oscilloscope",
+                "notes": "100 MHz, 4 Channel Digital",
+                "driver_type": "GenericInstrumentDriver"
+            }
+        ],
+        "54641D": [
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.111::gpib7,6::INSTR",
+                "ip_address": "44.44.44.111",
+                "interface_port": "gpib7",
+                "gpib_address": "6",
+                "status": "CONNECTED",
+                "manufacturer": "AGILENT TECHNOLOGIES",
+                "model": "54641D",
+                "serial_number": "MY42000747",
+                "firmware": "A.02.20",
+                "idn_string": "AGILENT TECHNOLOGIES,54641D,MY42000747,A.02.20",
+                "device_type": "Oscilloscope",
+                "notes": "Mixed Signal (2 Ana + 16 Dig)",
+                "driver_type": "GenericInstrumentDriver"
+            },
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.222::gpib7,16::INSTR",
+                "ip_address": "44.44.44.222",
+                "interface_port": "gpib7",
+                "gpib_address": "16",
+                "status": "CONNECTED",
+                "manufacturer": "AGILENT TECHNOLOGIES",
+                "model": "54641D",
+                "serial_number": "MY42000785",
+                "firmware": "A.02.20",
+                "idn_string": "AGILENT TECHNOLOGIES,54641D,MY42000785,A.02.20",
+                "device_type": "Oscilloscope",
+                "notes": "Mixed Signal (2 Ana + 16 Dig)",
+                "driver_type": "GenericInstrumentDriver"
+            }
+        ]
+    },
+    "Multimeter (DMM)": {
+        "34401A": [
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.111::gpib7,4::INSTR",
+                "ip_address": "44.44.44.111",
+                "interface_port": "gpib7",
+                "gpib_address": "4",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "34401A",
+                "serial_number": "0",
+                "firmware": "11-5-3",
+                "idn_string": "HEWLETT-PACKARD,34401A,0,11-5-3",
+                "device_type": "Multimeter (DMM)",
+                "notes": "6.5 Digit Benchtop Standard",
+                "driver_type": "GenericInstrumentDriver"
+            },
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.111::gpib7,11::INSTR",
+                "ip_address": "44.44.44.111",
+                "interface_port": "gpib7",
+                "gpib_address": "11",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "34401A",
+                "serial_number": "0",
+                "firmware": "11-5-3",
+                "idn_string": "HEWLETT-PACKARD,34401A,0,11-5-3",
+                "device_type": "Multimeter (DMM)",
+                "notes": "6.5 Digit Benchtop Standard",
+                "driver_type": "GenericInstrumentDriver"
+            },
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.111::gpib7,12::INSTR",
+                "ip_address": "44.44.44.111",
+                "interface_port": "gpib7",
+                "gpib_address": "12",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "34401A",
+                "serial_number": "0",
+                "firmware": "11-5-3",
+                "idn_string": "HEWLETT-PACKARD,34401A,0,11-5-3",
+                "device_type": "Multimeter (DMM)",
+                "notes": "6.5 Digit Benchtop Standard",
+                "driver_type": "GenericInstrumentDriver"
+            },
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.111::gpib7,13::INSTR",
+                "ip_address": "44.44.44.111",
+                "interface_port": "gpib7",
+                "gpib_address": "13",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "34401A",
+                "serial_number": "0",
+                "firmware": "11-5-3",
+                "idn_string": "HEWLETT-PACKARD,34401A,0,11-5-3",
+                "device_type": "Multimeter (DMM)",
+                "notes": "6.5 Digit Benchtop Standard",
+                "driver_type": "GenericInstrumentDriver"
+            },
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.222::gpib7,1::INSTR",
+                "ip_address": "44.44.44.222",
+                "interface_port": "gpib7",
+                "gpib_address": "1",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "34401A",
+                "serial_number": "0",
+                "firmware": "11-5-3",
+                "idn_string": "HEWLETT-PACKARD,34401A,0,11-5-3",
+                "device_type": "Multimeter (DMM)",
+                "notes": "6.5 Digit Benchtop Standard",
+                "driver_type": "GenericInstrumentDriver"
+            },
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.222::gpib7,2::INSTR",
+                "ip_address": "44.44.44.222",
+                "interface_port": "gpib7",
+                "gpib_address": "2",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "34401A",
+                "serial_number": "0",
+                "firmware": "11-5-3",
+                "idn_string": "HEWLETT-PACKARD,34401A,0,11-5-3",
+                "device_type": "Multimeter (DMM)",
+                "notes": "6.5 Digit Benchtop Standard",
+                "driver_type": "GenericInstrumentDriver"
+            },
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.222::gpib7,3::INSTR",
+                "ip_address": "44.44.44.222",
+                "interface_port": "gpib7",
+                "gpib_address": "3",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "34401A",
+                "serial_number": "0",
+                "firmware": "11-5-3",
+                "idn_string": "HEWLETT-PACKARD,34401A,0,11-5-3",
+                "device_type": "Multimeter (DMM)",
+                "notes": "6.5 Digit Benchtop Standard",
+                "driver_type": "GenericInstrumentDriver"
+            },
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.222::gpib7,5::INSTR",
+                "ip_address": "44.44.44.222",
+                "interface_port": "gpib7",
+                "gpib_address": "5",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "34401A",
+                "serial_number": "0",
+                "firmware": "11-5-3",
+                "idn_string": "HEWLETT-PACKARD,34401A,0,11-5-3",
+                "device_type": "Multimeter (DMM)",
+                "notes": "6.5 Digit Benchtop Standard",
+                "driver_type": "GenericInstrumentDriver"
+            }
+        ]
+    },
+    "Electronic Load": {
+        "6060B": [
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.111::gpib7,22::INSTR",
+                "ip_address": "44.44.44.111",
+                "interface_port": "gpib7",
+                "gpib_address": "22",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "6060B",
+                "serial_number": "0",
+                "firmware": "A.04.00",
+                "idn_string": "HEWLETT-PACKARD,6060B,0,A.04.00",
+                "device_type": "Electronic Load",
+                "notes": "DC Load (300 Watt)",
+                "driver_type": "GenericInstrumentDriver"
+            },
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.111::gpib7,23::INSTR",
+                "ip_address": "44.44.44.111",
+                "interface_port": "gpib7",
+                "gpib_address": "23",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "6060B",
+                "serial_number": "0",
+                "firmware": "A.02.01",
+                "idn_string": "HEWLETT-PACKARD,6060B,0,A.02.01",
+                "device_type": "Electronic Load",
+                "notes": "DC Load (300 Watt)",
+                "driver_type": "GenericInstrumentDriver"
+            }
+        ]
+    },
+    "DC Power Module": {
+        "66101A": [
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.111::gpib7,30,0::INSTR",
+                "ip_address": "44.44.44.111",
+                "interface_port": "gpib7",
+                "gpib_address": "30,0",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "66101A",
+                "serial_number": "0",
+                "firmware": "A.00.07",
+                "idn_string": "HEWLETT-PACKARD,66101A,0,A.00.07",
+                "device_type": "DC Power Module",
+                "notes": "8V / 16A (128W)",
+                "driver_type": "GenericInstrumentDriver"
+            }
+        ],
+        "66102A": [
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.111::gpib7,30,1::INSTR",
+                "ip_address": "44.44.44.111",
+                "interface_port": "gpib7",
+                "gpib_address": "30,1",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "66102A",
+                "serial_number": "0",
+                "firmware": "A.00.07",
+                "idn_string": "HEWLETT-PACKARD,66102A,0,A.00.07",
+                "device_type": "DC Power Module",
+                "notes": "20V / 7.5A (150W)",
+                "driver_type": "GenericInstrumentDriver"
+            },
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.111::gpib7,30,2::INSTR",
+                "ip_address": "44.44.44.111",
+                "interface_port": "gpib7",
+                "gpib_address": "30,2",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "66102A",
+                "serial_number": "0",
+                "firmware": "A.00.07",
+                "idn_string": "HEWLETT-PACKARD,66102A,0,A.00.07",
+                "device_type": "DC Power Module",
+                "notes": "20V / 7.5A (150W)",
+                "driver_type": "GenericInstrumentDriver"
+            }
+        ],
+        "66103A": [
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.111::gpib7,30,3::INSTR",
+                "ip_address": "44.44.44.111",
+                "interface_port": "gpib7",
+                "gpib_address": "30,3",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "66103A",
+                "serial_number": "0",
+                "firmware": "A.00.07",
+                "idn_string": "HEWLETT-PACKARD,66103A,0,A.00.07",
+                "device_type": "DC Power Module",
+                "notes": "35V / 4.5A (150W)",
+                "driver_type": "GenericInstrumentDriver"
+            }
+        ],
+        "66104A": [
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.111::gpib7,30,4::INSTR",
+                "ip_address": "44.44.44.111",
+                "interface_port": "gpib7",
+                "gpib_address": "30,4",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "66104A",
+                "serial_number": "0",
+                "firmware": "A.00.03",
+                "idn_string": "HEWLETT-PACKARD,66104A,0,A.00.03",
+                "device_type": "DC Power Module",
+                "notes": "60V / 2.5A (150W)",
+                "driver_type": "GenericInstrumentDriver"
+            },
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.111::gpib7,30,5::INSTR",
+                "ip_address": "44.44.44.111",
+                "interface_port": "gpib7",
+                "gpib_address": "30,5",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "66104A",
+                "serial_number": "0",
+                "firmware": "A.00.07",
+                "idn_string": "HEWLETT-PACKARD,66104A,0,A.00.07",
+                "device_type": "DC Power Module",
+                "notes": "60V / 2.5A (150W)",
+                "driver_type": "GenericInstrumentDriver"
+            },
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.111::gpib7,30,6::INSTR",
+                "ip_address": "44.44.44.111",
+                "interface_port": "gpib7",
+                "gpib_address": "30,6",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "66104A",
+                "serial_number": "0",
+                "firmware": "A.00.07",
+                "idn_string": "HEWLETT-PACKARD,66104A,0,A.00.07",
+                "device_type": "DC Power Module",
+                "notes": "60V / 2.5A (150W)",
+                "driver_type": "GenericInstrumentDriver"
+            },
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.111::gpib7,30,7::INSTR",
+                "ip_address": "44.44.44.111",
+                "interface_port": "gpib7",
+                "gpib_address": "30,7",
+                "status": "CONNECTED",
+                "manufacturer": "HEWLETT-PACKARD",
+                "model": "66104A",
+                "serial_number": "0",
+                "firmware": "A.00.07",
+                "idn_string": "HEWLETT-PACKARD,66104A,0,A.00.07",
+                "device_type": "DC Power Module",
+                "notes": "60V / 2.5A (150W)",
+                "driver_type": "GenericInstrumentDriver"
+            }
+        ]
+    },
+    "Unknown Instrument": {
+        "Unknown": [
+            {
+                "type": "GATEWAY",
+                "resource_string": "TCPIP::44.44.44.222::gpib7,10::INSTR",
+                "ip_address": "44.44.44.222",
+                "interface_port": "gpib7",
+                "gpib_address": "10",
+                "status": "Unresponsive",
+                "manufacturer": "Unknown",
+                "model": "Unknown",
+                "serial_number": "Unknown",
+                "firmware": "Unknown",
+                "device_type": "Unknown Instrument",
+                "notes": "Not in Knowledge Base"
+            }
+        ]
+    }
+}

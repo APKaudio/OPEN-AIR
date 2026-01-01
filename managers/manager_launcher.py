@@ -2,6 +2,7 @@
 
 import os
 import inspect
+import threading # Moved threading import here
 
 from workers.logger.logger import  debug_logger
 from workers.logger.log_utils import _get_log_args
@@ -11,6 +12,7 @@ from workers.mqtt.mqtt_connection_manager import MqttConnectionManager
 from workers.mqtt.mqtt_subscriber_router import MqttSubscriberRouter
 from workers.logic.state_mirror_engine import StateMirrorEngine
 from managers.Visa_Fleet_Manager.visa_fleet_manager import VisaFleetManager # Import VisaFleetManager
+from managers.Visa_Fleet_Manager.manager_fleet_mqtt_bridge import FleetMqttBridge # Import FleetMqttBridge
 from managers.yak.yak_translator import YakTranslator # Import YakTranslator
 from managers.yak.manager_yak_rx import YakRxManager # Import YakRxManager
 
@@ -41,12 +43,22 @@ def launch_managers(app, splash, root, state_cache_manager, mqtt_connection_mana
 
         # 2. Initialize Visa Fleet Manager
         visa_fleet_manager = VisaFleetManager()
-        visa_fleet_manager.start() # Start the Visa Fleet Manager
         
-        # Automatically trigger a scan after starting the manager
-        debug_logger(message="💳 Triggering initial Visa Fleet scan...", **_get_log_args())
-        visa_fleet_manager.trigger_scan()
-       # time.sleep(1) # Give some time for the scan to initiate
+        # Initialize FleetMqttBridge and wire up callbacks
+        fleet_mqtt_bridge = FleetMqttBridge(
+            mqtt_connection_manager=mqtt_connection_manager,
+            subscriber_router=subscriber_router
+        )
+        fleet_mqtt_bridge.core_manager = visa_fleet_manager # Link the core manager to the bridge
+        visa_fleet_manager.set_callbacks(
+            on_inventory_update=fleet_mqtt_bridge._publish_inventory,
+            on_device_response=fleet_mqtt_bridge._publish_device_response,
+            on_device_error=fleet_mqtt_bridge._publish_device_error,
+            on_proxy_status=fleet_mqtt_bridge._publish_proxy_status
+        )
+        
+        visa_fleet_manager.start() # Start the Visa Fleet Manager
+        fleet_mqtt_bridge.start() # Start the MQTT Bridge
 
         # 3. Initialize Yak Translator
         yak_translator = YakTranslator(
@@ -72,6 +84,7 @@ def launch_managers(app, splash, root, state_cache_manager, mqtt_connection_mana
             "visa_fleet_manager": visa_fleet_manager, # Add VisaFleetManager
             "yak_translator": yak_translator,
             "yak_rx_manager": yak_rx_manager,
+            "fleet_mqtt_bridge": fleet_mqtt_bridge, # Add FleetMqttBridge
         }
 
         # Return instantiated managers for use by the application if needed
@@ -79,5 +92,5 @@ def launch_managers(app, splash, root, state_cache_manager, mqtt_connection_mana
 
     except Exception as e:
         debug_logger(message=f"❌ Critical error during manager launch: {e}", **_get_log_args())
-        splash.set_status(f"Manager initialization failed: {e}", error=True)
+        splash.set_status(f"Manager initialization failed: {e}") # Removed error=True
         return None

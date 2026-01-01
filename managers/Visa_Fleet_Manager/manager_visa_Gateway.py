@@ -21,7 +21,7 @@ except ModuleNotFoundError:
         return {} # Return empty dict, as logger args are not available
 
 # --- CONFIGURATION (from cli_visa_find.py) ---
-HTTP_TIMEOUT = 5     
+HTTP_TIMEOUT = 10     
 
 def discover_gateway_devices(gateway_ips):
     """

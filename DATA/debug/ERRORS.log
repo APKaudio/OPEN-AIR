@@ -1,0 +1,20 @@
+1767303779.322222      ❌ VISA IO Error during IDN query for TCPIP::44.44.44.222::gpib7,2::INSTR: VI_ERROR_IO (-1073807298): Could not perform operation because of I/O error. ❌ manager visa Search🪿  query device safe  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767304515.414964   ❌ Error scraping gateway 44.44.44.222: timed out ❌ manager visa Gateway🪿 discover gateway devices  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767304518.127331💳 ❌ FleetSupervisor: Unexpected error connecting to CN03480580 (USB0::2391::65519::CN03480580::0::INSTR): No device found. ❌ manager visa supervisor🪿  connect and setup device  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767304660.539274💳 ❌ FleetSupervisor: Unexpected error connecting to CN03480580 (USB0::2391::65519::CN03480580::0::INSTR): No device found. ❌ manager visa supervisor🪿  connect and setup device  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767304842.072460💳 ❌ FleetSupervisor: Unexpected error connecting to CN03480580 (USB0::2391::65519::CN03480580::0::INSTR): No device found. ❌ manager visa supervisor🪿  connect and setup device  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767304993.455492💳 ❌ FleetSupervisor: Unexpected error connecting to CN03480580 (USB0::2391::65519::CN03480580::0::INSTR): No device found. ❌ manager visa supervisor🪿  connect and setup device  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767305021.054800💳 ❌ FleetSupervisor: Unexpected error connecting to CN03480580 (USB0::2391::65519::CN03480580::0::INSTR): No device found. ❌ manager visa supervisor🪿  connect and setup device  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767305279.687497💳 ❌ FleetSupervisor: Unexpected error connecting to CN03480580 (USB0::2391::65519::CN03480580::0::INSTR): No device found. ❌ manager visa supervisor🪿  connect and setup device  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767305566.700879      ❌ VISA IO Error during IDN query for TCPIP::44.44.44.111::gpib7,6::INSTR: VI_ERROR_IO (-1073807298): Could not perform operation because of I/O error. ❌ manager visa Search🪿  query device safe  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767305571.101704💳 ❌ FleetSupervisor: Unexpected error connecting to CN03480580 (USB0::2391::65519::CN03480580::0::INSTR): No device found. ❌ manager visa supervisor🪿  connect and setup device  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767305601.943782      ❌ VISA IO Error during IDN query for TCPIP::44.44.44.222::gpib7,10::INSTR: VI_ERROR_IO (-1073807298): Could not perform operation because of I/O error. ❌ manager visa Search🪿  query device safe  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767305606.063251💳 ❌ FleetSupervisor: Unexpected error connecting to CN03480580 (USB0::2391::65519::CN03480580::0::INSTR): No device found. ❌ manager visa supervisor🪿  connect and setup device  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767306199.292536❌🔴  The wrapper has failed to contain the builder! The Blueprint is missing! Cannot find JSON at: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/9_Distortion/1_Instrument/gui_dc_load.json
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/9_Distortion/1_Instrument/gui_dc_load.py", line 125, in _construct_dynamic_gui
+    raise FileNotFoundError(f"The Blueprint is missing! Cannot find JSON at: {self.json_path}")
+FileNotFoundError: The Blueprint is missing! Cannot find JSON at: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/9_Distortion/1_Instrument/gui_dc_load.json
+ ❌ gui dc load🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}

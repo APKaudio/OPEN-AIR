@@ -62,17 +62,38 @@ def _query_device_safe(rm, resource_str, attempt=1):
         inst.timeout = VISA_TIMEOUT
         inst.read_termination = '\n'
         inst.write_termination = '\n'
-        idn = inst.query("*IDN?").strip()
+        
+        # Explicitly log the raw IDN response for debugging
+        raw_idn = inst.query("*IDN?")
+        idn = _clean_string_for_display(raw_idn)
+        
+        debug_logger(f"      Raw IDN for {resource_str}: '{raw_idn}'", **_get_log_args(), level="DEBUG")
+        debug_logger(f"      Cleaned IDN for {resource_str}: '{idn}'", **_get_log_args(), level="DEBUG")
+
         inst.close()
-        return _clean_string_for_display(idn)
-    except Exception:
+        
+        if not idn: # If IDN is empty after cleaning
+            debug_logger(f"      Empty IDN received for {resource_str}.", **_get_log_args(), level="WARNING")
+            return None # Treat empty IDN as failure to probe
+        return idn
+    except pyvisa.errors.VisaIOError as vioe:
+        debug_logger(f"      ❌ VISA IO Error during IDN query for {resource_str}: {vioe}", **_get_log_args(), level="ERROR")
         if inst:
             try: inst.close()
             except: pass
         if attempt == 1 and ("USB" in resource_str or "ASRL" in resource_str):
             time.sleep(2.0)
             return _query_device_safe(rm, resource_str, attempt=2)
-        return None 
+        return None
+    except Exception as e:
+        debug_logger(f"      ❌ Unexpected Error during IDN query for {resource_str}: {e}", **_get_log_args(), level="ERROR")
+        if inst:
+            try: inst.close()
+            except: pass
+        if attempt == 1 and ("USB" in resource_str or "ASRL" in resource_str):
+            time.sleep(2.0)
+            return _query_device_safe(rm, resource_str, attempt=2)
+        return None
 
 def probe_devices(resource_manager, potential_targets):
     """
@@ -111,11 +132,21 @@ def probe_devices(resource_manager, potential_targets):
             debug_logger(f"SUCCESS", **_get_log_args())
             mfg, model, serial_num, firm = _parse_idn(idn) # Use _parse_idn for basic parsing
             
-            # Determine device_identifier (serial_number preferred)
-            # For this module, we will just use the simple parsed serial.
-            # The manager_visa_supervisor will integrate with manager_visa_dynamic_drivers' parse_idn_string
-            # to get a more robust serial number if available.
-            device_identifier = serial_num if serial_num else re.sub(r'[^\w\-]+', '_', raw_res)
+            device_identifier = serial_num
+            if not device_identifier or device_identifier == "0":
+                # If serial is not unique or empty, combine with a sanitized resource string
+                sanitized_resource = re.sub(r'[^\w\-]+', '_', raw_res)
+                if serial_num: # If it was "0", include it
+                    device_identifier = f"{serial_num}_{sanitized_resource}"
+                else: # If it was empty
+                    device_identifier = sanitized_resource
+            
+            # Ensure the device_identifier is unique across the collection
+            original_identifier = device_identifier
+            counter = 1
+            while device_identifier in device_collection:
+                device_identifier = f"{original_identifier}_{counter}"
+                counter += 1
 
             device_entry.update({
                 "status": "Active",
@@ -127,7 +158,7 @@ def probe_devices(resource_manager, potential_targets):
                 # "idn_details": {} # Will be added by supervisor with robust parser
             })
         else:
-            debug_logger(f"TIMEOUT", **_get_log_args())
+            debug_logger(f"FAILED (IDN Query Error)", **_get_log_args(), level="ERROR")
             device_identifier = re.sub(r'[^\w\-]+', '_', raw_res) # Still need identifier for unresponsive devices
             device_entry.update({
                 "status": "Unresponsive",
@@ -140,6 +171,7 @@ def probe_devices(resource_manager, potential_targets):
             })
             
         device_collection[device_identifier] = device_entry
+    debug_logger(f"💳 🔍 manager_visa_Search: Finished probing. Returning {len(device_collection)} probed devices: {device_collection}", **_get_log_args())
     return device_collection
 
 # For testing purposes (optional)

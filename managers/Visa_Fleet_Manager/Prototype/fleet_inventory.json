@@ -148,20 +148,5 @@
         "firmware": "11-5-3",
         "device_type": "Multimeter (DMM)",
         "notes": "6.5 Digit Benchtop Standard"
-    },
-    "11": {
-        "id": "11",
-        "type": "LOCAL",
-        "resource_string": "USB0::2391::65519::CN03480580::0::INSTR",
-        "ip_address": "USB",
-        "interface_port": "USB",
-        "gpib_address": "Direct",
-        "status": "Active",
-        "manufacturer": "Keysight Technologies",
-        "model": "N9340B",
-        "serial_number": "CN03480580",
-        "firmware": "A.02.07",
-        "device_type": "Spectrum Analyzer",
-        "notes": "Handheld (100 kHz - 3 GHz)"
     }
 }

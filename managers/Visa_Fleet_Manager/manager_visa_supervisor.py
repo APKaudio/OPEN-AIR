@@ -197,8 +197,7 @@ class VisaFleetSupervisor:
             # so just ensure the status is correct.
             if device_serial in self.instrument_inventory:
                 self.instrument_inventory[device_serial].update({
-                    "status": "CONNECTED",
-                    "proxy_instance": proxy_instance
+                    "status": "CONNECTED"
                 })
 
             # Create and assign the appropriate driver

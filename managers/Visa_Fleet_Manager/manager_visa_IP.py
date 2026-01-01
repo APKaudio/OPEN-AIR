@@ -56,9 +56,9 @@ def _check_host(ip):
             debug_logger(f"     ✅ Host {ip}: Port 111 open. Type: {'GATEWAY' if is_gateway else 'DEDICATED'}", **_get_log_args())
             return (ip, "GATEWAY" if is_gateway else "DEDICATED")
         else:
-            debug_logger(f"     ❌ Host {ip}: Port 111 closed. (Error: {result})", **_get_log_args())
+            debug_logger(f"⚠️Host{ip}: Port 111 closed. (Error: {result})", **_get_log_args(), level="WARNING")
     except Exception as e:
-        debug_logger(f"     ❌ Host {ip}: Error checking Port 111: {e}", **_get_log_args(), level="ERROR")
+        debug_logger(f"⚠️Host{ip}: Error checking Port 111: {e}", **_get_log_args(), level="WARNING")
 
     # 2. Port 5025 (SCPI)
     try:
@@ -67,12 +67,12 @@ def _check_host(ip):
         result = sock.connect_ex((ip, 5025))
         sock.close()
         if result == 0:
-            debug_logger(f"     ✅ Host {ip}: Port 5025 open. Type: DEDICATED", **_get_log_args())
+          #  debug_logger(f"     ✅ Host {ip}: Port 5025 open. Type: DEDICATED", **_get_log_args())
             return (ip, "DEDICATED")
         else:
-            debug_logger(f"     ❌ Host {ip}: Port 5025 closed. (Error: {result})", **_get_log_args())
+            debug_logger(f"⚠️Host{ip}: Port 5025 closed. (Error: {result})", **_get_log_args(), level="WARNING")
     except Exception as e:
-        debug_logger(f"     ❌ Host {ip}: Error checking Port 5025: {e}", **_get_log_args(), level="ERROR")
+        debug_logger(f"⚠️Host{ip}: Error checking Port 5025: {e}", **_get_log_args(), level="WARNING")
     return None
 
 def discover_ip_devices():
