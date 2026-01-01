@@ -52,7 +52,7 @@ class DirectionalButtonsCreatorMixin:
                 "val": True,
                 "src": "gui",
                 "ts": time.time(),
-                "instance_id": state_mirror_engine.instance_id
+                "GUID": state_mirror_engine.GUID
             }
             state_mirror_engine.publish_command(topic, orjson.dumps(payload_data))
             if app_constants.global_settings['debug_enabled']:

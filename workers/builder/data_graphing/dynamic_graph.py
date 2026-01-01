@@ -26,8 +26,7 @@ class FluxPlotter(tk.Frame):
     A Tkinter-compatible Matplotlib graph widget that dynamically renders
     plots with multiple datasets based on a JSON configuration.
     
-    Integrated with StateMirrorEngine to ensure 'instance_id' and standard 
-    payload wrapping are applied to all transmissions.
+    Each dataset is exposed as its own MQTT topic for external updates.
     """
 
     def __init__(self, parent, config: Dict[str, Any], base_mqtt_topic_from_path: str, widget_id: str, **kwargs):
@@ -40,7 +39,6 @@ class FluxPlotter(tk.Frame):
         self.plot_mode = config.get('plot_mode', 'time_domain')
         self.buffer_size = config.get('buffer_size', 100)
 
-        # 🧪 Temporal Alignment: Fetch the GUID from the Engine!
         self.instance_id = "UNKNOWN_GUID"
         if self.state_mirror_engine and hasattr(self.state_mirror_engine, 'instance_id'):
             self.instance_id = self.state_mirror_engine.instance_id
@@ -49,22 +47,11 @@ class FluxPlotter(tk.Frame):
         self.x_data: Dict[str, deque] = {}
         self.y_data: Dict[str, deque] = {}
         self.datasets_config: Dict[str, Any] = {}
-
-        # Introduce tk.StringVar for state management of all plot data
-        # Stores JSON string of {"ds_id": {"x_data": [...], "y_data": [...]}}
-        self.plot_data_var = tk.StringVar(value=orjson.dumps({}).decode())
+        self.dataset_vars: Dict[str, tk.StringVar] = {}
 
         self._process_dataset_config()
         self._initialize_plot()
-        self._load_all_initial_data() # This populates self.x_data and self.y_data
-
-        # Bind trace to plot_data_var for visual updates and publishing
-        self.plot_data_var.trace_add("write", self._on_plot_data_var_change)
-        
-        # 🚀 Register with StateMirrorEngine (handles subscription automatically)
-        if self.state_mirror_engine:
-            self.state_mirror_engine.register_widget(self.widget_id, self.plot_data_var, self.base_mqtt_topic_from_path, self.config)
-            self.state_mirror_engine.initialize_widget_state(self.widget_id) # Restore/broadcast initial state
+        self._load_all_initial_data()
 
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
@@ -72,52 +59,54 @@ class FluxPlotter(tk.Frame):
                 **_get_log_args()
             )
 
-    def _on_plot_data_var_change(self, *args):
-        """Callback for when plot_data_var changes (from internal or MQTT)."""
-        new_plot_data_json = self.plot_data_var.get()
-        try:
-            new_plot_data = orjson.loads(new_plot_data_json)
-            if not isinstance(new_plot_data, dict):
-                raise ValueError("Expected dictionary of plot data.")
-
-            for ds_id, data in new_plot_data.items():
-                if ds_id in self.lines and 'x_data' in data and 'y_data' in data:
-                    self.load_initial_data(ds_id, data['x_data'], data['y_data'])
+    def _on_dataset_var_change(self, dataset_id, *args):
+        """Callback for when an individual dataset's StringVar changes."""
+        if dataset_id not in self.dataset_vars:
+            return
             
-            # Publish Standardized State (only if initiated by user interaction, not self-echo)
-            # The _silent_update mechanism in StateMirrorEngine handles preventing echoes
-            if self.state_mirror_engine and not self.state_mirror_engine._silent_update:
-                base_topic = self.state_mirror_engine.base_topic if self.state_mirror_engine else "OPEN-AIR"
-                topic = get_topic(base_topic, self.base_mqtt_topic_from_path, self.widget_id)
-                
-                payload = {
-                    "val": new_plot_data,
-                    "ts": time.time(),
-                    "instance_id": self.instance_id,
-                    "src": "FluxPlotter"
-                }
-                publish_payload(topic, orjson.dumps(payload), retain=True)
+        csv_data = self.dataset_vars[dataset_id].get()
+        try:
+            x_values, y_values = [], []
+            lines = csv_data.strip().split('\n')
+            if lines and 'x' in lines[0].lower() and 'y' in lines[0].lower(): # Simple header check
+                lines = lines[1:]
+            for line in lines:
+                if not line.strip(): continue
+                parts = line.strip().split(',')
+                if len(parts) >= 2:
+                    x_values.append(float(parts[0]))
+                    y_values.append(float(parts[1]))
+            
+            self.load_initial_data(dataset_id, x_values, y_values)
 
-        except (orjson.JSONDecodeError, ValueError, TypeError) as e:
+        except Exception as e:
             if app_constants.global_settings['debug_enabled']:
-                debug_logger(f"❌ Error processing plot_data_var change: {e}", **_get_log_args())
-
+                debug_logger(f"❌ Error processing CSV data for dataset '{dataset_id}': {e}", **_get_log_args())
 
     def _process_dataset_config(self):
-        """Processes the 'datasets' from config or adapts old single-dataset format."""
+        """Processes 'datasets', creates StringVars, and registers them for MQTT."""
         if 'datasets' in self.config and isinstance(self.config['datasets'], list):
             for ds_config in self.config['datasets']:
                 ds_id = ds_config.get('id')
                 if ds_id:
                     self.datasets_config[ds_id] = ds_config
-        else:
-            # Adapt old single-dataset format for backward compatibility
-            ds_id = self.config.get('id', 'default_dataset')
-            self.datasets_config[ds_id] = {
-                "id": ds_id,
-                "initial_csv_data": self.config.get('initial_csv_data'),
-                "style": self.config.get('style', {})
-            }
+                    
+                    dataset_var = tk.StringVar()
+                    self.dataset_vars[ds_id] = dataset_var
+                    
+                    if self.state_mirror_engine:
+                        dataset_path = f"{self.widget_id}/datasets/{ds_id}"
+                        register_config = {
+                            "type": "_PlotDataset",
+                            "id": ds_id,
+                            "value_default": ds_config.get("initial_csv_data", "")
+                        }
+                        self.state_mirror_engine.register_widget(dataset_path, dataset_var, self.base_mqtt_topic_from_path, register_config)
+                        
+                        callback = lambda *args, ds_id=ds_id: self._on_dataset_var_change(ds_id, *args)
+                        dataset_var.trace_add("write", callback)
+                        
+                        self.state_mirror_engine.initialize_widget_state(dataset_path)
 
     def _initialize_plot(self):
         """Initializes the matplotlib figure, axes, and canvas."""
@@ -169,29 +158,11 @@ class FluxPlotter(tk.Frame):
         self.canvas_widget.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
     def _load_all_initial_data(self):
-        """Loads initial data for all configured datasets."""
-        current_plot_data = {}
+        """Loads initial data for all configured datasets by setting the StringVars."""
         for ds_id, ds_config in self.datasets_config.items():
             csv_data = ds_config.get('initial_csv_data')
-            if csv_data:
-                try:
-                    x_values, y_values = [], []
-                    lines = csv_data.strip().split('\n')
-                    # Skip header if present
-                    if lines and not lines[0].replace('.', '', 1).replace('-', '', 1).replace(',', '').isdigit():
-                        lines = lines[1:]
-                    for line in lines:
-                        parts = line.strip().split(',')
-                        if len(parts) >= 2:
-                            x_values.append(float(parts[0]))
-                            y_values.append(float(parts[1]))
-                    self.load_initial_data(ds_id, x_values, y_values)
-                    current_plot_data[ds_id] = {"x_data": list(self.x_data[ds_id]), "y_data": list(self.y_data[ds_id])}
-                except Exception as e:
-                    if app_constants.global_settings['debug_enabled']:
-                        debug_logger(message=f"❌ Error loading initial CSV for dataset '{ds_id}': {e}", **_get_log_args())
-        self.plot_data_var.set(orjson.dumps(current_plot_data).decode())
-
+            if csv_data and ds_id in self.dataset_vars:
+                self.dataset_vars[ds_id].set(csv_data)
 
     def load_initial_data(self, dataset_id: str, x_values: List[float], y_values: List[float]):
         """Loads a complete set of initial data points for a specific dataset."""
@@ -205,86 +176,39 @@ class FluxPlotter(tk.Frame):
         self.lines[dataset_id].set_data(list(self.x_data[dataset_id]), list(self.y_data[dataset_id]))
         self._autoscale_and_redraw()
 
-    # REMOVED _publish_initial_data as it's handled by plot_data_var trace
-
-    def _publish_current_data(self, dataset_id: str):
-        """
-        Updates the plot_data_var with the current data for a specific dataset.
-        The trace on plot_data_var will then handle publishing to MQTT.
-        """
-        if dataset_id not in self.lines: return
-
-        current_plot_data = orjson.loads(self.plot_data_var.get())
-        current_plot_data[dataset_id] = {
-            "x_data": list(self.x_data[dataset_id]),
-            "y_data": list(self.y_data[dataset_id])
-        }
-        self.plot_data_var.set(orjson.dumps(current_plot_data).decode())
-
-    # REMOVED _subscribe_to_data_topics as it's handled by StateMirrorEngine
-    
-    def _on_data_update(self, topic, payload, dataset_id):
-        """
-        Callback to handle incoming data from MQTT for a specific dataset.
-        Handles both raw data and 'StateMirror' enveloped data.
-        """
-        try:
-            data = orjson.loads(payload)
-            
-            # 🕵️ Unwrap the envelope if present
-            if 'val' in data and 'instance_id' in data:
-                # 🛑 Infinite Loop Protection: Don't process our own echoes!
-                if data.get('instance_id') == self.instance_id:
-                    return
-                # Extract the inner value
-                data = data['val']
-
-            # Process the data and update the tk.StringVar
-            if isinstance(data, dict):
-                current_plot_data = orjson.loads(self.plot_data_var.get())
-                current_plot_data[dataset_id] = {"x_data": data.get('x_data', []), "y_data": data.get('y_data', [])}
-                self.plot_data_var.set(orjson.dumps(current_plot_data).decode())
-            
-        except Exception as e:
-            if app_constants.global_settings['debug_enabled']:
-                debug_logger(f"❌ Error processing MQTT update for dataset '{dataset_id}': {e}", **_get_log_args())
-
     def update_plot(self, dataset_id: str, x_new: float, y_new: float):
+        """Updates a dataset with a new data point and publishes the change."""
         if dataset_id not in self.lines: return
 
         if self.plot_mode == 'trend_logger':
             self.x_data[dataset_id].append(x_new)
             self.y_data[dataset_id].append(y_new)
-        else:
+        else: # time_domain or frequency_domain
             if len(self.x_data[dataset_id]) < self.buffer_size:
                 self.x_data[dataset_id].append(x_new)
                 self.y_data[dataset_id].append(y_new)
             else:
-                self.x_data[dataset_id].rotate(-1)
-                self.y_data[dataset_id].rotate(-1)
-                self.x_data[dataset_id][-1] = x_new
-                self.y_data[dataset_id][-1] = y_new
-        
-        # Update plot_data_var, which will trigger redraw and MQTT publish
-        self._publish_current_data(dataset_id) # Call the function that updates plot_data_var
+                self.x_data[dataset_id].popleft()
+                self.y_data[dataset_id].popleft()
+                self.x_data[dataset_id].append(x_new)
+                self.y_data[dataset_id].append(y_new)
+
+        new_csv_data = "x,y\n" + "\n".join([f"{x},{y}" for x, y in zip(self.x_data[dataset_id], self.y_data[dataset_id])])
+        self.dataset_vars[dataset_id].set(new_csv_data)
     
     def clear_plot(self, dataset_id: str = None):
         """Clears data from a specific dataset or all datasets."""
-        current_plot_data = orjson.loads(self.plot_data_var.get())
-        if dataset_id and dataset_id in self.lines:
-            self.x_data[dataset_id].clear()
-            self.y_data[dataset_id].clear()
-            self.lines[dataset_id].set_data([], [])
-            current_plot_data[dataset_id] = {"x_data": [], "y_data": []}
-        else: # Clear all
-            for ds_id in self.lines:
-                self.x_data[ds_id].clear()
-                self.y_data[ds_id].clear()
-                self.lines[ds_id].set_data([], [])
-                current_plot_data[ds_id] = {"x_data": [], "y_data": []}
-        
-        self.plot_data_var.set(orjson.dumps(current_plot_data).decode())
-        self._autoscale_and_redraw()
+        if dataset_id and dataset_id in self.dataset_vars:
+            self.dataset_vars[dataset_id].set("x,y\n")
+        else:
+            for ds_id in self.dataset_vars:
+                self.dataset_vars[ds_id].set("x,y\n")
+
+    def _autoscale_and_redraw(self):
+        """Autoscales axes and redraws the canvas."""
+        self.ax.relim()
+        self.ax.autoscale_view()
+        self.canvas.draw()
 
 # Example usage (for testing, if needed)
 if __name__ == "__main__":

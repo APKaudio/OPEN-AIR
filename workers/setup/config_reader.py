@@ -22,6 +22,7 @@ class Config:
     DEBUG_TO_TERMINAL = True # New default value
     UI_LAYOUT_SPLIT_EQUAL = 50
     UI_LAYOUT_FULL_WEIGHT = 100
+    SHOW_RELOAD_BUTTON = True
     MQTT_BROKER_ADDRESS = "localhost"
     MQTT_BROKER_PORT = 1883
     MQTT_USERNAME = None
@@ -102,6 +103,7 @@ class Config:
         if 'UI' in config:
             self.UI_LAYOUT_SPLIT_EQUAL = int(config['UI'].get('LAYOUT_SPLIT_EQUAL', self.UI_LAYOUT_SPLIT_EQUAL))
             self.UI_LAYOUT_FULL_WEIGHT = int(config['UI'].get('LAYOUT_FULL_WEIGHT', self.UI_LAYOUT_FULL_WEIGHT))
+            self.SHOW_RELOAD_BUTTON = config['UI'].getboolean('SHOW_RELOAD_BUTTON', self.SHOW_RELOAD_BUTTON)
 
         if 'MQTT' in config:
             self.MQTT_BROKER_ADDRESS = config['MQTT'].get('BROKER_ADDRESS', self.MQTT_BROKER_ADDRESS)

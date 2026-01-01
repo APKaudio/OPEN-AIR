@@ -32,9 +32,9 @@ class HorizontalMeterWithText(ttk.Frame):
         self.widget_id = widget_id
         
         # 🧪 Temporal Alignment: Fetch the GUID
-        self.instance_id = "UNKNOWN_GUID"
-        if self.state_mirror_engine and hasattr(self.state_mirror_engine, 'instance_id'):
-            self.instance_id = self.state_mirror_engine.instance_id
+        self.GUID = "UNKNOWN_GUID"
+        if self.state_mirror_engine and hasattr(self.state_mirror_engine, 'GUID'):
+            self.GUID = self.state_mirror_engine.GUID
 
         self.title_text = config.get('title', 'Meter')
         self.max_integer_value = config.get('max_integer_value', 100)
@@ -84,7 +84,7 @@ class HorizontalMeterWithText(ttk.Frame):
 
         if app_constants.global_settings['debug_enabled']:
             debug_logger(
-                message=f"🧪 Meter '{self.widget_id}' initialized. GUID: {self.instance_id}",
+                message=f"🧪 Meter '{self.widget_id}' initialized. GUID: {self.GUID}",
                 **_get_log_args()
             )
 
@@ -115,7 +115,7 @@ class HorizontalMeterWithText(ttk.Frame):
                 payload = {
                     "val": new_value,
                     "ts": time.time(),
-                    "instance_id": self.instance_id,
+                    "GUID": self.GUID,
                     "src": "HorizontalMeter"
                 }
                 publish_payload(topic, orjson.dumps(payload), retain=True)
@@ -138,9 +138,9 @@ class VerticalMeter(ttk.Frame):
         self.widget_id = widget_id
         
         # 🧪 Temporal Alignment
-        self.instance_id = "UNKNOWN_GUID"
-        if self.state_mirror_engine and hasattr(self.state_mirror_engine, 'instance_id'):
-            self.instance_id = self.state_mirror_engine.instance_id
+        self.GUID = "UNKNOWN_GUID"
+        if self.state_mirror_engine and hasattr(self.state_mirror_engine, 'GUID'):
+            self.GUID = self.state_mirror_engine.GUID
             
         self.channel_labels: List[ttk.Label] = []
         num_channels = config.get('num_channels', 4)
@@ -168,7 +168,7 @@ class VerticalMeter(ttk.Frame):
         new_values_json = self.meter_values_var.get()
         try:
             # Parse as a CSV string, removing brackets if present
-            cleaned_values_str = new_values_json.strip('[]')
+            cleaned_values_str = new_values_json.strip('[]() ')
             new_values = [float(v) for v in cleaned_values_str.split(',') if v.strip()]
             
             # Update UI
@@ -185,7 +185,7 @@ class VerticalMeter(ttk.Frame):
                     payload = {
                         "val": new_values, # The list is now the main 'val'
                         "ts": time.time(),
-                        "instance_id": self.instance_id,
+                        "GUID": self.GUID,
                         "src": "VerticalMeter"
                     }
                     publish_payload(topic, orjson.dumps(payload), retain=True)

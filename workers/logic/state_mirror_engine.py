@@ -33,7 +33,7 @@ class StateMirrorEngine:
         self.root = root
         self.state_cache_manager = state_cache_manager
         self.registered_widgets = {}
-        self.instance_id = str(uuid.uuid4())
+        self.GUID = str(uuid.uuid4())
         self._silent_update = False
         self.update_queue = queue.Queue()
         self.root.after(100, self._process_queue)
@@ -161,7 +161,7 @@ class StateMirrorEngine:
     def broadcast_gui_change_to_mqtt(self, widget_id):
         """
         Called when the GUI changes (User Input).
-        It broadcasts the change to the MQTT broker, including the instance_id.
+        It broadcasts the change to the MQTT broker, including the GUID.
         """
         if self._silent_update:
             return
@@ -183,7 +183,7 @@ class StateMirrorEngine:
             payload_data = {
                 "val": current_tk_var_value,
                 "ts": time.time(),
-                "instance_id": self.instance_id
+                "GUID": self.GUID
             }
 
             for key, value in widget_config.items():
@@ -246,8 +246,8 @@ class StateMirrorEngine:
                     **_get_log_args()
                 )
 
-            sender_instance_id = data.get("instance_id", None)
-            if sender_instance_id == self.instance_id:
+            sender_GUID = data.get("GUID", None)
+            if sender_GUID == self.GUID:
                 return # It's an echo of our own message, ignore.
 
             if topic in self.registered_widgets:

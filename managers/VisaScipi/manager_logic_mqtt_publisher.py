@@ -15,7 +15,7 @@ MAX_GUI_DEVICE_SLOTS = 40
 class VisaGuiPublisher:
     def __init__(self, mqtt_controller):
         self.mqtt_util = mqtt_controller
-        self.instance_id = str(uuid.uuid4())
+        self.GUID = str(uuid.uuid4())
 
     def _update_found_devices_gui(self, resources):
         # Updates the GUI's `Found_devices` listbox based on the search results,
@@ -29,7 +29,7 @@ class VisaGuiPublisher:
                 option_topic_prefix = f"{base_topic}/options/{i}"
                 device_name = resources[i-1]
                 
-                payload_active_true = orjson.dumps({"val": True, "src": "system", "ts": time.time(), "instance_id": self.instance_id})
+                payload_active_true = orjson.dumps({"val": True, "src": "system", "ts": time.time(), "GUID": self.GUID})
                 self.mqtt_util.get_client_instance().publish(topic=f"{option_topic_prefix}/active", payload=payload_active_true, qos=0, retain=False)
                 self.mqtt_util.get_client_instance().publish(topic=f"{option_topic_prefix}/label_active", payload=device_name, qos=0, retain=False)
                 self.mqtt_util.get_client_instance().publish(topic=f"{option_topic_prefix}/label_inactive", payload=device_name, qos=0, retain=False)
@@ -37,8 +37,8 @@ class VisaGuiPublisher:
             for i in range(num_resources_to_show + 1, MAX_GUI_DEVICE_SLOTS + 1):
                 option_topic_prefix = f"{base_topic}/options/{i}"
                 
-                payload_active_false = orjson.dumps({"val": False, "src": "system", "ts": time.time(), "instance_id": self.instance_id})
-                payload_empty_label = orjson.dumps({"val": "", "src": "system", "ts": time.time(), "instance_id": self.instance_id})
+                payload_active_false = orjson.dumps({"val": False, "src": "system", "ts": time.time(), "GUID": self.GUID})
+                payload_empty_label = orjson.dumps({"val": "", "src": "system", "ts": time.time(), "GUID": self.GUID})
 
                 self.mqtt_util.get_client_instance().publish(topic=f"{option_topic_prefix}/active", payload=payload_active_false, qos=0, retain=False)
                 self.mqtt_util.get_client_instance().publish(topic=f"{option_topic_prefix}/label_active", payload=payload_empty_label, qos=0, retain=False)
@@ -46,7 +46,7 @@ class VisaGuiPublisher:
             
             if resources:
                 first_device_topic = f"{base_topic}/options/1/selected"
-                payload_selected_true = orjson.dumps({"val": True, "src": "system", "ts": time.time(), "instance_id": self.instance_id})
+                payload_selected_true = orjson.dumps({"val": True, "src": "system", "ts": time.time(), "GUID": self.GUID})
                 self.mqtt_util.get_client_instance().publish(topic=first_device_topic, payload=payload_selected_true, qos=0, retain=False)
                 debug_logger(message="💳 ✅ First device automatically selected after search.", **_get_log_args())
             
@@ -63,7 +63,7 @@ class VisaGuiPublisher:
                 "val": value,
                 "src": "device_link_manager",
                 "ts": time.time(),
-                "instance_id": self.instance_id
+                "GUID": self.GUID
             }
             self.mqtt_util.get_client_instance().publish(topic=full_topic, payload=orjson.dumps(payload_data), qos=0, retain=True)
             debug_logger(message=f"💳 MQTT: Published status '{topic_suffix}' with value '{value}' to '{full_topic}'", **_get_log_args())

@@ -308,7 +308,7 @@ class DynamicGuiBuilder(
                     "val": value,
                     "src": "gui",
                     "ts": time.time(),
-                    "instance_id": self.state_mirror_engine.instance_id
+                    "GUID": self.state_mirror_engine.GUID
                 }
                 self.state_mirror_engine.publish_command(topic, orjson.dumps(payload))
         elif app_constants.global_settings['debug_enabled']:
@@ -400,7 +400,7 @@ class DynamicGuiBuilder(
                     layout = value.get("layout", {})
                     col_span = int(layout.get("col_span", 1))
                     row_span = int(layout.get("row_span", 1))
-                    sticky = layout.get("sticky", "ew") if widget_type == "_sliderValue" else layout.get("sticky", "nw")
+                    sticky = layout.get("sticky", "nsew")
 
                     target_frame = None
 
@@ -429,6 +429,7 @@ class DynamicGuiBuilder(
                     if target_frame:
                         tk_var = self.tk_vars.get(current_path)
                         target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)
+                        parent_frame.grid_rowconfigure(row, weight=1)
                         col += col_span
                         if col >= max_cols:
                             col = 0
@@ -476,7 +477,7 @@ class DynamicGuiBuilder(
                     layout = value.get("layout", {})
                     col_span = int(layout.get("col_span", 1))
                     row_span = int(layout.get("row_span", 1))
-                    sticky = layout.get("sticky", "ew") if widget_type == "_sliderValue" else layout.get("sticky", "nw")
+                    sticky = layout.get("sticky", "nsew")
 
                     target_frame = None
 
@@ -505,6 +506,7 @@ class DynamicGuiBuilder(
                     if target_frame:
                         tk_var = self.tk_vars.get(current_path)
                         target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)
+                        parent_frame.grid_rowconfigure(row, weight=1)
                         col += col_span
                         if col >= max_cols:
                             col = 0
