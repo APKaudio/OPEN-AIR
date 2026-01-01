@@ -7,7 +7,7 @@
 
 import orjson
 import time
-from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
+
 # Import the VisaJsonBuilder for file path and loading logic
 from managers.Visa_Fleet_Manager.manager_visa_json_builder import VisaJsonBuilder
 
