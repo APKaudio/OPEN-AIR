@@ -1,15 +1,133 @@
-1767311133.774510❌ Critical error during manager launch: name 'topic' is not defined ❌ manager launcher🪿 launch managers  🧩 {'version': 'Unknown_Ver'}
-1767311133.775039❌ Manager launch failed. Exiting application. ❌ OpenAir🪿 main  🧩 {'version': '20251226.000000.1'}
-1767311167.976242❌ Critical error during manager launch: name 'topic' is not defined ❌ manager launcher🪿 launch managers  🧩 {'version': 'Unknown_Ver'}
-1767311167.976711❌ Manager launch failed. Exiting application. ❌ OpenAir🪿 main  🧩 {'version': '20251226.000000.1'}
-1767311201.163854❌ Critical error during manager launch: name 'topic' is not defined ❌ manager launcher🪿 launch managers  🧩 {'version': 'Unknown_Ver'}
-1767311201.164360❌ Manager launch failed. Exiting application. ❌ OpenAir🪿 main  🧩 {'version': '20251226.000000.1'}
-1767311251.698924❌ Critical error during manager launch: name 'topic' is not defined ❌ manager launcher🪿 launch managers  🧩 {'version': 'Unknown_Ver'}
-1767311251.699424❌ Manager launch failed. Exiting application. ❌ OpenAir🪿 main  🧩 {'version': '20251226.000000.1'}
-1767311748.868316❌ Critical error during manager launch: name 'topic' is not defined ❌ manager launcher🪿 launch managers  🧩 {'version': 'Unknown_Ver'}
-1767311748.868989❌ Manager launch failed. Exiting application. ❌ OpenAir🪿 main  🧩 {'version': '20251226.000000.1'}
-1767311764.556026❌ Critical error during manager launch: name 'topic' is not defined ❌ manager launcher🪿 launch managers  🧩 {'version': 'Unknown_Ver'}
-1767311764.556597❌ Manager launch failed. Exiting application. ❌ OpenAir🪿 main  🧩 {'version': '20251226.000000.1'}
-1767311849.928824❌ Error decoding grouped inventory JSON from /home/anthony/Documents/OPEN-AIR/DATA/VISA_FLEET.json: Expecting ',' delimiter: line 182 column 41 (char 8178) ❌ manager visa json builder🪿 load grouped inventory from json  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
-1767311932.393648❌ Error decoding grouped inventory JSON from /home/anthony/Documents/OPEN-AIR/DATA/VISA_FLEET.json: Expecting value: line 1 column 1 (char 0) ❌ manager visa json builder🪿 load grouped inventory from json  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
-1767311932.400516❌ Error decoding grouped inventory JSON from /home/anthony/Documents/OPEN-AIR/DATA/VISA_FLEET.json: Expecting ',' delimiter: line 182 column 41 (char 8178) ❌ manager visa json builder🪿 load grouped inventory from json  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767312111.309788⚠️ Pip uninstall for Pillow failed due to permission/system package management. Proceeding with install. Error: ERROR: Exception:
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/shutil.py", line 886, in move
+    os.rename(src, real_dst)
+PermissionError: [Errno 13] Permission denied: '/usr/lib/python3/dist-packages/PIL' -> '/tmp/pip-uninstall-a9bg8jil'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/cli/base_command.py", line 107, in _run_wrapper
+    status = _inner_run()
+             ^^^^^^^^^^^^
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/cli/base_command.py", line 98, in _inner_run
+    return self.run(options, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/commands/uninstall.py", line 105, in run
+    uninstall_pathset = req.uninstall(
+                        ^^^^^^^^^^^^^^
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/req/req_install.py", line 726, in uninstall
+    uninstalled_pathset.remove(auto_confirm, verbose)
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/req/req_uninstall.py", line 373, in remove
+    moved.stash(path)
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/req/req_uninstall.py", line 264, in stash
+    renames(path, new_path)
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/utils/misc.py", line 342, in renames
+    shutil.move(old, new)
+  File "/usr/lib/python3.12/shutil.py", line 904, in move
+    rmtree(src)
+  File "/usr/lib/python3.12/shutil.py", line 785, in rmtree
+    _rmtree_safe_fd(fd, path, onexc)
+  File "/usr/lib/python3.12/shutil.py", line 717, in _rmtree_safe_fd
+    onexc(os.unlink, fullname, err)
+  File "/usr/lib/python3.12/shutil.py", line 715, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+PermissionError: [Errno 13] Permission denied: '_version.py' ❌ OpenAir🪿 conditional console print  🧩 {'version': '20251226.000000.1'}
+1767312118.399585⚠️ Pip uninstall for pyvisa failed due to permission/system package management. Proceeding with install. Error: ERROR: Exception:
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/shutil.py", line 886, in move
+    os.rename(src, real_dst)
+PermissionError: [Errno 13] Permission denied: '/usr/lib/python3/dist-packages/PyVISA-1.11.3.egg-info' -> '/tmp/pip-uninstall-3gfuhio1'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/cli/base_command.py", line 107, in _run_wrapper
+    status = _inner_run()
+             ^^^^^^^^^^^^
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/cli/base_command.py", line 98, in _inner_run
+    return self.run(options, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/commands/uninstall.py", line 105, in run
+    uninstall_pathset = req.uninstall(
+                        ^^^^^^^^^^^^^^
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/req/req_install.py", line 726, in uninstall
+    uninstalled_pathset.remove(auto_confirm, verbose)
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/req/req_uninstall.py", line 373, in remove
+    moved.stash(path)
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/req/req_uninstall.py", line 264, in stash
+    renames(path, new_path)
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/utils/misc.py", line 342, in renames
+    shutil.move(old, new)
+  File "/usr/lib/python3.12/shutil.py", line 904, in move
+    rmtree(src)
+  File "/usr/lib/python3.12/shutil.py", line 785, in rmtree
+    _rmtree_safe_fd(fd, path, onexc)
+  File "/usr/lib/python3.12/shutil.py", line 717, in _rmtree_safe_fd
+    onexc(os.unlink, fullname, err)
+  File "/usr/lib/python3.12/shutil.py", line 715, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+PermissionError: [Errno 13] Permission denied: 'requires.txt' ❌ OpenAir🪿 conditional console print  🧩 {'version': '20251226.000000.1'}
+1767312127.878482⚠️ Pip uninstall for pyserial failed due to permission/system package management. Proceeding with install. Error: ERROR: Exception:
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/shutil.py", line 886, in move
+    os.rename(src, real_dst)
+PermissionError: [Errno 13] Permission denied: '/usr/lib/python3/dist-packages/pyserial-3.5.egg-info' -> '/tmp/pip-uninstall-v84sun5u'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/cli/base_command.py", line 107, in _run_wrapper
+    status = _inner_run()
+             ^^^^^^^^^^^^
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/cli/base_command.py", line 98, in _inner_run
+    return self.run(options, args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/commands/uninstall.py", line 105, in run
+    uninstall_pathset = req.uninstall(
+                        ^^^^^^^^^^^^^^
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/req/req_install.py", line 726, in uninstall
+    uninstalled_pathset.remove(auto_confirm, verbose)
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/req/req_uninstall.py", line 373, in remove
+    moved.stash(path)
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/req/req_uninstall.py", line 264, in stash
+    renames(path, new_path)
+  File "/home/anthony/.local/lib/python3.12/site-packages/pip/_internal/utils/misc.py", line 342, in renames
+    shutil.move(old, new)
+  File "/usr/lib/python3.12/shutil.py", line 904, in move
+    rmtree(src)
+  File "/usr/lib/python3.12/shutil.py", line 785, in rmtree
+    _rmtree_safe_fd(fd, path, onexc)
+  File "/usr/lib/python3.12/shutil.py", line 717, in _rmtree_safe_fd
+    onexc(os.unlink, fullname, err)
+  File "/usr/lib/python3.12/shutil.py", line 715, in _rmtree_safe_fd
+    os.unlink(entry.name, dir_fd=topfd)
+PermissionError: [Errno 13] Permission denied: 'requires.txt' ❌ OpenAir🪿 conditional console print  🧩 {'version': '20251226.000000.1'}
+1767312141.930978❌ Error decoding grouped inventory JSON from /home/anthony/Documents/OPEN-AIR/DATA/VISA_FLEET.json: Expecting value: line 1 column 1 (char 0) ❌ manager visa json builder🪿 load grouped inventory from json  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767312141.954244❌ Error decoding grouped inventory JSON from /home/anthony/Documents/OPEN-AIR/DATA/VISA_FLEET.json: Expecting value: line 1 column 1 (char 0) ❌ manager visa json builder🪿 load grouped inventory from json  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767312141.954367❌ Error decoding grouped inventory JSON from /home/anthony/Documents/OPEN-AIR/DATA/VISA_FLEET.json: Expecting value: line 1 column 1 (char 0) ❌ manager visa json builder🪿 load grouped inventory from json  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767312141.960650❌ Error decoding grouped inventory JSON from /home/anthony/Documents/OPEN-AIR/DATA/VISA_FLEET.json: Expecting value: line 1 column 1 (char 0) ❌ manager visa json builder🪿 load grouped inventory from json  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767312142.999576💳 ❌ FleetSupervisor: VISA IO Error connecting to 111-7-23 (TCPIP::44.44.44.111::gpib7,23::INSTR): VI_ERROR_RSRC_NFOUND (-1073807343): Insufficient location information or the requested device or resource is not present in the system. ❌ manager visa supervisor🪿  connect and setup device  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767312143.003986💳 ❌ FleetSupervisor: VISA IO Error connecting to 111-7-30_4 (TCPIP::44.44.44.111::gpib7,30,4::INSTR): VI_ERROR_RSRC_NFOUND (-1073807343): Insufficient location information or the requested device or resource is not present in the system. ❌ manager visa supervisor🪿  connect and setup device  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767312143.002388💳 ❌ FleetSupervisor: VISA IO Error connecting to 111-7-30_3 (TCPIP::44.44.44.111::gpib7,30,3::INSTR): VI_ERROR_RSRC_NFOUND (-1073807343): Insufficient location information or the requested device or resource is not present in the system. ❌ manager visa supervisor🪿  connect and setup device  🧩 {'version': 'Unknown_Ver', 'level': 'ERROR'}
+1767312191.492189❌ Error in _on_tab_change: workers.logger.logger.debug_logger() got multiple values for keyword argument 'function' ❌ gui display🪿  on tab change  🧩 {'version': 'Unknown_Ver'}
+1767312192.824254❌ The magic falters! Error instantiating class 'MarkerImporterTab': MarkerImporterTab.__init__() takes from 1 to 3 positional arguments but 4 were given. ❌ module loader🪿 instantiate gui class  🧩 {'version': '20251229.1755.1'}
+1767312192.824289❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_spectrum/3_Markers/3_Importers/gui_importer.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767312193.413312❌ The magic falters! Error instantiating class 'MarkerPeakHunterGUI': CsvExportUtility.__init__() missing 1 required positional argument: 'print_to_gui_func'. ❌ module loader🪿 instantiate gui class  🧩 {'version': '20251229.1755.1'}
+1767312193.413352❌ Failed to instantiate GUI from file: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_spectrum/3_Markers/2_Peak_Hunter/gui_peak_hunter.py ❌ gui display🪿  build from directory  🧩 {'version': 'Unknown_Ver'}
+1767312194.043314❌🔴  The wrapper has failed to contain the builder! The Blueprint is missing! Cannot find JSON at: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_spectrum/5_Sweeping/2_Sweeping_Configuration/gui_sweeping_configuration.json
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_spectrum/5_Sweeping/2_Sweeping_Configuration/gui_sweeping_configuration.py", line 125, in _construct_dynamic_gui
+    raise FileNotFoundError(f"The Blueprint is missing! Cannot find JSON at: {self.json_path}")
+FileNotFoundError: The Blueprint is missing! Cannot find JSON at: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_spectrum/5_Sweeping/2_Sweeping_Configuration/gui_sweeping_configuration.json
+ ❌ gui sweeping configuration🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
+1767312194.619714❌🔴  The wrapper has failed to contain the builder! The Blueprint is missing! Cannot find JSON at: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_spectrum/6_plotting/1_Single/gui_single.json
+
+🕵️ FORENSIC TRACE:
+Traceback (most recent call last):
+  File "/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_spectrum/6_plotting/1_Single/gui_single.py", line 125, in _construct_dynamic_gui
+    raise FileNotFoundError(f"The Blueprint is missing! Cannot find JSON at: {self.json_path}")
+FileNotFoundError: The Blueprint is missing! Cannot find JSON at: /home/anthony/Documents/OPEN-AIR/display/left_50/top_100/0_spectrum/6_plotting/1_Single/gui_single.json
+ ❌ gui single🪿  construct dynamic gui  🧩 {'version': '20251229.1715.1'}
