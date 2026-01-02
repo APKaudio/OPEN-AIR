@@ -64,40 +64,31 @@ def _initialize_application(root, splash):
         # MQTT Connection Manager
         from workers.mqtt.mqtt_connection_manager import MqttConnectionManager
         mqtt_connection_manager = MqttConnectionManager()
-
         # State Cache Manager
         from workers.State_Cache.state_cache_manager import StateCacheManager
-        state_cache_manager = StateCacheManager(None, mqtt_connection_manager) # Pass mqtt_connection_manager
-        
+        state_cache_manager = StateCacheManager(None, mqtt_connection_manager) # Pass mqtt_connection_manager     
         # Launch managers
         managers = launch_managers(app=None, splash=splash, root=root, state_cache_manager=state_cache_manager, mqtt_connection_manager=mqtt_connection_manager) # Pass mqtt_connection_manager
-        
         if managers is None:
             debug_logger(message="❌ Manager launch failed. Exiting application.", **_get_log_args())
             # Since we are in a thread, cannot sys.exit directly, must schedule main thread shutdown
             root.after(0, root.quit) # Schedule main thread to quit
             return
-        
         # Debug: Inspect managers dictionary
         debug_logger(message=f"✅ Managers launched: {managers}", **_get_log_args())
-
         # Now that the splash screen is visible, proceed with building the main display.
         app = action_open_display(root, splash,
                                   mqtt_connection_manager=managers["mqtt_connection_manager"],
                                   subscriber_router=managers["subscriber_router"],
                                   state_cache_manager=state_cache_manager)
-        
         def on_closing():
             """Gracefully shuts down the application."""
             if app:
                 app.shutdown()
             root.destroy()
-
         root.protocol("WM_DELETE_WINDOW", on_closing)
-
         # Schedule closing splash and revealing main window on the main Tkinter thread
         root.after(0, _reveal_main_window, root, splash)
-
     except Exception as e:
         debug_logger(message=f"❌ CRITICAL ERROR in _initialize_application (background thread): {e}", **_get_log_args())
         import traceback
@@ -115,10 +106,8 @@ def action_open_display(root, splash, mqtt_connection_manager, subscriber_router
     try:
         # Each step is followed by root.update() to process events and keep the splash screen alive.
         root.update()
-
         ApplicationModule = importlib.import_module("display.gui_display")
-        Application = getattr(ApplicationModule, "Application")
-        
+        Application = getattr(ApplicationModule, "Application")     
         debug_logger(message=f"⚙️ Preparing to instantiate Application with: mqtt_connection_manager={mqtt_connection_manager}, subscriber_router={subscriber_router}, state_mirror_engine={state_cache_manager.state_mirror_engine}", **_get_log_args())
         # This is the primary long-running GUI task.
         # We pass the root window to the Application so it can call update() internally.
@@ -127,33 +116,24 @@ def action_open_display(root, splash, mqtt_connection_manager, subscriber_router
                           subscriber_router=subscriber_router,
                           state_mirror_engine=state_cache_manager.state_mirror_engine)
         app.pack(fill=tk.BOTH, expand=True)
-        root.update()
-
-        root.update()
-        
+        root.update()        
         worker_launcher = WorkerLauncher(
             splash_screen=splash,
             console_print_func=app.print_to_console,
         )
         worker_launcher.launch_all_workers()
         root.update()
-
         debug_logger(message="DEBUG: Calling _reveal_main_window.", **_get_log_args())
         _reveal_main_window(root, splash)
-        debug_logger(message="DEBUG: _reveal_main_window returned.", **_get_log_args())
-        
+        debug_logger(message="DEBUG: _reveal_main_window returned.", **_get_log_args())       
         return app
 
 
 
     except Exception as e:
-
         debug_logger(message=f"❌ CRITICAL ERROR in {current_function_name}: {e}", **_get_log_args())
-
         import traceback
-
         traceback.print_exc()
-
         return None
 
 def main():
@@ -161,10 +141,7 @@ def main():
     GLOBAL_PROJECT_ROOT = None
     data_dir = None
 
-    import sys # Moved import sys here
-
-    # --- Fix 2: Re-sequencing the Timeline ---
-    # Phase 1 & 2: Define paths and engage logger IMMEDIATELY.
+    import sys 
     from workers.setup.path_initializer import initialize_paths
     from workers.logger.logger import set_log_directory
     from workers.setup.debug_cleaner import clear_debug_directory
@@ -177,36 +154,29 @@ def main():
     # clear_debug_directory(data_dir)
     set_log_directory(log_dir)
     configure_console_encoding()
-
     # START THE WATCHDOG
-    watchdog.start_heartbeat(debug_logger, app_constants) 
-    
+    watchdog.start_heartbeat(debug_logger, app_constants)    
     # Now that the logger is safe, we can proceed with the rest of the setup.
     if not initialize_app():
         debug_logger(message="❌ Critical initialization failed. Application will now exit.", **_get_log_args())
         sys.exit(1)
-
     # Perform dependency check after initial setup
     def conditional_console_print(message):
         if app_constants.global_settings["debug_enabled"]:
             debug_logger(message=message, **_get_log_args())
     dependancy_checker.run_interactive_pre_check(conditional_console_print, debug_logger, app_constants)
-
     # --- GUI setup starts here, after core initialization is complete ---
     root = tk.Tk()
     root.configure(bg="#2b2b2b")
     root.title("OPEN-AIR 2")
     root.geometry("1600x1200")
     root.withdraw() # Hide the main window initially
-    
     # Instantiate the splash screen
     splash = SplashScreen(root, app_constants.CURRENT_VERSION, app_constants.global_settings['debug_enabled'], debug_logger, debug_logger)
     root.splash_window = splash.splash_window # Strong reference
-
     # Create and start a new thread for application initialization
     app_init_thread = threading.Thread(target=_initialize_application, args=(root, splash))
     app_init_thread.start()
-    
     debug_logger(message="DEBUG: Entering root.mainloop().", **_get_log_args())
     # Finally, enter the main event loop. This will manage the splash screen and then the main app.
     root.mainloop()

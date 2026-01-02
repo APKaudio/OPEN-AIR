@@ -79,6 +79,7 @@ class StateMirrorEngine:
         Initializes a widget's state. If the state exists in the cache,
         it updates the widget. Otherwise, it broadcasts the widget's
         initial state.
+        Returns True if state was loaded from cache, False otherwise.
         """
         found_widget_info = None
         found_full_topic = None
@@ -95,22 +96,38 @@ class StateMirrorEngine:
                     message=f"⚠️ Attempted to initialize state for unregistered widget_id: {widget_id}",
                     **_get_log_args()
                 )
-            return
+            return False
 
         widget_config = found_widget_info.get("config", {})
         widget_type = widget_config.get("type")
         update_callback = found_widget_info.get("update_callback")
 
         if widget_type == "OcaTable" and update_callback:
-            data_topic = widget_config.get("data_topic")
-            if self.state_cache_manager and data_topic in self.state_cache_manager.cache:
-                cached_payload = self.state_cache_manager.cache[data_topic]
+            data_topic = found_full_topic
+            
+            cached_data = {}
+            if self.state_cache_manager:
+                prefix = data_topic + '/'
+                for topic, payload in self.state_cache_manager.cache.items():
+                    if topic.startswith(prefix) and topic != data_topic: # Exclude the base topic itself
+                        item_key = topic[len(prefix):]
+                        try:
+                            # The cache stores the raw payload dict, not JSON string
+                            cached_data[item_key] = payload
+                        except (orjson.JSONDecodeError, TypeError):
+                            pass
+
+            if cached_data:
                 debug_logger(
-                    message=f"🧠 Found cached state for table '{widget_id}' on topic '{data_topic}'. Applying from snapshot.",
+                    message=f"🧠 Found cached state for table '{widget_id}'. Applying from snapshot.",
                     **_get_log_args()
                 )
-                update_callback(cached_payload)
-            return
+                update_callback(cached_data)
+                return True
+            else:
+                debug_logger(message=f"🧠 No cached state for table '{widget_id}'. Static data will be used if available.", **_get_log_args())
+                return False
+
 
         if self.state_cache_manager and found_full_topic in self.state_cache_manager.cache:
             # State exists in cache, so update the GUI widget
@@ -151,19 +168,20 @@ class StateMirrorEngine:
                             max_val = float(widget_config.get("max", 1e9))
                             final_value = max(min_val, min(max_val, new_value_float))
                         except (ValueError, TypeError):
-                            return
+                            return False
                     else:
                         final_value = new_value
 
                     if final_value is not None:
                         # Put the update task into the queue instead of calling .set() directly
                         self.update_queue.put((tk_var, final_value, widget_id))
-
+                return True
             except Exception as e:
                 debug_logger(
                     message=f"❌ Error applying cached state for {widget_id}: {e}",
                     **_get_log_args()
                 )
+                return False
 
         else:
             # State does not exist in cache, so broadcast initial state
@@ -173,6 +191,7 @@ class StateMirrorEngine:
                     **_get_log_args()
                 )
             self.broadcast_gui_change_to_mqtt(widget_id)
+            return False
 
     def broadcast_gui_change_to_mqtt(self, widget_id):
         """
@@ -226,6 +245,15 @@ class StateMirrorEngine:
             if widget_info["id"] == widget_id:
                 return True
         return False
+
+    def get_widget_topic(self, widget_id):
+        """
+        Returns the full topic for a registered widget.
+        """
+        for full_topic, widget_info in self.registered_widgets.items():
+            if widget_info["id"] == widget_id:
+                return full_topic
+        return None
 
     def publish_command(self, topic: str, payload: str):
         """Publishes a command to the MQTT broker."""
@@ -300,6 +328,8 @@ class StateMirrorEngine:
                         final_value = new_value
 
                     if final_value is not None:
+                        if not isinstance(final_value, str):
+                            final_value = orjson.dumps(final_value).decode('utf-8')
                         # Put the update task into the queue instead of calling .set() directly
                         self.update_queue.put((tk_var, final_value, widget_info['id']))
             else:

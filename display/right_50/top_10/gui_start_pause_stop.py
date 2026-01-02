@@ -149,10 +149,10 @@ class GenericInstrumentGui(tk.ttk.Frame):
             self.status_label.destroy()
             
             if app_constants.global_settings['debug_enabled']:
-                 debug_logger(
-                    message=f"✅ It works! {module_name} is online and functioning within normal parameters!",
-                    **_get_log_args()
-                )
+                debug_logger(
+                   message=f"✅ It works! {module_name} is online and functioning within normal parameters!",
+                   **_get_log_args()
+               )
 
         except Exception as e:
             # --- GRACEFUL FAILURE PROTOCOL ---

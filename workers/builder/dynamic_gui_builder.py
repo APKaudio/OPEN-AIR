@@ -11,10 +11,11 @@ from tkinter import ttk
 from pathlib import Path
 import inspect
 import time
-import traceback 
+import traceback
+from typing import Dict, Any
 
 # --- Module Imports ---
-from workers.logger.logger import  debug_logger
+from workers.logger.logger import debug_logger
 from workers.styling.style import THEMES, DEFAULT_THEME
 from workers.builder.input.dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
 from workers.setup.config_reader import Config
@@ -23,314 +24,174 @@ from workers.mqtt.mqtt_publisher_service import publish_payload
 
 app_constants = Config.get_instance()
 from workers.mqtt.mqtt_topic_utils import get_topic, generate_topic_path_from_filepath, TOPIC_DELIMITER
-from workers.logger.log_utils import _get_log_args 
-from typing import Dict, Any
+from workers.logger.log_utils import _get_log_args
 
 # --- Widget Creator Mixins ---
-
 from .text.dynamic_gui_create_label_from_config import LabelFromConfigCreatorMixin
-
 from .text.dynamic_gui_create_label import LabelCreatorMixin
-
 from .text.dynamic_gui_create_value_box import ValueBoxCreatorMixin
-
 from .input.dynamic_gui_create_gui_slider_value import SliderValueCreatorMixin
-
 from .input.dynamic_gui_create_gui_button_toggle import GuiButtonToggleCreatorMixin
-
 from .input.dynamic_gui_create_gui_button_toggler import GuiButtonTogglerCreatorMixin
-
 from .text.dynamic_gui_create_gui_dropdown_option import GuiDropdownOptionCreatorMixin
-
 from .input.dynamic_gui_create_gui_actuator import GuiActuatorCreatorMixin
-
 from .input.dynamic_gui_create_gui_checkbox import GuiCheckboxCreatorMixin
-
 from .text.dynamic_gui_create_gui_listbox import GuiListboxCreatorMixin
-
 from .images.dynamic_gui_create_progress_bar import ProgressBarCreatorMixin
-
 from .table.dynamic_gui_table import GuiTableCreatorMixin
-
-
-
 from .text.dynamic_gui_create_text_input import TextInputCreatorMixin
-
 from .text.dynamic_gui_create_web_link import WebLinkCreatorMixin
-
 from .images.dynamic_gui_create_image_display import ImageDisplayCreatorMixin
-
 from .images.dynamic_gui_create_animation_display import AnimationDisplayCreatorMixin
-
 from .audio.dynamic_gui_create_vu_meter import VUMeterCreatorMixin
-
 from .input.dynamic_gui_create_fader import FaderCreatorMixin
-
 from .audio.dynamic_gui_create_knob import KnobCreatorMixin
-
 from .input.dynamic_gui_create_inc_dec_buttons import IncDecButtonsCreatorMixin
-
 from .input.dynamic_gui_create_directional_buttons import DirectionalButtonsCreatorMixin
-
 from .audio.dynamic_gui_create_custom_fader import CustomFaderCreatorMixin
-
 from .audio.dynamic_gui_create_needle_vu_meter import NeedleVUMeterCreatorMixin
-
 from .audio.dynamic_gui_create_panner import PannerCreatorMixin
-
 from .audio.dynamic_gui_create_custom_horizontal_fader import CustomHorizontalFaderCreatorMixin
-
 from .audio.dynamic_gui_create_trapezoid_button import TrapezoidButtonCreatorMixin
-
 from .audio.dynamic_gui_create_trapezoid_toggler import TrapezoidButtonTogglerCreatorMixin
 
-
-
 # 🧪 NEW: Direct Imports of the Widget Classes (No Mixins needed)
-
 from .data_graphing.dynamic_graph import FluxPlotter
-
 from .data_graphing.Meter_to_display_units import HorizontalMeterWithText, VerticalMeter
 
-
-
 # --- Protocol Global Variables ---
-
 CURRENT_DATE = 20251230
-
 CURRENT_TIME = 183000
-
 CURRENT_ITERATION = 2
 
-
-
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{CURRENT_ITERATION}"
-
 current_version_hash = (CURRENT_DATE * CURRENT_TIME * CURRENT_ITERATION)
-
 current_file = f"{os.path.basename(__file__)}"
 
 
-
 class DynamicGuiBuilder(
-
     ttk.Frame,  # Inject ttk.Frame as the base widget class
-
     MousewheelScrollMixin,
-
     LabelFromConfigCreatorMixin,
-
     LabelCreatorMixin,
-
     ValueBoxCreatorMixin,
-
     SliderValueCreatorMixin,
-
     GuiButtonToggleCreatorMixin,
-
     GuiButtonTogglerCreatorMixin,
-
     GuiDropdownOptionCreatorMixin,
-
     GuiActuatorCreatorMixin,
-
     GuiCheckboxCreatorMixin,
-
     GuiListboxCreatorMixin,
-
     ProgressBarCreatorMixin,
-
     GuiTableCreatorMixin,
-
     TextInputCreatorMixin,
-
     WebLinkCreatorMixin,
-
     ImageDisplayCreatorMixin,
-
     AnimationDisplayCreatorMixin,
-
     VUMeterCreatorMixin,
-
     FaderCreatorMixin,
-
     KnobCreatorMixin,
-
     IncDecButtonsCreatorMixin,
-
     DirectionalButtonsCreatorMixin,
-
     CustomFaderCreatorMixin,
-
     NeedleVUMeterCreatorMixin,
-
     PannerCreatorMixin,
-
     CustomHorizontalFaderCreatorMixin,
-
     TrapezoidButtonTogglerCreatorMixin
-
 ):
-
     def __init__(self, parent, json_path=None, tab_name=None, *args, **kwargs):
-
         config = kwargs.pop('config', {})
-
         super().__init__(master=parent)
-
         self.tab_name = tab_name
-
         self.state_mirror_engine = config.get('state_mirror_engine')
-
         self.subscriber_router = config.get('subscriber_router')
-
         current_function_name = "__init__"
-
         self.current_class_name = self.__class__.__name__
-
         self.last_build_hash = None
 
-
-
         if app_constants.global_settings['debug_enabled']:
-
-             debug_logger(
-
-                 message=f"🖥️🟢 Igniting the DynamicGuiBuilder v{current_version}",
-
-                 **_get_log_args()
-
-             )
-
-
+            debug_logger(
+                message=f"🖥️🟢 Igniting the DynamicGuiBuilder v{current_version}",
+                **_get_log_args()
+            )
 
         if json_path is None:
-
             self.json_filepath = None
-
             self.config_data = {}
-
         else:
-
             self.json_filepath = Path(json_path)
-
             self.config_data = {}
-
-
 
         self.pack(fill=tk.BOTH, expand=True)
         self.topic_widgets = {}
         self.gui_built = False
-        self.tk_vars = {} 
+        self.tk_vars = {}
 
-
+        # Fixed Indentation Block
         if self.json_filepath is None:
-
             self.base_mqtt_topic_from_path = "GENERIC_GUI_TOPIC"
-
         elif GLOBAL_PROJECT_ROOT is None:
-
             debug_logger(message="❌ GLOBAL_PROJECT_ROOT not initialized.", **_get_log_args())
-
             self.base_mqtt_topic_from_path = "FALLBACK_TOPIC"
-
         else:
-
             path_part = generate_topic_path_from_filepath(self.json_filepath, GLOBAL_PROJECT_ROOT)
-
-            self.base_mqtt_topic_from_path = get_topic(app_constants.get_mqtt_base_topic(), path_part)
-
-        
+            self.base_mqtt_topic_from_path = path_part
 
         if self.state_mirror_engine and not hasattr(self.state_mirror_engine, 'base_topic'):
-
-                self.state_mirror_engine.base_topic = app_constants.get_mqtt_base_topic()
-       
+            self.state_mirror_engine.base_topic = app_constants.get_mqtt_base_topic()
 
         self.widget_factory = {
-
             "_sliderValue": self._create_slider_value,
-
             "_GuiButtonToggle": self._create_gui_button_toggle,
-
             "_GuiButtonToggler": self._create_gui_button_toggler,
-
             "_GuiDropDownOption": self._create_gui_dropdown_option,
-
             "_Value": self._create_value_box,
-
             "_Label": self._create_label_from_config,
-
             "_GuiActuator": self._create_gui_actuator,
-
             "_GuiCheckbox": self._create_gui_checkbox,
-
             "_GuiListbox": self._create_gui_listbox,
-
             "_ProgressBar": self._create_progress_bar,
-
             "OcaTable": self._create_gui_table,
-
             "_TextInput": self._create_text_input,
-
             "_WebLink": self._create_web_link,
-
             "_ImageDisplay": self._create_image_display,
-
             "_AnimationDisplay": self._create_animation_display,
-
             "_VUMeter": self._create_vu_meter,
-
             "_Fader": self._create_fader,
-
             "_Knob": self._create_knob,
-
             "_IncDecButtons": self._create_inc_dec_buttons,
-
             "_DirectionalButtons": self._create_directional_buttons,
-
             "_CustomFader": self._create_custom_fader,
-
             "_CustomHorizontalFader": self._create_custom_horizontal_fader,
-
             "_NeedleVUMeter": self._create_needle_vu_meter,
-
             "_Panner": self._create_panner,
-
             "_TrapezoidButton": self._create_trapezoid_button,
-
             "_TrapezoidButtonToggler": self._create_trapezoid_button_toggler,
 
-            
-
             # 🧪 Mapped to the new local adapter methods
-
             "plot_widget": self._create_plot_widget,
-
             "_HorizontalMeterWithText": self._create_horizontal_meter,
-
             "_VerticalMeter": self._create_vertical_meter
-
         }
 
         # --- INIT GUI STRUCTURE ---
         try:
             self._apply_styles(theme_name=DEFAULT_THEME)
             colors = THEMES.get(DEFAULT_THEME, THEMES["dark"])
-            
+
             self.main_content_frame = ttk.Frame(self)
             self.main_content_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
             self.canvas = tk.Canvas(self.main_content_frame, background=colors["bg"], borderwidth=0, highlightthickness=0)
             self.scroll_frame = ttk.Frame(self.canvas)
             self.scrollbar = ttk.Scrollbar(self.main_content_frame, orient=tk.VERTICAL, command=self.canvas.yview)
-            
+
             self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
             self.canvas.configure(yscrollcommand=self.scrollbar.set)
-            
+
             self.scroll_frame.bind("<Configure>", self._on_frame_configure)
             self.canvas.bind("<Configure>", self._on_canvas_configure)
-            
+
             self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
             self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
@@ -349,7 +210,7 @@ class DynamicGuiBuilder(
             debug_logger(message=f"❌ Error in __init__: {e}", **_get_log_args())
 
     # --- ADAPTER METHODS FOR NEW WIDGETS ---
-    
+
     def _create_plot_widget(self, parent_frame, config, base_mqtt_topic_from_path, state_mirror_engine, subscriber_router, **kwargs):
         """Adapter to create FluxPlotter from the Builder"""
         widget_id = config.get("id", "plot_widget")
@@ -403,35 +264,35 @@ class DynamicGuiBuilder(
 
         style.configure('TEntry', fieldbackground=entry_bg, background=bg, foreground=entry_fg, bordercolor=colors.get("border", "#555555"))
         style.map('TEntry', fieldbackground=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))],
-                             background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))])
+                  background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))])
 
         style.configure('Custom.TEntry', fieldbackground=entry_bg, background=bg, foreground=entry_fg, bordercolor=colors.get("border", "#555555"))
         style.map('Custom.TEntry', fieldbackground=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))],
-                                   background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))])
+                  background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))])
 
         style.configure('TCombobox', fieldbackground=entry_bg, background=bg, foreground=entry_fg, bordercolor=colors.get("border", "#555555"), selectbackground=accent, selectforeground=entry_fg)
         style.map('TCombobox', fieldbackground=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))],
-                             background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))])
-        
+                  background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))])
+
         style.configure("TCombobox.Listbox", background=entry_bg, foreground=entry_fg, selectbackground=accent, selectforeground=fg)
-        
+
         style.configure('BlackText.TCombobox', foreground=entry_fg)
         style.map('BlackText.TCombobox', fieldbackground=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))],
-                                   background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))])
-        
+                  background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))])
+
         tab_style_config = colors.get("tab_style", {}).get("tab_base_style", {})
         style.configure('TNotebook', background=bg, borderwidth=0)
-        style.configure('TNotebook.Tab', 
+        style.configure('TNotebook.Tab',
                         background=tab_style_config.get("background", colors.get("primary", bg)),
                         foreground=tab_style_config.get("foreground", fg),
-                        font=('Helvetica', 12), # Default to regular for unselected
-                        padding=[colors["padding"] * 10, colors["padding"] * 5], # Define padding directly here
+                        font=('Helvetica', 12),  # Default to regular for unselected
+                        padding=[colors["padding"] * 10, colors["padding"] * 5],  # Define padding directly here
                         borderwidth=tab_style_config.get("borderwidth", 0),
                         relief="flat")
         style.map('TNotebook.Tab',
                   background=[('selected', accent), ('!selected', colors.get("secondary", bg))],
-                  foreground=[('selected', colors["accent_colors"][5]), ('!selected', fg)], # Darker blue
-                  font=[('selected', ('Helvetica', 14, 'bold')), ('!selected', ('Helvetica', 12))]) # +2 points
+                  foreground=[('selected', colors["accent_colors"][5]), ('!selected', fg)],  # Darker blue
+                  font=[('selected', ('Helvetica', 14, 'bold')), ('!selected', ('Helvetica', 12))])  # +2 points
 
         # Custom Button Style
         style.configure('Custom.TButton', background=colors.get('secondary'), foreground=colors.get('fg'))
@@ -450,15 +311,15 @@ class DynamicGuiBuilder(
                         fieldbackground=colors.get("treeview_field_bg", colors["bg"]),
                         rowheight=25)
         style.map("Custom.Treeview",
-                background=[('selected', colors.get("treeview_selected_bg", colors["accent"]))],
-                foreground=[('selected', colors.get("treeview_selected_fg", colors["fg"]))])
+                  background=[('selected', colors.get("treeview_selected_bg", colors["accent"]))],
+                  foreground=[('selected', colors.get("treeview_selected_fg", colors["fg"]))])
 
         style.configure("Custom.Treeview.Heading",
                         background=colors.get("treeview_heading_bg", colors["primary"]),
                         foreground=colors.get("treeview_heading_fg", colors["fg"]),
                         relief="flat")
         style.map("Custom.Treeview.Heading",
-                background=[('active', colors.get("treeview_heading_active_bg", colors["secondary"]))])
+                  background=[('active', colors.get("treeview_heading_active_bg", colors["secondary"]))])
 
     def _transmit_command(self, widget_name: str, value):
         if self.state_mirror_engine:
@@ -488,7 +349,7 @@ class DynamicGuiBuilder(
 
     def _load_and_build_from_file(self):
         if self.json_filepath is None:
-            self._rebuild_gui() 
+            self._rebuild_gui()
             self.gui_built = True
             return
 
@@ -496,7 +357,7 @@ class DynamicGuiBuilder(
             if self.json_filepath.exists():
                 with open(self.json_filepath, 'r') as f:
                     raw_content = f.read()
-                
+
                 current_hash = hashlib.md5(raw_content.encode('utf-8')).hexdigest()
                 if self.last_build_hash == current_hash:
                     if app_constants.global_settings['debug_enabled']:
@@ -520,17 +381,17 @@ class DynamicGuiBuilder(
         try:
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(message="🖥️🔁 Tearing down the old world to build a new one!", **_get_log_args())
-            
+
             self.pack_forget()
-            
+
             for child in self.scroll_frame.winfo_children():
                 child.destroy()
             self.topic_widgets.clear()
-            self.update_idletasks() 
+            self.update_idletasks()
 
             widget_configs = list(self.config_data.items())
             self._create_widgets_in_batches(self.scroll_frame, widget_configs)
-            
+
         except Exception as e:
             debug_logger(message=f"❌ Error in _rebuild_gui setup: {e}", **_get_log_args())
             self.pack(fill=tk.BOTH, expand=True)
@@ -539,11 +400,11 @@ class DynamicGuiBuilder(
         try:
             batch_size = 5
             index = start_index
-            
+
             col = 0
             row = row_offset
             max_cols = int(self.config_data.get("layout_columns", 1) if override_cols is None else override_cols)
-            
+
             current_data = self.config_data if override_cols is None else widget_configs[start_index][1]
             column_sizing = current_data.get("column_sizing", [])
 
@@ -570,7 +431,7 @@ class DynamicGuiBuilder(
                         block_cols = value.get("layout_columns", None)
                         target_frame = ttk.LabelFrame(parent_frame, text=key, borderwidth=0, relief="flat")
                         self._create_dynamic_widgets(parent_frame=target_frame, data=value.get("fields", {}), path_prefix=current_path, override_cols=block_cols)
-                    
+
                     elif widget_type in self.widget_factory:
                         factory_kwargs = {
                             "parent_frame": parent_frame,
@@ -598,7 +459,7 @@ class DynamicGuiBuilder(
                         if col >= max_cols:
                             col = 0
                             row += row_span
-                
+
                 index += 1
 
             if index < len(widget_configs):
@@ -608,7 +469,7 @@ class DynamicGuiBuilder(
                 self.pack(fill=tk.BOTH, expand=True)
 
                 app_constants.PERFORMANCE_MODE = False
-                
+
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(message="✅ Batch processing complete! All widgets built.", **_get_log_args())
 
@@ -635,7 +496,7 @@ class DynamicGuiBuilder(
 
             for key, value in data.items():
                 current_path = f"{path_prefix}/{key}".strip("/")
-                
+
                 if isinstance(value, dict):
                     widget_type = value.get("type")
                     layout = value.get("layout", {})
@@ -649,7 +510,7 @@ class DynamicGuiBuilder(
                         block_cols = value.get("layout_columns", None)
                         target_frame = ttk.LabelFrame(parent_frame, text=key, borderwidth=0, relief="flat")
                         self._create_dynamic_widgets(parent_frame=target_frame, data=value.get("fields", {}), path_prefix=current_path, override_cols=block_cols)
-                    
+
                     elif widget_type in self.widget_factory:
                         factory_kwargs = {
                             "parent_frame": parent_frame,

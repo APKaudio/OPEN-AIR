@@ -82,8 +82,9 @@ class FaderCreatorMixin:
                 state_mirror_engine.register_widget(widget_id, fader_value_var, base_mqtt_topic_from_path, config)
 
                 # Subscribe to this widget's topic to receive updates
-                topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
-                subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
+                topic = state_mirror_engine.get_widget_topic(widget_id)
+                if topic:
+                    subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
 
                 if app_constants.global_settings['debug_enabled']:
                     debug_logger(

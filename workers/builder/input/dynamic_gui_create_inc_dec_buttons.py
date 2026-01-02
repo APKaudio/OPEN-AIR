@@ -61,8 +61,9 @@ class IncDecButtonsCreatorMixin:
                 state_mirror_engine.register_widget(widget_id, current_value, base_mqtt_topic_from_path, config)
 
                 # 2. Subscribe to this widget's topic to receive updates
-                topic = get_topic("OPEN-AIR", base_mqtt_topic_from_path, widget_id)
-                subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
+                topic = state_mirror_engine.get_widget_topic(widget_id)
+                if topic:
+                    subscriber_router.subscribe_to_topic(topic, state_mirror_engine.sync_incoming_mqtt_to_gui)
     
                 # 3. Bind variable trace for outgoing messages
                 # Use a lambda that calls broadcast_gui_change_to_mqtt

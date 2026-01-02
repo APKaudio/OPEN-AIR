@@ -8,6 +8,7 @@ import json
 import os
 import datetime
 import inspect
+import tempfile
 
 try:
     from workers.logger.logger import debug_logger
@@ -55,19 +56,31 @@ class VisaJsonBuilder:
         return device_entry
 
     def save_inventory_to_json(self, inventory_data):
-        """Saves the current fleet inventory to a JSON file, grouped by device_type and model."""
+        """
+        Saves the current fleet inventory to a JSON file in an atomic way to prevent corruption.
+        It writes to a temporary file first and then renames it.
+        """
         filepath = VISA_FLEET_JSON_PATH
+        temp_path = None
         try:
             os.makedirs(os.path.dirname(filepath), exist_ok=True)
             
             # Group the inventory data before saving
             grouped_data = self._group_devices_by_type_and_model(inventory_data)
 
-            with open(filepath, 'w') as f:
-                json.dump(grouped_data, f, indent=4)
-            debug_logger(f"✅ Saved fleet inventory to {filepath}", **_get_log_args())
+            # Write to a temporary file in the same directory
+            with tempfile.NamedTemporaryFile(mode='w', delete=False, dir=os.path.dirname(filepath), suffix='.tmp') as tmp_f:
+                temp_path = tmp_f.name
+                json.dump(grouped_data, tmp_f, indent=4)
+            
+            # Atomically rename the temp file to the final destination
+            os.rename(temp_path, filepath)
+            
+            debug_logger(f"✅ Atomically saved fleet inventory to {filepath}", **_get_log_args())
         except Exception as e:
             debug_logger(f"❌ Error saving inventory to JSON: {e}", **_get_log_args(), level="ERROR")
+            if temp_path and os.path.exists(temp_path):
+                os.remove(temp_path) # Clean up temp file on error
 
     def load_inventory_from_json(self):
         """Loads fleet inventory from a JSON file if it exists, is not empty, and flattens it."""
@@ -100,6 +113,9 @@ class VisaJsonBuilder:
         """
         filepath = VISA_FLEET_JSON_PATH
         if os.path.exists(filepath):
+            if os.path.getsize(filepath) == 0:  # Check if file is empty
+                debug_logger(f"ℹ️ Grouped inventory file {filepath} is empty. Returning empty dictionary.", **_get_log_args())
+                return {}
             try:
                 with open(filepath, 'r') as f:
                     grouped_inventory = json.load(f)

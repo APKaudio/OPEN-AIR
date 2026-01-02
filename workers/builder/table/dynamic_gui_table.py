@@ -18,9 +18,7 @@ class GuiTableCreatorMixin:
 
         container = ttk.Frame(parent_frame)
         container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
-        
-        data_topic = get_topic(base_mqtt_topic_from_path, path)
+        data_topic = get_topic(state_mirror_engine.base_topic, base_mqtt_topic_from_path, path)
 
         table_height = config.get("height", 10)
         tree = ttk.Treeview(container, show='headings', height=table_height, style="Custom.Treeview")
@@ -142,8 +140,9 @@ class GuiTableCreatorMixin:
                 selected_item_id = selection[0]
                 selected_data = item_map.get(selected_item_id)
                 if selected_data and path:
-                    selected_topic = get_topic(base_mqtt_topic_from_path, path, "selected")
-                    mqtt_publisher_service.publish_payload(selected_topic, orjson.dumps(selected_data))
+                    selected_topic = get_topic(state_mirror_engine.base_topic, base_mqtt_topic_from_path, path, "selected")
+                    payload = {"val": selected_data}
+                    mqtt_publisher_service.publish_payload(selected_topic, orjson.dumps(payload))
 
         def on_double_click(event):
             region = tree.identify("region", event.x, event.y)
@@ -198,15 +197,27 @@ class GuiTableCreatorMixin:
         if path:
             widget_id = path
             dummy_var = tk.StringVar()
+            
+            data_topic = get_topic(state_mirror_engine.base_topic, base_mqtt_topic_from_path, path)
+
             state_mirror_engine.register_widget(widget_id, dummy_var, base_mqtt_topic_from_path, config, update_callback=update_table_full)
             
             subscriber_router.subscribe_to_topic(data_topic + "/#", update_table_incremental)
             debug_logger(message=f"Table '{label}' subscribed to data topic '{data_topic}/#'", **_get_log_args())
 
-            static_data = config.get("data")
-            if static_data:
-                update_table_full(static_data)
-
-            state_mirror_engine.initialize_widget_state(widget_id)
+            # Let the state mirror engine handle initialization
+            if not state_mirror_engine.initialize_widget_state(widget_id):
+                # if initialize_widget_state returns false (meaning no cached data was loaded)
+                # then load static data.
+                static_data = config.get("data")
+                if static_data:
+                    update_table_full(static_data)
+            
+            # Register the 'selected' topic
+            selected_topic_path = path + "/selected"
+            selected_var = tk.StringVar() # This will hold a JSON string
+            selected_config = {"type": "_Value"} 
+            state_mirror_engine.register_widget(selected_topic_path, selected_var, base_mqtt_topic_from_path, selected_config)
+            state_mirror_engine.initialize_widget_state(selected_topic_path)
 
         return container
