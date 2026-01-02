@@ -176,12 +176,12 @@ class VisaJsonBuilder:
             if model not in grouped_data[device_type]:
                 grouped_data[device_type][model] = {}
             if interface_port not in grouped_data[device_type][model]:
-                grouped_data[device_type][model][interface_port] = {}
+                grouped_data[device_type][model] = {}
             
             # The innermost level now directly contains the device details (BLOB)
             # We use gpib_address as the final key to avoid lists.
             # Assuming gpib_address is unique within an interface_port for a given model/type.
-            grouped_data[device_type][model][interface_port][gpib_address] = device
+            grouped_data[device_type][model][gpib_address] = device
         return grouped_data
 
     def _flatten_grouped_inventory(self, grouped_data):
