@@ -27,8 +27,7 @@ except ModuleNotFoundError:
 
 # Import necessary components from other modules within the fleet manager
 from managers.Visa_Fleet_Manager.visa_proxy_fleet import VisaProxyFleet
-from managers.Visa_Fleet_Manager.manager_visa_dynamic_drivers import InstrumentDriverFactory, parse_idn_string, GenericInstrumentDriver
-
+from managers.Visa_Fleet_Manager.manager_visa_parse_idn import parse_idn_string # Moved to dedicated parsing module
 # Import the new specialized discovery and probing modules
 from managers.Visa_Fleet_Manager import manager_visa_USB
 from managers.Visa_Fleet_Manager import manager_visa_IP
@@ -45,10 +44,10 @@ class VisaFleetSupervisor:
         self.manager = manager_ref
         
         self.device_proxies = {}
-        self.device_drivers = {}
+        # self.device_drivers = {} # Commented out as per user request (no drivers)
         self.instrument_inventory = {}
         
-        self.driver_factory = InstrumentDriverFactory()
+      #  self.driver_factory = InstrumentDriverFactory() # Commented out as per user request (no drivers)
         self.resource_manager = pyvisa.ResourceManager('@py')
 
         self.scan_lock = threading.Lock()
@@ -117,7 +116,7 @@ class VisaFleetSupervisor:
                         manufacturer = device_entry.get("manufacturer", "Unknown Manufacturer")
                         idn_string = device_entry.get("idn_string", "")
                         # Use the robust parse_idn_string to get full idn_details from the idn_string
-                        idn_details = parse_idn_string(idn_string) 
+                        idn_details = parse_idn_string(idn_string) # Re-enabled parsing from dedicated module 
 
                         proxy = VisaProxyFleet(
                             manager_ref=self.manager,
@@ -200,19 +199,19 @@ class VisaFleetSupervisor:
                     "status": "CONNECTED"
                 })
 
-            # Create and assign the appropriate driver
-            driver = self.driver_factory.create_driver(
-                visa_proxy_fleet=proxy_instance,
-                device_serial=device_serial,
-                instrument_model=model,
-                manufacturer=manufacturer,
-                instrument_idn=idn_string
-            )
-            self.device_drivers[device_serial] = driver
-            if device_serial in self.instrument_inventory:
-                self.instrument_inventory[device_serial]["driver_type"] = type(driver).__name__
+            # # Create and assign the appropriate driver (Commented out: no drivers/command factory as per user request)
+            # driver = self.driver_factory.create_driver(
+            #     visa_proxy_fleet=proxy_instance,
+            #     device_serial=device_serial,
+            #     instrument_model=model,
+            #     manufacturer=manufacturer,
+            #     instrument_idn=idn_string
+            # )
+            # self.device_drivers[device_serial] = driver
+            # if device_serial in self.instrument_inventory:
+            #     self.instrument_inventory[device_serial]["driver_type"] = type(driver).__name__
             
-            debug_logger(f"💳 ✅ FleetSupervisor: Successfully connected and set up driver for {device_serial} ({model}, {manufacturer}). Driver: {type(driver).__name__}", **_get_log_args())
+            # debug_logger(f"💳 ✅ FleetSupervisor: Successfully connected and set up driver for {device_serial} ({model}, {manufacturer}). Driver: {type(driver).__name__}", **_get_log_args())
             
         except pyvisa.errors.VisaIOError as vioe:
             error_msg = f"VISA IO Error connecting to {device_serial} ({resource_name}): {vioe}"
@@ -252,6 +251,6 @@ class VisaFleetSupervisor:
         for serial, proxy in list(self.device_proxies.items()):
             proxy.shutdown()
             del self.device_proxies[serial]
-            if serial in self.device_drivers:
-                del self.device_drivers[serial]
+            # if serial in self.device_drivers: # Commented out as per user request (no drivers)
+            #     del self.device_drivers[serial]
         debug_logger("💳 ℹ️ FleetSupervisor: All managed proxies shut down.", **_get_log_args())

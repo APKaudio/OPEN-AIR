@@ -134,12 +134,33 @@ def probe_devices(resource_manager, potential_targets):
             
             device_identifier = serial_num
             if not device_identifier or device_identifier == "0":
-                # If serial is not unique or empty, combine with a sanitized resource string
-                sanitized_resource = re.sub(r'[^\w\-]+', '_', raw_res)
-                if serial_num: # If it was "0", include it
-                    device_identifier = f"{serial_num}_{sanitized_resource}"
-                else: # If it was empty
-                    device_identifier = sanitized_resource
+                # Construct unique ID from IP last octet, interface port number, and GPIB address
+                # Example: "222-7-1" from IP 44.44.44.222, gpib7, 1
+                
+                last_octet = "Unknown"
+                if conn_details["IP"] and '.' in conn_details["IP"]:
+                    last_octet = conn_details["IP"].split('.')[-1]
+                elif conn_details["IP"] == "USB": # Handle USB IP
+                    last_octet = "USB"
+
+                interface_port_num = "Unknown"
+                if conn_details["Interface"]:
+                    match = re.search(r'\d+', conn_details["Interface"])
+                    if match:
+                        interface_port_num = match.group(0)
+                    else:
+                        interface_port_num = conn_details["Interface"] # Use full string if no number
+
+                gpib_addr = conn_details["GPIB_Addr"] if conn_details["GPIB_Addr"] != "N/A" else "Unknown"
+
+                # Combine to form the new device_identifier
+                # Sanitize components to ensure valid identifier (e.g., replace non-alphanumeric with '_')
+                device_identifier_parts = [last_octet, interface_port_num, gpib_addr]
+                sanitized_parts = [re.sub(r'[^\w\-]+', '_', str(p)) for p in device_identifier_parts]
+                
+                device_identifier = "-".join(sanitized_parts)
+
+                debug_logger(f"      Generated new device_identifier for empty/0 serial: {device_identifier}", **_get_log_args(), level="DEBUG")
             
             # Ensure the device_identifier is unique across the collection
             original_identifier = device_identifier

@@ -15,10 +15,10 @@ except ModuleNotFoundError:
         return {} # Return empty dict, as logger args are not available
 
 class MqttFleetBridge:
-    def __init__(self, broker="localhost", port=1883, topic="visa/fleet/data"):
+    def __init__(self, broker="localhost", port=1883, MQTT_TOPIC = "OPEN-AIR"):
         self.broker = broker
         self.port = port
-        self.topic = topic
+        self.topic = MQTT_TOPIC
         self.client = mqtt.Client()
         self.client.on_connect = self._on_connect
         self.client.on_publish = self._on_publish

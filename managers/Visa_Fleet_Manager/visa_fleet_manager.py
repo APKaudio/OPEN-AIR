@@ -38,6 +38,7 @@ class VisaFleetManager:
         # Initialize the JSON builder
         self.json_builder = VisaJsonBuilder()
         # Initialize the MQTT bridge
+        self.mqtt_bridge = None
         self.mqtt_bridge = MqttFleetBridge()
 
         # Callbacks are initially empty (No-op)

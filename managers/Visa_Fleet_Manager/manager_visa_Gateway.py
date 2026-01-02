@@ -52,12 +52,3 @@ def discover_gateway_devices(gateway_ips):
             debug_logger(f"     ➕ Added gateway resource: {visa_res}", **_get_log_args())
     return gateway_resources
 
-# For testing purposes (optional)
-if __name__ == "__main__":
-    # Example usage:
-    # gateway_ips = ["192.168.1.100"] # Replace with actual gateway IPs
-    # devices = discover_gateway_devices(gateway_ips)
-    # print("\nDiscovered Gateway Devices:")
-    # for dev in devices:
-    #     print(f"- {dev}")
-    print("This module is intended to be imported. No direct execution example provided without actual gateway IPs.")

@@ -107,10 +107,3 @@ def discover_ip_devices():
     if not dedicated and not gateways: debug_logger(f"   ⚪ No network devices found.", **_get_log_args())
 
     return dedicated, gateways
-
-# For testing purposes (optional)
-if __name__ == "__main__":
-    dedicated, gateways = discover_ip_devices()
-    print("\nDiscovered IP Devices:")
-    print(f"  Dedicated: {dedicated}")
-    print(f"  Gateways: {gateways}")
