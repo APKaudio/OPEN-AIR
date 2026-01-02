@@ -59,10 +59,10 @@ class WorkerLauncher:
 
         try:
             # These status updates will now be processed by root.update() in main.py
-            self.splash.set_status("Initializing workers...")
+            # self.splash.set_status("Initializing workers...")
             
             ## active_peak_publisher = ActivePeakPublisher()
-            self.splash.set_status("Active Peak Publisher initialized.")
+            # self.splash.set_status("Active Peak Publisher initialized.")
             if app_constants.global_settings['debug_enabled']:
                 debug_logger(message="🟢️️️🔵 Worker 'ActivePeakPublisher' initialized. The lab is buzzing with activity!", **_get_log_args())
 

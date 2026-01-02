@@ -80,8 +80,8 @@ class SplashScreen:
             # --- 2. Sub-header ---
             tk.Label(self.main_content_frame, text="Zone Awareness Processor", font=("Helvetica", 14), fg="white", bg="black").pack(side=tk.TOP, pady=(5, 10))
             
-            self.status_label = tk.Label(self.main_content_frame, text="Initializing...", fg="white", bg="black", font=("Helvetica", 10))
-            self.status_label.pack(side=tk.TOP, pady=5)
+            # self.status_label = tk.Label(self.main_content_frame, text="Initializing...", fg="white", bg="black", font=("Helvetica", 10)) # Eliminated status label
+            # self.status_label.pack(side=tk.TOP, pady=5)
 
             # --- 3. Animation Area (Now a GIF) ---
             vis_frame = tk.Frame(self.main_content_frame, bg="black", height=250)
@@ -180,11 +180,6 @@ class SplashScreen:
             
             self.splash_window.destroy() # Destroy the splash window directly
             self.splash_window = None # Clear the reference
-
-    def set_status(self, message):
-        if self.splash_window.winfo_exists() and self.status_label:
-            self.status_label.config(text=message)
-            self.parent.update_idletasks()
 
     def cycle_lyrics_async(self):
         # This method is no longer called in init, but kept for potential future use or direct invocation

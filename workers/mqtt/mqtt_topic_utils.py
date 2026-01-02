@@ -57,7 +57,7 @@ def generate_topic_path_from_filepath(file_path: Path, project_root: Path) -> st
                 # 2. Replace spaces with underscores for better topic structure.
                 # 3. Convert to lowercase.
                 cleaned_part = re.sub(r'^\d+_', '', part)
-                processed_part = cleaned_part.replace(" ", "_").lower()
+                processed_part = cleaned_part.replace(" ", "_") # Removed .lower()
 
             # Ensure the processed part is not empty after transformations
             if processed_part:

@@ -70,9 +70,12 @@ class VisaJsonBuilder:
             debug_logger(f"❌ Error saving inventory to JSON: {e}", **_get_log_args(), level="ERROR")
 
     def load_inventory_from_json(self):
-        """Loads fleet inventory from a JSON file if it exists and flattens it."""
+        """Loads fleet inventory from a JSON file if it exists, is not empty, and flattens it."""
         filepath = VISA_FLEET_JSON_PATH
         if os.path.exists(filepath):
+            if os.path.getsize(filepath) == 0: # Check if file is empty
+                debug_logger(f"ℹ️ Inventory file {filepath} is empty. Initializing empty inventory.", **_get_log_args())
+                return [] # Treat empty file as empty inventory
             try:
                 with open(filepath, 'r') as f:
                     grouped_inventory = json.load(f)
@@ -80,13 +83,14 @@ class VisaJsonBuilder:
                 debug_logger(f"✅ Loaded and flattened fleet inventory from {filepath} with {len(flat_inventory)} devices.", **_get_log_args())
                 return flat_inventory
             except json.JSONDecodeError as e:
-                debug_logger(f"❌ Error decoding inventory JSON from {filepath}: {e}", **_get_log_args(), level="ERROR")
+                debug_logger(f"❌ Error decoding inventory JSON from {filepath}: {e}. Initializing empty inventory.", **_get_log_args(), level="ERROR")
                 return [] # Return empty list, as it's flattened
             except Exception as e:
-                debug_logger(f"❌ Error loading inventory from JSON: {e}", **_get_log_args(), level="ERROR")
+                debug_logger(f"❌ Error loading inventory from JSON: {e}. Initializing empty inventory.", **_get_log_args(), level="ERROR")
                 return [] # Return empty list
         else:
-            debug_logger(f"ℹ️ No existing inventory file found at {filepath}. Initializing empty inventory.", **_get_log_args())
+            debug_logger(f"ℹ️ No existing inventory file found at {filepath}. Initializing empty inventory and creating file.", **_get_log_args())
+            self.save_inventory_to_json([]) # Create the file with an empty inventory
             return [] # Return empty list
 
     def load_grouped_inventory_from_json(self):
@@ -108,7 +112,8 @@ class VisaJsonBuilder:
                 debug_logger(f"❌ Error loading grouped inventory from JSON: {e}", **_get_log_args(), level="ERROR")
                 return {} # Return empty dict
         else:
-            debug_logger(f"ℹ️ No existing grouped inventory file found at {filepath}. Initializing empty grouped inventory.", **_get_log_args())
+            debug_logger(f"ℹ️ No existing grouped inventory file found at {filepath}. Initializing empty grouped inventory and creating file.", **_get_log_args())
+            self.save_inventory_to_json([]) # Create the file with an empty inventory
             return {} # Return empty dict
 
     def save_query_response_to_json(self, serial, response, command, corr_id):
@@ -140,7 +145,8 @@ class VisaJsonBuilder:
     def _group_devices_by_type_and_model(self, inventory_data):
         """
         Groups a flat list of device dictionaries first by 'device_type',
-        then 'model', then 'interface_port', and finally by 'gpib_address'.
+        then a constant 'YAK' topic, then 'model' (forced uppercase), then a constant 'Connection' topic,
+        and finally by 'gpib_address'.
         The innermost level will contain the device's full details.
         """
         grouped_data = {}
@@ -167,36 +173,45 @@ class VisaJsonBuilder:
         
         for device in inventory_data:
             device_type = device.get("device_type", "Unknown Type")
-            model = device.get("model", "Unknown Model")
+            model = device.get("model", "Unknown Model") # Model casing is determined by source
             interface_port = device.get("interface_port", "Unknown Port")
             gpib_address = device.get("gpib_address", "Unknown GPIB")
 
             if device_type not in grouped_data:
                 grouped_data[device_type] = {}
-            if model not in grouped_data[device_type]:
-                grouped_data[device_type][model] = {}
-            if interface_port not in grouped_data[device_type][model]:
-                grouped_data[device_type][model] = {}
+            # Insert the constant "YAK" topic here
+            if "YAK" not in grouped_data[device_type]:
+                grouped_data[device_type]["YAK"] = {}
+            if model not in grouped_data[device_type]["YAK"]:
+                grouped_data[device_type]["YAK"][model] = {}
+            # Insert the constant "Connection" topic here
+            if "Connection" not in grouped_data[device_type]["YAK"][model]:
+                grouped_data[device_type]["YAK"][model]["Connection"] = {}
+            if "Table" not in grouped_data[device_type]["YAK"][model]["Connection"]:
+                grouped_data[device_type]["YAK"][model]["Connection"]["Table"] = {}
             
             # The innermost level now directly contains the device details (BLOB)
             # We use gpib_address as the final key to avoid lists.
             # Assuming gpib_address is unique within an interface_port for a given model/type.
-            grouped_data[device_type][model][gpib_address] = device
+            grouped_data[device_type]["YAK"][model]["Connection"]["Table"][gpib_address] = device
         return grouped_data
 
     def _flatten_grouped_inventory(self, grouped_data):
         """
         Flattens the hierarchical grouped inventory data back into a list of individual device dictionaries.
-        Expected structure: device_type -> model -> interface_port -> gpib_address -> device_dict
+        Expected structure: device_type -> "YAK" -> model -> "Connection" -> "Table" -> gpib_address -> device_dict
         """
         flat_devices = []
         for device_type_group in grouped_data.values():
             if isinstance(device_type_group, dict):
-                for model_group in device_type_group.values():
-                    if isinstance(model_group, dict):
-                        for port_group in model_group.values():
-                            if isinstance(port_group, dict):
-                                for device_blob in port_group.values():
-                                    if isinstance(device_blob, dict):
-                                        flat_devices.append(device_blob)
+                # Iterate through the "YAK" level
+                if "YAK" in device_type_group and isinstance(device_type_group["YAK"], dict):
+                    for model_group in device_type_group["YAK"].values():
+                        if isinstance(model_group, dict):
+                            # Iterate through the "Connection" level
+                            if "Connection" in model_group and isinstance(model_group["Connection"], dict):
+                                if "Table" in model_group["Connection"] and isinstance(model_group["Connection"]["Table"], dict):
+                                    for device_blob in model_group["Connection"]["Table"].values(): # Directly access device_blob here
+                                        if isinstance(device_blob, dict):
+                                            flat_devices.append(device_blob)
         return flat_devices

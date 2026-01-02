@@ -110,88 +110,92 @@ def probe_devices(resource_manager, potential_targets):
     debug_logger(f"💳 🔍 manager_visa_Search: Received {len(potential_targets)} potential targets for probing: {potential_targets}", **_get_log_args())
     device_collection = {}
     
-    for idx, target in enumerate(potential_targets):
-        raw_res = target['Resource']
-        display_res = _clean_string_for_display(raw_res)
-        
-        debug_logger(f"   🎯 Probing {display_res} ... ", **_get_log_args(), end="", flush=True)
-        
-        conn_details = _parse_resource_details(display_res)
-        idn = _query_device_safe(resource_manager, raw_res)
-        
-        device_entry = {
-            # "id": str(idx + 1), # Will be replaced by serial or similar unique ID
-            "type": target['Type'],
-            "resource_string": display_res,
-            "ip_address": conn_details["IP"],
-            "interface_port": conn_details["Interface"],
-            "gpib_address": conn_details["GPIB_Addr"],
-        }
-
-        if idn:
-            debug_logger(f"SUCCESS", **_get_log_args())
-            mfg, model, serial_num, firm = _parse_idn(idn) # Use _parse_idn for basic parsing
+    try:
+        for idx, target in enumerate(potential_targets):
+            raw_res = target['Resource']
+            display_res = _clean_string_for_display(raw_res)
             
-            device_identifier = serial_num
-            if not device_identifier or device_identifier == "0":
-                # Construct unique ID from IP last octet, interface port number, and GPIB address
-                # Example: "222-7-1" from IP 44.44.44.222, gpib7, 1
+            debug_logger(f"   🎯 Probing {display_res} ... ", **_get_log_args(), end="", flush=True)
+            
+            conn_details = _parse_resource_details(display_res)
+            idn = _query_device_safe(resource_manager, raw_res)
+            
+            device_entry = {
+                # "id": str(idx + 1), # Will be replaced by serial or similar unique ID
+                "type": target['Type'],
+                "resource_string": display_res,
+                "ip_address": conn_details["IP"],
+                "interface_port": conn_details["Interface"],
+                "gpib_address": conn_details["GPIB_Addr"],
+            }
+
+            if idn:
+                debug_logger(f"SUCCESS", **_get_log_args())
+                mfg, model, serial_num, firm = _parse_idn(idn) # Use _parse_idn for basic parsing
                 
-                last_octet = "Unknown"
-                if conn_details["IP"] and '.' in conn_details["IP"]:
-                    last_octet = conn_details["IP"].split('.')[-1]
-                elif conn_details["IP"] == "USB": # Handle USB IP
-                    last_octet = "USB"
+                device_identifier = serial_num
+                if not device_identifier or device_identifier == "0":
+                    # Construct unique ID from IP last octet, interface port number, and GPIB address
+                    # Example: "222-7-1" from IP 44.44.44.222, gpib7, 1
+                    
+                    last_octet = "Unknown"
+                    if conn_details["IP"] and '.' in conn_details["IP"]:
+                        last_octet = conn_details["IP"].split('.')[-1]
+                    elif conn_details["IP"] == "USB": # Handle USB IP
+                        last_octet = "USB"
 
-                interface_port_num = "Unknown"
-                if conn_details["Interface"]:
-                    match = re.search(r'\d+', conn_details["Interface"])
-                    if match:
-                        interface_port_num = match.group(0)
-                    else:
-                        interface_port_num = conn_details["Interface"] # Use full string if no number
+                    interface_port_num = "Unknown"
+                    if conn_details["Interface"]:
+                        match = re.search(r'\d+', conn_details["Interface"])
+                        if match:
+                            interface_port_num = match.group(0)
+                        else:
+                            interface_port_num = conn_details["Interface"] # Use full string if no number
 
-                gpib_addr = conn_details["GPIB_Addr"] if conn_details["GPIB_Addr"] != "N/A" else "Unknown"
+                    gpib_addr = conn_details["GPIB_Addr"] if conn_details["GPIB_Addr"] != "N/A" else "Unknown"
 
-                # Combine to form the new device_identifier
-                # Sanitize components to ensure valid identifier (e.g., replace non-alphanumeric with '_')
-                device_identifier_parts = [last_octet, interface_port_num, gpib_addr]
-                sanitized_parts = [re.sub(r'[^\w\-]+', '_', str(p)) for p in device_identifier_parts]
+                    # Combine to form the new device_identifier
+                    # Sanitize components to ensure valid identifier (e.g., replace non-alphanumeric with '_')
+                    device_identifier_parts = [last_octet, interface_port_num, gpib_addr]
+                    sanitized_parts = [re.sub(r'[^\w\-]+', '_', str(p)) for p in device_identifier_parts]
+                    
+                    device_identifier = "-".join(sanitized_parts)
+
+                    debug_logger(f"      Generated new device_identifier for empty/0 serial: {device_identifier}", **_get_log_args(), level="DEBUG")
                 
-                device_identifier = "-".join(sanitized_parts)
+                # Ensure the device_identifier is unique across the collection
+                original_identifier = device_identifier
+                counter = 1
+                while device_identifier in device_collection:
+                    device_identifier = f"{original_identifier}_{counter}"
+                    counter += 1
 
-                debug_logger(f"      Generated new device_identifier for empty/0 serial: {device_identifier}", **_get_log_args(), level="DEBUG")
-            
-            # Ensure the device_identifier is unique across the collection
-            original_identifier = device_identifier
-            counter = 1
-            while device_identifier in device_collection:
-                device_identifier = f"{original_identifier}_{counter}"
-                counter += 1
-
-            device_entry.update({
-                "status": "Active",
-                "manufacturer": mfg,
-                "model": model,
-                "serial_number": serial_num, 
-                "firmware": firm,
-                "idn_string": idn,
-                # "idn_details": {} # Will be added by supervisor with robust parser
-            })
-        else:
-            debug_logger(f"FAILED (IDN Query Error)", **_get_log_args(), level="ERROR")
-            device_identifier = re.sub(r'[^\w\-]+', '_', raw_res) # Still need identifier for unresponsive devices
-            device_entry.update({
-                "status": "Unresponsive",
-                "manufacturer": "Unknown",
-                "model": "Unknown",
-                "serial_number": "Unknown",
-                "firmware": "Unknown",
-                "device_type": "Unknown",
-                "notes": "Connection Timed Out"
-            })
-            
-        device_collection[device_identifier] = device_entry
+                device_entry.update({
+                    "status": "Active",
+                    "manufacturer": mfg,
+                    "model": model,
+                    "serial_number": serial_num, 
+                    "firmware": firm,
+                    "idn_string": idn,
+                    # "idn_details": {} # Will be added by supervisor with robust parser
+                })
+            else:
+                debug_logger(f"FAILED (IDN Query Error)", **_get_log_args(), level="ERROR")
+                device_identifier = re.sub(r'[^\w\-]+', '_', raw_res) # Still need identifier for unresponsive devices
+                device_entry.update({
+                    "status": "Unresponsive",
+                    "manufacturer": "Unknown",
+                    "model": "Unknown",
+                    "serial_number": "Unknown",
+                    "firmware": "Unknown",
+                    "device_type": "Unknown",
+                    "notes": "Connection Timed Out"
+                })
+                
+            device_collection[device_identifier] = device_entry
+    except Exception as e:
+        debug_logger(f"💳 🔍 CRITICAL manager_visa_Search: Exception in probe_devices loop: {e}", **_get_log_args(), level="ERROR")
+        
     debug_logger(f"💳 🔍 manager_visa_Search: Finished probing. Returning {len(device_collection)} probed devices: {device_collection}", **_get_log_args())
     return device_collection
 

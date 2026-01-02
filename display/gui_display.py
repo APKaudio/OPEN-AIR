@@ -222,15 +222,16 @@ class Application(ttk.Frame):
                         background=colors["primary"],
                         borderwidth=0)
         
+        style.configure('TNotebook.Tab',
+                        padding=[colors["padding"] * 10, colors["padding"] * 5],
+                        font=('Helvetica', 13), # Default to regular for unselected
+                        borderwidth=0)
+     
         style.map('TNotebook.Tab',
                   background=[('selected', colors["accent"]), ('!selected', colors["secondary"])],
-                  foreground=[('selected', colors["text"]), ('!selected', colors["fg"])]) 
+                  foreground=[('selected', colors["accent_colors"][5]), ('!selected', colors["fg"])], # Darker blue
+                  font=[('selected', ('Helvetica', 15, 'bold')), ('!selected', ('Helvetica', 13))]) # +2 points
 
-        tab_padding = [colors["padding"] * 10, colors["padding"] * 5]
-        style.configure('TNotebook.Tab',
-                        padding=tab_padding,
-                        font=('Helvetica', 11, 'bold'),
-                        borderwidth=0)
      
         return colors
 

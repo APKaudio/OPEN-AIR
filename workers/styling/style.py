@@ -46,6 +46,15 @@ THEMES = {
         "border_width": 0,
         "padding": 1,
         "tab_content_padding": 1,
+        # --- Styling Variables for Treeview (Table) ---
+        "treeview_bg": "#3c3f41",
+        "treeview_fg": "#dcdcdc",
+        "treeview_field_bg": "#3c3f41",
+        "treeview_heading_bg": "#4e5254",
+        "treeview_heading_fg": "#dcdcdc",
+        "treeview_heading_active_bg": "#55585a",
+        "treeview_selected_bg": "#007acc",
+        "treeview_selected_fg": "#ffffff",
         # --- Styling Variables for Tables and Entries ---
         "table_bg": "#3c3f41",
         "table_fg": "#dcdcdc",
@@ -159,6 +168,15 @@ THEMES = {
         "border_width": 0,
         "padding": 1,
         "tab_content_padding": 1,
+        # --- Styling Variables for Treeview (Table) ---
+        "treeview_bg": "#ffffff",
+        "treeview_fg": "#000000",
+        "treeview_field_bg": "#ffffff",
+        "treeview_heading_bg": "#e0e0e0",
+        "treeview_heading_fg": "#000000",
+        "treeview_heading_active_bg": "#d0d0d0",
+        "treeview_selected_bg": "#0078d7",
+        "treeview_selected_fg": "#ffffff",
         # --- Styling Variables for Tables and Entries ---
         "table_bg": "#ffffff",
         "table_fg": "#000000",

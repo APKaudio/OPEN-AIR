@@ -19,7 +19,7 @@ from managers.yak.manager_yak_rx import YakRxManager # Import YakRxManager
 def launch_managers(app, splash, root, state_cache_manager, mqtt_connection_manager):
     current_function_name = inspect.currentframe().f_code.co_name
     debug_logger(message=f"🟢️️️🟢 Entering '{current_function_name}'. Preparing to launch a fleet of managers!", **_get_log_args())
-    splash.set_status("Initializing managers...")
+ #   splash.set_status("Initializing managers...")
 
     try:
         # 1. Initialize MQTT Core Components
@@ -63,7 +63,7 @@ def launch_managers(app, splash, root, state_cache_manager, mqtt_connection_mana
         )
 
         debug_logger(message="✅ All core managers have been successfully launched!", **_get_log_args())
-        splash.set_status("Managers initialized.")
+        # splash.set_status("Managers initialized.")
         
         # Consolidate all managers into one dictionary
         all_managers = {
@@ -80,5 +80,5 @@ def launch_managers(app, splash, root, state_cache_manager, mqtt_connection_mana
 
     except Exception as e:
         debug_logger(message=f"❌ Critical error during manager launch: {e}", **_get_log_args())
-        splash.set_status(f"Manager initialization failed: {e}") # Removed error=True
+   #     splash.set_status(f"Manager initialization failed: {e}") # Removed error=True
         return None

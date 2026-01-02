@@ -60,17 +60,18 @@ class StateMirrorEngine:
         finally:
             self.root.after(100, self._process_queue)
 
-    def register_widget(self, widget_id, tk_variable, tab_name, config):
+    def register_widget(self, widget_id, tk_variable, tab_name, config, update_callback=None):
         """
         Registers a widget to be tracked by the engine.
-        Now also stores the full config dictionary for the widget.
+        Now also stores the full config dictionary and an optional update callback.
         """
         full_topic = mqtt_topic_utils.get_topic(self.base_topic, tab_name, widget_id)
         self.registered_widgets[full_topic] = {
             "var": tk_variable,
             "tab": tab_name,
             "id": widget_id,
-            "config": config
+            "config": config,
+            "update_callback": update_callback
         }
 
     def initialize_widget_state(self, widget_id):
@@ -94,6 +95,21 @@ class StateMirrorEngine:
                     message=f"⚠️ Attempted to initialize state for unregistered widget_id: {widget_id}",
                     **_get_log_args()
                 )
+            return
+
+        widget_config = found_widget_info.get("config", {})
+        widget_type = widget_config.get("type")
+        update_callback = found_widget_info.get("update_callback")
+
+        if widget_type == "OcaTable" and update_callback:
+            data_topic = widget_config.get("data_topic")
+            if self.state_cache_manager and data_topic in self.state_cache_manager.cache:
+                cached_payload = self.state_cache_manager.cache[data_topic]
+                debug_logger(
+                    message=f"🧠 Found cached state for table '{widget_id}' on topic '{data_topic}'. Applying from snapshot.",
+                    **_get_log_args()
+                )
+                update_callback(cached_payload)
             return
 
         if self.state_cache_manager and found_full_topic in self.state_cache_manager.cache:

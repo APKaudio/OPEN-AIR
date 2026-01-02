@@ -9,6 +9,7 @@ current_script_dir = pathlib.Path(__file__).resolve().parent
 if str(current_script_dir) not in sys.path:
     sys.path.insert(0, str(current_script_dir   ))
 
+import threading # Added for the threading solution
 import inspect
 import tkinter as tk
 import importlib   
@@ -47,6 +48,62 @@ def _reveal_main_window(root, splash):
     splash.hide()    # Dismiss the splash screen
     debug_logger(message="DEBUG: _reveal_main_window completed.", **_get_log_args())
 
+def _reveal_main_window(root, splash):
+    debug_logger(message="DEBUG: Entering _reveal_main_window.", **_get_log_args())
+    if app_constants.ENABLE_DEBUG_SCREEN:
+        debug_logger(message="DEBUG: Revealing main window...", **_get_log_args())
+    debug_logger(message="DEBUG: Calling root.deiconify().", **_get_log_args())
+    root.deiconify() # Ensure main window is visible
+    debug_logger(message="DEBUG: Calling splash.hide().", **_get_log_args())
+    splash.hide()    # Dismiss the splash screen
+    debug_logger(message="DEBUG: _reveal_main_window completed.", **_get_log_args())
+
+def _initialize_application(root, splash):
+    debug_logger(message="DEBUG: Entering _initialize_application (background thread).", **_get_log_args())
+    try:
+        # MQTT Connection Manager
+        from workers.mqtt.mqtt_connection_manager import MqttConnectionManager
+        mqtt_connection_manager = MqttConnectionManager()
+
+        # State Cache Manager
+        from workers.State_Cache.state_cache_manager import StateCacheManager
+        state_cache_manager = StateCacheManager(None, mqtt_connection_manager) # Pass mqtt_connection_manager
+        
+        # Launch managers
+        managers = launch_managers(app=None, splash=splash, root=root, state_cache_manager=state_cache_manager, mqtt_connection_manager=mqtt_connection_manager) # Pass mqtt_connection_manager
+        
+        if managers is None:
+            debug_logger(message="❌ Manager launch failed. Exiting application.", **_get_log_args())
+            # Since we are in a thread, cannot sys.exit directly, must schedule main thread shutdown
+            root.after(0, root.quit) # Schedule main thread to quit
+            return
+        
+        # Debug: Inspect managers dictionary
+        debug_logger(message=f"✅ Managers launched: {managers}", **_get_log_args())
+
+        # Now that the splash screen is visible, proceed with building the main display.
+        app = action_open_display(root, splash,
+                                  mqtt_connection_manager=managers["mqtt_connection_manager"],
+                                  subscriber_router=managers["subscriber_router"],
+                                  state_cache_manager=state_cache_manager)
+        
+        def on_closing():
+            """Gracefully shuts down the application."""
+            if app:
+                app.shutdown()
+            root.destroy()
+
+        root.protocol("WM_DELETE_WINDOW", on_closing)
+
+        # Schedule closing splash and revealing main window on the main Tkinter thread
+        root.after(0, _reveal_main_window, root, splash)
+
+    except Exception as e:
+        debug_logger(message=f"❌ CRITICAL ERROR in _initialize_application (background thread): {e}", **_get_log_args())
+        import traceback
+        traceback.print_exc()
+        root.after(0, root.quit) # Schedule main thread to quit on error
+
 def action_open_display(root, splash, mqtt_connection_manager, subscriber_router, state_cache_manager):
     """
     Builds and displays the main application window, ensuring the splash
@@ -57,7 +114,6 @@ def action_open_display(root, splash, mqtt_connection_manager, subscriber_router
 
     try:
         # Each step is followed by root.update() to process events and keep the splash screen alive.
-        splash.set_status("Building main window...")
         root.update()
 
         ApplicationModule = importlib.import_module("display.gui_display")
@@ -71,10 +127,8 @@ def action_open_display(root, splash, mqtt_connection_manager, subscriber_router
                           subscriber_router=subscriber_router,
                           state_mirror_engine=state_cache_manager.state_mirror_engine)
         app.pack(fill=tk.BOTH, expand=True)
-        splash.set_status("Main window constructed.")
         root.update()
 
-        splash.set_status("Launching background workers...")
         root.update()
         
         worker_launcher = WorkerLauncher(
@@ -82,7 +136,6 @@ def action_open_display(root, splash, mqtt_connection_manager, subscriber_router
             console_print_func=app.print_to_console,
         )
         worker_launcher.launch_all_workers()
-        splash.set_status("Workers launched.")
         root.update()
 
         debug_logger(message="DEBUG: Calling _reveal_main_window.", **_get_log_args())
@@ -144,49 +197,19 @@ def main():
     root.configure(bg="#2b2b2b")
     root.title("OPEN-AIR 2")
     root.geometry("1600x1200")
-    # root.withdraw() # Removed for diagnostic
+    root.withdraw() # Hide the main window initially
     
-   
+    # Instantiate the splash screen
     splash = SplashScreen(root, app_constants.CURRENT_VERSION, app_constants.global_settings['debug_enabled'], debug_logger, debug_logger)
     root.splash_window = splash.splash_window # Strong reference
-    splash.set_status("Initialization complete. Loading UI...")
-    
-    # MQTT Connection Manager
-    from workers.mqtt.mqtt_connection_manager import MqttConnectionManager
-    mqtt_connection_manager = MqttConnectionManager()
 
-    # State Cache Manager
-    from workers.State_Cache.state_cache_manager import StateCacheManager
-    state_cache_manager = StateCacheManager(None, mqtt_connection_manager) # Pass mqtt_connection_manager
-    
-    # Launch managers
-    managers = launch_managers(app=None, splash=splash, root=root, state_cache_manager=state_cache_manager, mqtt_connection_manager=mqtt_connection_manager) # Pass mqtt_connection_manager
-    
-    if managers is None:
-        debug_logger(message="❌ Manager launch failed. Exiting application.", **_get_log_args())
-        sys.exit(1)
-    
-    # Debug: Inspect managers dictionary
-    debug_logger(message=f"✅ Managers launched: {managers}", **_get_log_args())
-
-    # Now that the splash screen is visible, proceed with building the main display.
-    app = action_open_display(root, splash,
-                              mqtt_connection_manager=managers["mqtt_connection_manager"],
-                              subscriber_router=managers["subscriber_router"],
-                              state_cache_manager=state_cache_manager)
-    
-    def on_closing():
-        """Gracefully shuts down the application."""
-        if app:
-            app.shutdown()
-        root.destroy()
-
-    root.protocol("WM_DELETE_WINDOW", on_closing)
+    # Create and start a new thread for application initialization
+    app_init_thread = threading.Thread(target=_initialize_application, args=(root, splash))
+    app_init_thread.start()
     
     debug_logger(message="DEBUG: Entering root.mainloop().", **_get_log_args())
-    # Finally, enter the main event loop.
+    # Finally, enter the main event loop. This will manage the splash screen and then the main app.
     root.mainloop()
-
 
 if __name__ == "__main__":
     main()
