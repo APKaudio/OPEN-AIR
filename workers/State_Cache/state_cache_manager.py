@@ -24,12 +24,12 @@ class StateCacheManager:
     The public API for the state cache system.
     """
 
-    def __init__(self, state_mirror_engine: Any, mqtt_connection_manager: Any):
+    def __init__(self, mqtt_connection_manager: Any, state_mirror_engine: Any = None):
         """
         Spools up the IO Handler and Traffic Controller.
         """
-        self.state_mirror_engine = state_mirror_engine
         self.mqtt_connection_manager = mqtt_connection_manager
+        self.state_mirror_engine = state_mirror_engine
         self.cache = {}
         self.subscriber_router = None
         debug_logger(message="🚀 Great Scott! The State Cache Manager is online! We're ready to manipulate the timeline!", **_get_log_args())

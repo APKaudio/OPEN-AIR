@@ -78,6 +78,22 @@ class GenericInstrumentGui(tk.ttk.Frame):
         # 4. Initialize UI
         self._init_ui()
 
+        # 5. Subscribe to Scan Status
+        if self.subscriber_router:
+            self.subscriber_router.subscribe_to_topic("OPEN-AIR/Connection/ScanStatus", self._handle_scan_status)
+
+    def _handle_scan_status(self, topic, payload):
+        """Callback to handle scan status updates."""
+        try:
+            data = orjson.loads(payload)
+            status = data.get("status")
+            if status == "scanning":
+                self.status_label.config(text="Scanning for devices...")
+            elif status == "finished":
+                self.status_label.config(text="Scan finished.")
+        except Exception as e:
+            debug_logger(message=f"Error handling scan status: {e}", **_get_log_args())
+
     def _init_ui(self):
         current_function_name = inspect.currentframe().f_code.co_name
         

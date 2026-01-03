@@ -14,6 +14,7 @@ from workers.logic.state_mirror_engine import StateMirrorEngine
 from managers.Visa_Fleet_Manager.visa_fleet_manager import VisaFleetManager # Import VisaFleetManager
 from managers.yak.yak_translator import YakTranslator # Import YakTranslator
 from managers.yak.manager_yak_rx import YakRxManager # Import YakRxManager
+from workers.monitoring.fleet_status_monitor import FleetStatusMonitor # Import FleetStatusMonitor
 
 
 def launch_managers(app, splash, root, state_cache_manager, mqtt_connection_manager):
@@ -62,6 +63,9 @@ def launch_managers(app, splash, root, state_cache_manager, mqtt_connection_mana
             yak_translator=yak_translator
         )
 
+        # 5. Initialize Fleet Status Monitor
+        fleet_status_monitor = FleetStatusMonitor(state_mirror_engine=state_mirror_engine, subscriber_router=subscriber_router)
+
         debug_logger(message="✅ All core managers have been successfully launched!", **_get_log_args())
         # splash.set_status("Managers initialized.")
         
@@ -73,6 +77,7 @@ def launch_managers(app, splash, root, state_cache_manager, mqtt_connection_mana
             "visa_fleet_manager": visa_fleet_manager, # Add VisaFleetManager
             "yak_translator": yak_translator,
             "yak_rx_manager": yak_rx_manager,
+            "fleet_status_monitor": fleet_status_monitor,
         }
 
         # Return instantiated managers for use by the application if needed

@@ -79,7 +79,17 @@ class VisaFleetManager:
     def trigger_scan(self):
         """Public API to start a scan."""
         debug_logger("💳 Core: Scan Triggered via API.", **_get_log_args())
-        self.fleet_supervisor.scan_and_manage_fleet()
+        self._publish_scan_status("Start", {"status": "scanning"})
+        num_devices_found = self.fleet_supervisor.scan_and_manage_fleet()
+        self._publish_scan_status("Complete", {"status": "ready", "num_devices": num_devices_found})
+
+    def _publish_scan_status(self, status, payload):
+        """Publishes the current scan status to MQTT."""
+        if self.mqtt_bridge and self.mqtt_bridge.is_connected:
+            topic = f"OPEN-AIR/System/Status/Fleet/{status}"
+            self.mqtt_bridge.client.publish(topic, json.dumps(payload))
+            debug_logger(message=f"Published scan status '{status}' to topic '{topic}'", **_get_log_args())
+
 
     def enqueue_command(self, serial, command, query=False, correlation_id="N/A"):
         """Public API to send a command to a specific device."""

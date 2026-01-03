@@ -13,7 +13,7 @@ class HeaderStatusLightMixin:
             self.header_frame.pack(side=tk.TOP, fill=tk.X, padx=5, pady=2)
 
         # 2. Create the Canvas for the Dot (Top Right)
-        self.status_canvas = tk.Canvas(self.header_frame, width=20, height=20, highlightthickness=0)
+        self.status_canvas = tk.Canvas(self.header_frame, width=20, height=20, bg="SystemButtonFace", highlightthickness=0)
         self.status_canvas.pack(side=tk.RIGHT, padx=10)
         
         # Draw the initial circle (Gray or Red)

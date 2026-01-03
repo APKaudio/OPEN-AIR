@@ -167,6 +167,7 @@ class VisaFleetSupervisor:
             
             debug_logger(f"💳 ✅ FleetSupervisor: Scan and management cycle complete. {len(self.device_proxies)} proxies active.", **_get_log_args())
             self._emit_inventory_update()
+            return len(probed_devices_collection) # Return the number of probed devices
 
         finally:
             self.scan_lock.release()
@@ -216,6 +217,8 @@ class VisaFleetSupervisor:
         except pyvisa.errors.VisaIOError as vioe:
             error_msg = f"VISA IO Error connecting to {device_serial} ({resource_name}): {vioe}"
             debug_logger(f"💳 ❌ FleetSupervisor: {error_msg}", **_get_log_args(), level="ERROR")
+            import traceback
+            debug_logger(f"Traceback: {traceback.format_exc()}", **_get_log_args(), level="ERROR")
             self.manager._notify_error(serial=device_serial, message=error_msg, command="connect")
             proxy_instance.set_instrument_instance(None)
             if device_serial in self.instrument_inventory:

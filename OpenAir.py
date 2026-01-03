@@ -66,7 +66,7 @@ def _initialize_application(root, splash):
         mqtt_connection_manager = MqttConnectionManager()
         # State Cache Manager
         from workers.State_Cache.state_cache_manager import StateCacheManager
-        state_cache_manager = StateCacheManager(None, mqtt_connection_manager) # Pass mqtt_connection_manager     
+        state_cache_manager = StateCacheManager(mqtt_connection_manager) # Pass mqtt_connection_manager     
         # Launch managers
         managers = launch_managers(app=None, splash=splash, root=root, state_cache_manager=state_cache_manager, mqtt_connection_manager=mqtt_connection_manager) # Pass mqtt_connection_manager
         if managers is None:
