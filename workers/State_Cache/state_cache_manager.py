@@ -60,7 +60,7 @@ class StateCacheManager:
         """
         topic = msg.topic
         payload = msg.payload
-        debug_logger(message=f"🌀 A temporal flux has been detected! Topic: {topic}", **_get_log_args())
+        debug_logger(message=f"🌀 Topic: {topic}", **_get_log_args())
 
         should_process, new_payload = cache_traffic_controller.process_traffic(topic, payload, self.cache)
 

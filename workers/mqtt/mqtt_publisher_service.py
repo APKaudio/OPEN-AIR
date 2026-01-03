@@ -11,13 +11,21 @@ from workers.logger.log_utils import _get_log_args
 from workers.setup.config_reader import Config # Import the Config class
 app_constants = Config.get_instance() # Get the singleton instance
 
+def is_connected():
+    """
+    Checks if the MQTT client is connected.
+    """
+    connection_manager = MqttConnectionManager()
+    client = connection_manager.get_client_instance()
+    return client and client.is_connected()
+
 def publish_payload(topic: str, payload: str, retain: bool = app_constants.MQTT_RETAIN_BEHAVIOR):
     """
     Publishes a payload to a given topic.
     """
-    connection_manager = MqttConnectionManager()
-    client = connection_manager.get_client_instance()
-    if client and client.is_connected():
+    if is_connected():
+        connection_manager = MqttConnectionManager()
+        client = connection_manager.get_client_instance()
         client.publish(topic, payload, retain=retain)
         debug_logger(message=f"📤 Published to {topic}: {payload}", **_get_log_args())
     else:
@@ -28,9 +36,9 @@ def publish_json_structure(base_topic: str, json_data: dict):
     Publishes the entire JSON structure to a base topic.
     The "Verbatim" requirement.
     """
-    connection_manager = MqttConnectionManager()
-    client = connection_manager.get_client_instance()
-    if client and client.is_connected():
+    if is_connected():
+        connection_manager = MqttConnectionManager()
+        client = connection_manager.get_client_instance()
         payload = orjson.dumps(json_data)
         client.publish(base_topic, payload, retain=app_constants.MQTT_RETAIN_BEHAVIOR)
         debug_logger(message=f"📤 Published JSON structure to {base_topic}", **_get_log_args())

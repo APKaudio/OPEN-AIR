@@ -39,7 +39,7 @@ class FaderCreatorMixin:
                 to=config.get("max", 100),
                 orient=orient,
                 variable=fader_value_var, # Bind the StringVar to the scale
-                width=130 # Set fixed width to 130 pixels
+                length=130 # Set fixed width to 130 pixels
             )
             
             if orient == "vertical":
