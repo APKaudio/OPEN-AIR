@@ -50,7 +50,7 @@ class FleetStatusMonitor:
 
     def _publish_color(self, color):
         """Tells the GUI Status Light what color to be."""
-        target_topic = "OPENAIR/GUI/Global/Header/StatusLight"
+        target_topic = "OPEN-AIR/GUI/Global/Header/StatusLight"
         payload = {
             "color": color,
             "ts": time.time()

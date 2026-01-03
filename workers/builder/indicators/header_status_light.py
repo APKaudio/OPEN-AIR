@@ -13,7 +13,7 @@ class HeaderStatusLightMixin:
             self.header_frame.pack(side=tk.TOP, fill=tk.X, padx=5, pady=2)
 
         # 2. Create the Canvas for the Dot (Top Right)
-        self.status_canvas = tk.Canvas(self.header_frame, width=20, height=20, bg="SystemButtonFace", highlightthickness=0)
+        self.status_canvas = tk.Canvas(self.header_frame, width=20, height=20, bg="#F0F0F0", highlightthickness=0)
         self.status_canvas.pack(side=tk.RIGHT, padx=10)
         
         # Draw the initial circle (Gray or Red)
@@ -25,16 +25,24 @@ class HeaderStatusLightMixin:
 
         # 4. Subscribe to the Monitor Worker
         if self.state_mirror_engine:
-            self.state_mirror_engine.subscribe("OPENAIR/GUI/Global/Header/StatusLight", self._update_status_light)
+                    self.state_mirror_engine.subscriber_router.subscribe_to_topic("OPEN-AIR/GUI/Global/Header/StatusLight", self._update_status_light)
 
     def _update_status_light(self, topic, payload):
         try:
             data = orjson.loads(payload)
             color = data.get("color", "red")
             
-            # Map text colors to hex if needed, or use standard tk colors
             fill_color = "#00ff00" if color == "green" else "#ff0000"
             
-            self.status_canvas.itemconfig(self.status_light_id, fill=fill_color)
+            # Schedule the GUI update on the main Tkinter thread
+            def update_gui():
+                self.status_canvas.itemconfig(self.status_light_id, fill=fill_color)
+            
+            if self.state_mirror_engine and self.state_mirror_engine.root:
+                self.state_mirror_engine.root.after(0, update_gui)
+            else:
+                # Fallback if root is not accessible (shouldn't happen if properly initialized)
+                self.status_canvas.itemconfig(self.status_light_id, fill=fill_color)
+
         except Exception as e:
             print(f"Status Light Error: {e}")

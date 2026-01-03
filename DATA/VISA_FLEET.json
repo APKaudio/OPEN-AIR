@@ -19,7 +19,7 @@
                             "device_type": "Spectrum",
                             "notes": "Handheld (100 kHz - 3 GHz)",
                             "allocated": false,
-                            "connection_timestamp": "2026-01-03T00:24:32.358981"
+                            "connection_timestamp": "2026-01-03T00:44:29.411982"
                         }
                     }
                 }
@@ -46,7 +46,7 @@
                             "device_type": "Generator",
                             "notes": "20 MHz Arbitrary Waveform",
                             "allocated": false,
-                            "connection_timestamp": "2026-01-03T00:24:32.358980"
+                            "connection_timestamp": "2026-01-03T00:44:29.411981"
                         }
                     }
                 }
@@ -69,7 +69,7 @@
                             "device_type": "Generator",
                             "notes": "10 MHz Arbitrary Waveform",
                             "allocated": false,
-                            "connection_timestamp": "2026-01-03T00:24:32.358983"
+                            "connection_timestamp": "2026-01-03T00:44:29.411983"
                         }
                     }
                 }
@@ -96,7 +96,7 @@
                             "device_type": "Oscilloscope",
                             "notes": "100 MHz, 4 Channel Digital",
                             "allocated": false,
-                            "connection_timestamp": "2026-01-03T00:24:32.358984"
+                            "connection_timestamp": "2026-01-03T00:44:29.411984"
                         }
                     }
                 }
@@ -119,7 +119,7 @@
                             "device_type": "Oscilloscope",
                             "notes": "Mixed Signal (2 Ana + 16 Dig)",
                             "allocated": false,
-                            "connection_timestamp": "2026-01-03T00:24:32.358986"
+                            "connection_timestamp": "2026-01-03T00:44:29.411985"
                         },
                         "16": {
                             "type": "GATEWAY",
@@ -136,7 +136,7 @@
                             "device_type": "Oscilloscope",
                             "notes": "Mixed Signal (2 Ana + 16 Dig)",
                             "allocated": false,
-                            "connection_timestamp": "2026-01-03T00:24:32.358988"
+                            "connection_timestamp": "2026-01-03T00:44:29.411987"
                         }
                     }
                 }
@@ -163,7 +163,7 @@
                             "device_type": "DMM",
                             "notes": "6.5 Digit Benchtop Standard",
                             "allocated": false,
-                            "connection_timestamp": "2026-01-03T00:24:32.358987"
+                            "connection_timestamp": "2026-01-03T00:44:29.411986"
                         }
                     }
                 }
