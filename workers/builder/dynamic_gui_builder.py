@@ -18,11 +18,13 @@ from .core.gui_rebuilder import GuiRebuilderMixin
 from .core.gui_batch_builder import GuiBatchBuilderMixin
 
 # --- 2. ADAPTERS (ISOLATED WIDGETS) ---
-from .adapters.plot_widget_adapter import PlotWidgetAdapterMixin
-from .adapters.meter_widget_adapter import MeterWidgetAdapterMixin
+from .data_graphing.plot_widget_adapter import PlotWidgetAdapterMixin
+from .data_graphing.meter_widget_adapter import MeterWidgetAdapterMixin
 
 # --- 3. HIDDEN FEATURES ---
 from .hidden.hidden_visibility_manager import HiddenVisibilityManagerMixin
+from .hidden.hidden_geometry_manager import HiddenGeometryManagerMixin
+from .hidden.hidden_breakoff_manager import HiddenBreakoffManagerMixin
 
 # --- 4. EXISTING SIMPLE WIDGET MIXINS ---
 from workers.builder.input.dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
@@ -67,6 +69,8 @@ class DynamicGuiBuilder(
     MeterWidgetAdapterMixin,
     # Hidden Features
     HiddenVisibilityManagerMixin,
+    HiddenGeometryManagerMixin,
+    HiddenBreakoffManagerMixin,
     # Utilities & Standard Widgets
     MousewheelScrollMixin,
     LabelFromConfigCreatorMixin,
@@ -118,6 +122,8 @@ class DynamicGuiBuilder(
         self._initialize_mqtt_context(self.json_filepath, app_constants)
         self._initialize_widget_factory()
         self._setup_visibility_snitch() # <--- The Hidden Snitch
+        self._setup_geometry_snitch()
+        self._setup_breakoff_snitch()
 
         # 2. GUI Scaffolding
         self._apply_styles(theme_name=DEFAULT_THEME)

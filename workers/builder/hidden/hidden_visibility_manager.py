@@ -17,7 +17,7 @@ class HiddenVisibilityManagerMixin:
         self.visibility_topic = get_topic(
             self.state_mirror_engine.base_topic, 
             self.base_mqtt_topic_from_path, 
-            "_META/visibility"
+            "Visibility"
         )
 
         # Bind to Tkinter Map (Show) and Unmap (Hide) events
