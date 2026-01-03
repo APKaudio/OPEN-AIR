@@ -37,7 +37,9 @@ class GuiTableCreatorMixin:
         def update_table_full(payload):
             debug_logger(message=f"--- Calling update_table_full for '{label}' with payload: {payload}", **_get_log_args())
             try:
-                if isinstance(payload, bytes):
+                if isinstance(payload, str):
+                    data = orjson.loads(payload)
+                elif isinstance(payload, bytes):
                     debug_logger(message="--- Payload is bytes, decoding.", **_get_log_args())
                     data = orjson.loads(payload.decode('utf-8'))
                 else:
@@ -88,6 +90,9 @@ class GuiTableCreatorMixin:
         def update_table_incremental(topic, payload):
             debug_logger(message=f"--- Calling update_table_incremental for '{label}' on topic '{topic}'", **_get_log_args())
             try:
+                if topic.endswith("/selected"):
+                    return
+                    
                 if not topic.startswith(data_topic):
                     debug_logger(message="--- Topic does not match, ignoring.", **_get_log_args())
                     return
@@ -107,6 +112,8 @@ class GuiTableCreatorMixin:
 
                 if isinstance(payload, bytes):
                     data = orjson.loads(payload.decode('utf-8'))
+                elif isinstance(payload, str):
+                    data = orjson.loads(payload)
                 else:
                     data = payload
                 debug_logger(message=f"--- Incremental data: {data}", **_get_log_args())
