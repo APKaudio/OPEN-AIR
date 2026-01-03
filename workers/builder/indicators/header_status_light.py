@@ -1,0 +1,40 @@
+import tkinter as tk
+from tkinter import ttk
+import orjson
+
+class HeaderStatusLightMixin:
+    """
+    Adds a status indicator circle to the top-right of the GUI.
+    """
+    def _build_header_status_light(self):
+        # 1. Create a Header Frame if it doesn't exist
+        if not hasattr(self, 'header_frame'):
+            self.header_frame = ttk.Frame(self)
+            self.header_frame.pack(side=tk.TOP, fill=tk.X, padx=5, pady=2)
+
+        # 2. Create the Canvas for the Dot (Top Right)
+        self.status_canvas = tk.Canvas(self.header_frame, width=20, height=20, highlightthickness=0)
+        self.status_canvas.pack(side=tk.RIGHT, padx=10)
+        
+        # Draw the initial circle (Gray or Red)
+        self.status_light_id = self.status_canvas.create_oval(2, 2, 18, 18, fill="red", outline="white")
+        
+        # 3. Label (Optional)
+        lbl = ttk.Label(self.header_frame, text="Fleet Status:", font=("Helvetica", 9))
+        lbl.pack(side=tk.RIGHT, padx=5)
+
+        # 4. Subscribe to the Monitor Worker
+        if self.state_mirror_engine:
+            self.state_mirror_engine.subscribe("OPENAIR/GUI/Global/Header/StatusLight", self._update_status_light)
+
+    def _update_status_light(self, topic, payload):
+        try:
+            data = orjson.loads(payload)
+            color = data.get("color", "red")
+            
+            # Map text colors to hex if needed, or use standard tk colors
+            fill_color = "#00ff00" if color == "green" else "#ff0000"
+            
+            self.status_canvas.itemconfig(self.status_light_id, fill=fill_color)
+        except Exception as e:
+            print(f"Status Light Error: {e}")
